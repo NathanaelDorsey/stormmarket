@@ -1,3 +1,8 @@
 spring:
   application:
     name: stormmarket
+  datasource:
+      url: jdbc:mysql://100.97.128.106:3306/stormmarket
+      username: stormmarket
+      password: ${STORMMARKET_DB_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
