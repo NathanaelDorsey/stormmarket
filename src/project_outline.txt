@@ -1,0 +1,124 @@
+StormMarket — Project Build Order
+Project setup - DONE
+                Spring Boot project
+                Maven
+                Java version
+                Git/GitHub
+                Dependencies
+Configuration - DONE
+                application.yml
+                Environment variables/secrets
+                Server configuration
+                Database connection
+Database - DONE
+                Create MySQL database
+                Configure Flyway
+                Create initial migrations
+                Tables, relationships, constraints, indexes
+Architecture -
+                Package structure
+                Entity
+                Repository
+                Service
+                Controller
+                DTOs
+
+First feature — Product
+
+                Product Entity
+                    ↓
+                Product Repository
+                    ↓
+                Product Service
+                    ↓
+                Product Controller
+                    ↓
+                REST API
+                    ↓
+                MySQL
+
+Categories
+                Category entity
+                Relationship with products
+                CRUD/API
+Authentication & Authorization
+                User entity
+                Password hashing
+                Registration/login
+                Spring Security
+                Roles (USER, ADMIN)
+                JWT or session authentication
+Product/catalog features
+                Search
+                Filtering
+                Product details
+                Categories
+                Inventory/stock
+Shopping cart
+                Cart
+                Cart items
+                Add/remove/update quantities
+                Price calculations
+                Validation
+Checkout & Orders
+                Create order
+                Order items
+                Order status
+                Transactions
+                Order history
+Admin functionality
+                Manage products
+                Manage categories
+                Manage users
+                Manage orders
+Validation & error handling
+                Request validation
+                Global exception handling
+                Consistent API error responses
+Testing
+                Unit tests
+                Repository/integration tests
+                Controller tests
+                Security tests
+Frontend/client
+                JavaFX or web frontend
+                Consume the REST API
+                Authentication
+                Product/catalog UI
+                Cart/checkout UI
+Production features
+                Actuator/health checks
+                Logging
+                Metrics
+                Docker
+                Environment-specific configuration
+CI/CD
+                GitHub Actions
+                Build
+                Test
+                Package
+                Deployment
+
+
+Dependency	        What it gives you
+Spring Web	        REST APIs / HTTP
+Spring Data JPA	    Database interaction
+MySQL Driver	    Allows Java to communicate with MySQL
+Spring Security	    Authentication/authorization
+Validation	        Validate incoming data
+Flyway	            Database migrations
+Lombok	            Reduces repetitive Java code
+Spring Boot Test	Testing
+
+Controller = receives the request and pass it to the appropriate part of the application.
+
+Service = decides what should happen
+
+i.e.        Check that the product exists
+            Check that there's enough stock
+            Check whether the product is already in the cart
+            Increase quantity if it already exists
+            Calculate totals
+            Save the changes
+
+Repository = talks to the database to get/save the data
