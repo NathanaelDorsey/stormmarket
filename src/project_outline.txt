@@ -22,6 +22,7 @@ Architecture -
                 Service - handles business/application logic
                 Controller - handles HTTP Req/Res
                 DTOs - represents the data be transferred through the application/API.
+                Mappers - converts objects/entity -> DTO
 
 First feature — Product
 

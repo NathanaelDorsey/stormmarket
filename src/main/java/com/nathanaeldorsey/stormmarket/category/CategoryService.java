@@ -1,6 +1,7 @@
 package com.nathanaeldorsey.stormmarket.category;
 
-import com.nathanaeldorsey.stormmarket.product.Product;
+import com.nathanaeldorsey.stormmarket.product.ProductRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,34 +9,46 @@ import java.util.List;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository){
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper){
         this.categoryRepository=categoryRepository;
+        this.categoryMapper = categoryMapper;
     }
 
-    public List<Category> getAllCategories(){
-        return categoryRepository.findAll();
+    public List<CategoryResponse> getAllCategories(){
+        return categoryRepository.findAll()
+                .stream()
+                .map(categoryMapper::toResponse)
+                .toList();
     }
-    public Category getCategoryById(Long id){
-        return categoryRepository.findById(id)
+    public CategoryResponse getCategoryById(Long id){
+        Category category = categoryRepository.findById(id)
                 .orElseThrow();
+
+        return categoryMapper.toResponse(category);
     }
 
-    public Category createCategory(CategoryRequest request){
+    public CategoryResponse createCategory(CategoryRequest request){
         Category category = new Category();
 
         category.setName(request.getName());
 
-        return categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+
+        return categoryMapper.toResponse(savedCategory);
     }
-    public Category updateCategory(Long id, Category request){
+    public CategoryResponse updateCategory(Long id, CategoryRequest request){
         Category category = categoryRepository.findById(id)
                 .orElseThrow();
 
         category.setName(request.getName());
 
-        return categoryRepository.save(category);
+        Category updatedCategory = categoryRepository.save(category);
+
+        return categoryMapper.toResponse(updatedCategory);
     }
+
     public void deleteCategory(Long id){
         categoryRepository.deleteById(id);
     }

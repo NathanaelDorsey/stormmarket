@@ -1,5 +1,8 @@
 package com.nathanaeldorsey.stormmarket.product;
 
+import com.nathanaeldorsey.stormmarket.category.Category;
+import com.nathanaeldorsey.stormmarket.category.CategoryRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,22 +11,29 @@ import java.util.List;
 public class ProductService {
     // Product Service has-a Product Repository (Service needs Repository to access database)
     private final ProductRepository productRepository;
-
-    public ProductService(ProductRepository productRepository){
+    private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProductMapper productMapper){
         this.productRepository=productRepository;
+        this.categoryRepository=categoryRepository;
+        this.productMapper = productMapper;
     }
 
-    public List<Product> getAllProducts(){
-        return productRepository.findAll();
+    public List<ProductResponse> getAllProducts(){
+        return productRepository.findAll()
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
     }
     // findById(id) returns Optional<Product>: product or empty. .orElseThrow throws on empty case
-    public Product getProductById(Long id){
-        return productRepository.findById(id)
+    public ProductResponse getProductById(Long id){
+        Product product = productRepository.findById(id)
                 .orElseThrow();
+        return productMapper.toResponse(product);
     }
 
     // DTO (ProductRequest) used to create entity
-    public Product createProduct(ProductRequest request) {
+    public ProductResponse createProduct(ProductRequest request) {
         Product product = new Product();
 
         product.setName(request.getName());
@@ -32,9 +42,11 @@ public class ProductService {
         product.setStockQuantity(request.getStockQuantity());
         product.setImageUrl(request.getImageUrl());
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+
+        return productMapper.toResponse(savedProduct);
     }
-    public Product updateProduct(Long id, ProductRequest request) {
+    public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow();
 
@@ -44,8 +56,31 @@ public class ProductService {
         product.setStockQuantity(request.getStockQuantity());
         product.setImageUrl(request.getImageUrl());
 
-        return productRepository.save(product);
+        Product updatedProduct = productRepository.save(product);
+
+        return productMapper.toResponse(updatedProduct);
     }
+
+    public void addCategory(Long productId, Long categoryId){
+        Product product = productRepository.findById(productId)
+                .orElseThrow();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow();
+
+        product.addCategory(category);
+
+        productRepository.save(product);
+    }
+    public void removeCategory(Long productId, Long categoryId){
+        Product product = productRepository.findById(productId)
+                .orElseThrow();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow();
+
+        product.removeCategory(category);
+        productRepository.save(product);
+    }
+
     public void deleteProduct(Long id){
         productRepository.deleteById(id);
     }
