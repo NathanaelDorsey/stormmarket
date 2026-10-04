@@ -17,11 +17,11 @@ Database - DONE
                 Tables, relationships, constraints, indexes
 Architecture -
                 Package structure
-                Entity
-                Repository
-                Service
-                Controller
-                DTOs
+                Entity - represents the database data
+                Repository - handles database access
+                Service - handles business/application logic
+                Controller - handles HTTP Req/Res
+                DTOs - represents the data be transferred through the application/API.
 
 First feature — Product
 
@@ -122,3 +122,5 @@ i.e.        Check that the product exists
             Save the changes
 
 Repository = talks to the database to get/save the data
+
+Dependency Injection - Spring creates and connects the objects needed for app
