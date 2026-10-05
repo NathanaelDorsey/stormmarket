@@ -32,7 +32,7 @@ public class CategoryService {
     public CategoryResponse createCategory(CategoryRequest request){
         Category category = new Category();
 
-        category.setName(request.getName());
+        updateCategoryFields(category, request);
 
         Category savedCategory = categoryRepository.save(category);
 
@@ -42,7 +42,7 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow();
 
-        category.setName(request.getName());
+        updateCategoryFields(category, request);
 
         Category updatedCategory = categoryRepository.save(category);
 
@@ -52,4 +52,8 @@ public class CategoryService {
     public void deleteCategory(Long id){
         categoryRepository.deleteById(id);
     }
+
+	public void updateCategoryFields(Category category, CategoryRequest request){
+		category.setName(request.getName());
+	}
 }
