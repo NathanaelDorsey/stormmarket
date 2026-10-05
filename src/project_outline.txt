@@ -15,7 +15,7 @@ Database - DONE
                 Configure Flyway
                 Create initial migrations
                 Tables, relationships, constraints, indexes
-Architecture -
+Architecture - DONE
                 Package structure
                 Entity - represents the database data
                 Repository - handles database access
@@ -24,7 +24,7 @@ Architecture -
                 DTOs - represents the data be transferred through the application/API.
                 Mappers - converts objects/entity -> DTO
 
-First feature — Product
+First feature — Product - DONE
 
                 Product Entity
                     ↓
@@ -38,7 +38,7 @@ First feature — Product
                     ↓
                 MySQL
 
-Categories
+Categories - DONE
                 Category entity
                 Relationship with products
                 CRUD/API

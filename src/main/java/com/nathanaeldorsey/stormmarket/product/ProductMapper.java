@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
-@Component
+@Component // Tells Spring, class is used for configuration
 public class ProductMapper {
     public ProductResponse toResponse(Product product){
         ProductResponse response = new ProductResponse();

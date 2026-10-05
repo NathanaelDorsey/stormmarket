@@ -46,16 +46,16 @@ public class ProductController {
 
     /* CATEGORIES */
     @PostMapping("/{productId}/categories/{categoryId}")
-    public void addCategory(
+    public ProductResponse addCategory(
             @PathVariable Long productId,
             @PathVariable Long categoryId) {
-        productService.addCategory(productId,categoryId);
+        return productService.addCategory(productId,categoryId);
     }
     @DeleteMapping("/{productId}/categories/{categoryId}")
-    public void removeCategory(
+    public ProductResponse removeCategory(
             @PathVariable Long productId,
             @PathVariable Long categoryId) {
-        productService.removeCategory(productId,categoryId);
+        return productService.removeCategory(productId,categoryId);
     }
 
 }

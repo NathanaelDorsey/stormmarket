@@ -1,7 +1,5 @@
 package com.nathanaeldorsey.stormmarket.category;
 
-import com.nathanaeldorsey.stormmarket.product.ProductRepository;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,7 +51,7 @@ public class CategoryService {
         categoryRepository.deleteById(id);
     }
 
-	public void updateCategoryFields(Category category, CategoryRequest request){
+	private void updateCategoryFields(Category category, CategoryRequest request){
 		category.setName(request.getName());
 	}
 }

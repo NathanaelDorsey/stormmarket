@@ -14,7 +14,8 @@ import java.util.Set;
 @Setter
 // DTO (Data-Transfer-Object) - defines what the client is allowed to send to the API/Application
 public class ProductRequest {
-    // Input-Validation rules provided by jakarta bean validation
+    // id left out as database provides it
+    // Input-Validation rules provided by Jakarta bean validation
     @NotBlank
     private String name;
     private String description;

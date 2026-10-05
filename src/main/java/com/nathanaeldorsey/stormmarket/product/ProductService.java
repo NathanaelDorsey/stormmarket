@@ -53,7 +53,7 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
-    public void addCategory(Long productId, Long categoryId){
+    public ProductResponse addCategory(Long productId, Long categoryId){
         Product product = productRepository.findById(productId)
                 .orElseThrow();
         Category category = categoryRepository.findById(categoryId)
@@ -61,22 +61,27 @@ public class ProductService {
 
         product.addCategory(category);
 
-        productRepository.save(product);
+        Product updatedProduct = productRepository.save(product);
+
+        return productMapper.toResponse(updatedProduct);
     }
-    public void removeCategory(Long productId, Long categoryId){
+    public ProductResponse removeCategory(Long productId, Long categoryId){
         Product product = productRepository.findById(productId)
                 .orElseThrow();
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow();
 
         product.removeCategory(category);
-        productRepository.save(product);
+
+        Product updatedProduct = productRepository.save(product);
+
+        return productMapper.toResponse(updatedProduct);
     }
 
     public void deleteProduct(Long id){
         productRepository.deleteById(id);
     }
-	public void updateProductFields(Product product, ProductRequest request){
+	private void updateProductFields(Product product, ProductRequest request){
 		product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
