@@ -36,11 +36,7 @@ public class ProductService {
     public ProductResponse createProduct(ProductRequest request) {
         Product product = new Product();
 
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setStockQuantity(request.getStockQuantity());
-        product.setImageUrl(request.getImageUrl());
+        updateProductFields(product, request);
 
         Product savedProduct = productRepository.save(product);
 
@@ -50,11 +46,7 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow();
 
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setStockQuantity(request.getStockQuantity());
-        product.setImageUrl(request.getImageUrl());
+        updateProductFields(product, request);
 
         Product updatedProduct = productRepository.save(product);
 
@@ -84,4 +76,12 @@ public class ProductService {
     public void deleteProduct(Long id){
         productRepository.deleteById(id);
     }
+	public void updateProductFields(Product product, ProductRequest request){
+		product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setStockQuantity(request.getStockQuantity());
+        product.setImageUrl(request.getImageUrl());
+	}
+
 }
