@@ -3,7 +3,9 @@ package com.nathanaeldorsey.stormmarket.auth;
 import com.nathanaeldorsey.stormmarket.user.UserRequest;
 import com.nathanaeldorsey.stormmarket.user.UserResponse;
 import com.nathanaeldorsey.stormmarket.user.UserService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

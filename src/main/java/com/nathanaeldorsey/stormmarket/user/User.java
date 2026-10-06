@@ -1,6 +1,7 @@
 package com.nathanaeldorsey.stormmarket.user;
 
 import jakarta.persistence.*;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
