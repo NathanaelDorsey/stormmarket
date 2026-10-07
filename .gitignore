@@ -3,8 +3,8 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-!/src/main/**/public.pem
-!/src/main/**/private.pem
+!/src/main/**/*.pem
+
 
 
 ### STS ###
