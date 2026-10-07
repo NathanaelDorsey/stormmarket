@@ -3,7 +3,8 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-*.pem
+!/src/main/**/public.pem
+!/src/main/**/private.pem
 
 
 ### STS ###
@@ -135,4 +136,4 @@ buildNumber.properties
 
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,intellij+all!/src/main/java/com/nathanaeldorsey/stormmarket/auth/private.pem
-!/src/main/java/com/nathanaeldorsey/stormmarket/auth/public.pem
+
