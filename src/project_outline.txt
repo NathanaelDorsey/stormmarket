@@ -48,7 +48,8 @@ Authentication & Authorization
                 Registration/login
                 Spring Security
                 Roles (USER, ADMIN)
-                JWT
+                JWT - private.pem  ← keep secret
+                      public.pem   ← safe to distribute to verification services
 Product/catalog features
                 Search
                 Filtering

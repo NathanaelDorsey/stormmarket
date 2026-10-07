@@ -10,3 +10,7 @@ spring:
     user:
       name: stormmarket
       password: ${STORMMARKET_DB_PASSWORD}
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:public.pem
