@@ -3,6 +3,8 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+*.pem
+
 
 ### STS ###
 .apt_generated
@@ -132,4 +134,5 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 
 
-# End of https://www.toptal.com/developers/gitignore/api/maven,intellij+all
+# End of https://www.toptal.com/developers/gitignore/api/maven,intellij+all!/src/main/java/com/nathanaeldorsey/stormmarket/auth/private.pem
+!/src/main/java/com/nathanaeldorsey/stormmarket/auth/public.pem

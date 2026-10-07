@@ -48,7 +48,7 @@ Authentication & Authorization
                 Registration/login
                 Spring Security
                 Roles (USER, ADMIN)
-                JWT or session authentication
+                JWT
 Product/catalog features
                 Search
                 Filtering
