@@ -7,10 +7,7 @@ spring:
       password: ${STORMMARKET_DB_PASSWORD}
       driver-class-name: com.mysql.cj.jdbc.Driver
   security:
-    user:
-      name: stormmarket
-      password: ${STORMMARKET_DB_PASSWORD}
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: classpath:public.pem
+          public-key-location: ${STORMMARKET_JWT_PUBLIC_KEY_LOCATION}

@@ -126,3 +126,47 @@ i.e.        Check that the product exists
 Repository = talks to the database to get/save the data
 
 Dependency Injection - Spring creates and connects the objects needed for app
+
+Private key file
+      ↓
+       Configuration
+      ↓
+       RSAPrivateKey bean
+      ↓
+       JwtEncoder
+      ↓
+       Creates JWT
+
+Public key
+      ↓
+       RSAPublicKey bean
+      ↓
+       JwtDecoder
+      ↓
+       Verifies JWT
+
+username + password
+        ↓
+        verify password
+        ↓
+        generate JWT
+        ↓
+        return JWT
+
+Client sends request
+        ↓
+SecurityFilterChain
+        ↓
+Is the endpoint public? (auth)
+   ↙             ↘
+  Yes             No
+   ↓               ↓
+Allow access    Validate JWT
+                   ↓
+              Valid token?
+              ↙         ↘
+            Yes          No
+             ↓            ↓
+       Allow access    Reject request
+             ↓
+         Controller

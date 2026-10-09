@@ -1,5 +1,7 @@
 package com.nathanaeldorsey.stormmarket.config;
 
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,8 +16,9 @@ import java.security.interfaces.RSAPublicKey;
 @Configuration
 public class JwtConfig {
     @Bean
-    public JwtEncoder jwtEncoder(RSAPublicKey publicKey,
-                                 RSAPrivateKey privateKey){
+    public JwtEncoder jwtEncoder(
+            @Value("${STORMMARKET_JWT_PUBLIC_KEY_LOCATION}") RSAPublicKey publicKey,
+            @Value("${STORMMARKET_JWT_PRIVATE_KEY_LOCATION}") RSAPrivateKey privateKey){
         return NimbusJwtEncoder
                 .withKeyPair(publicKey,privateKey)
                 .build();

@@ -14,16 +14,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       UserMapper userMapper){
+                       UserMapper userMapper,
+                       JwtService jwtService){
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
         this.userMapper = userMapper;
+        this.jwtService = jwtService;
     }
 
-    public UserResponse login(LoginRequest request){
+    public LoginResponse login(LoginRequest request){
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow();
 
@@ -32,7 +35,13 @@ public class AuthService {
                 user.getPassword())){
             throw new RuntimeException("Invalid username or password");
         }
-        return userMapper.toResponse(user);
+
+        String token = jwtService.generateToken(user);
+        LoginResponse response = new LoginResponse();
+        response.setToken(token);
+        response.setUser(userMapper.toResponse(user));
+
+        return response;
     }
 
 }
