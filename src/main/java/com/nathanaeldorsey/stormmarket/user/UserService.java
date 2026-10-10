@@ -19,6 +19,13 @@ public class UserService {
     }
 
     public UserResponse registerUser(UserRequest request){
+        // Reject duplicate usernames
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        } // Reject duplicate emails
+        if (userRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
+            throw new RuntimeException("Email already exists");
+        }
         User user = new User();
 
         updateUserFields(user,request);
@@ -34,10 +41,9 @@ public class UserService {
         user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEmail(request.getEmail());
+        user.setEmail(request.getEmail().trim().toLowerCase());
         user.setAddress(request.getAddress());
         user.setPhone(request.getPhone());
+        user.setRole(Role.USER);
     }
-
-
 }

@@ -1,7 +1,9 @@
 package com.nathanaeldorsey.stormmarket.config;
 
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
 import org.springframework.context.annotation.Bean;
@@ -17,15 +19,43 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) // rules for handling incoming requests
+    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+        // Maps JWT role to Spring Security Authority
+        JwtGrantedAuthoritiesConverter authoritiesConverter =
+                new JwtGrantedAuthoritiesConverter();
+
+        authoritiesConverter.setAuthoritiesClaimName("role");
+        authoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        JwtAuthenticationConverter converter
+                = new JwtAuthenticationConverter();
+
+        converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+
+        return converter;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationConverter jwtAuthenticationConverter)
             throws Exception {
+        // rules for handling incoming requests
         http
                 .csrf(csrf -> csrf.disable()) // Disable csrf as using bearer token
                 .authorizeHttpRequests(auth -> auth // configure request permissions
                         .requestMatchers("/auth/**").permitAll()  // explicit permit all requests to /auth
+                        .requestMatchers(HttpMethod.GET, "/products/**", "/categories/**")
+                        .permitAll() // permit all get requests to products and categories
+                        .requestMatchers(HttpMethod.POST, "/products/**", "/categories/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/products/**", "/categories/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/products/**", "/categories/**")
+                        .hasRole("ADMIN")
                         .anyRequest().authenticated()) // all others must be authenticated
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults()) // enable Spring Security JWT authentication
+                        .jwt(jwt->
+                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)) // enable Spring Security JWT authentication
                 );
         return http.build(); // returns SecurityFilterChain bean for processing requests
     }

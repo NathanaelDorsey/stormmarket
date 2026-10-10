@@ -11,3 +11,7 @@ spring:
       resourceserver:
         jwt:
           public-key-location: ${STORMMARKET_JWT_PUBLIC_KEY_LOCATION}
+  data:
+    web:
+      pageable:
+        max-page-size: 100

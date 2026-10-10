@@ -42,7 +42,7 @@ Categories - DONE
                 Category entity
                 Relationship with products
                 CRUD/API
-Authentication & Authorization
+Authentication & Authorization - DONE
                 User entity
                 Password hashing
                 Registration/login
@@ -50,7 +50,7 @@ Authentication & Authorization
                 Roles (USER, ADMIN)
                 JWT - private.pem  ← keep secret
                       public.pem   ← safe to distribute to verification services
-Product/catalog features
+Product/catalog features - DONE
                 Search
                 Filtering
                 Product details

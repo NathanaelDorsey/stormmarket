@@ -3,8 +3,12 @@ package com.nathanaeldorsey.stormmarket.product;
 import com.nathanaeldorsey.stormmarket.category.Category;
 import com.nathanaeldorsey.stormmarket.category.CategoryRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -32,6 +36,23 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow();
         return productMapper.toResponse(product);
+    }
+    public Page<ProductResponse> searchProducts(
+            String name,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Long categoryId,
+            String categoryName,
+            Boolean inStock,
+            Pageable pageable) {
+        Specification<Product> specification =
+                Specification.where(ProductSpecification.nameContains(name))
+                        .and(ProductSpecification.priceBetween(minPrice, maxPrice))
+                        .and(ProductSpecification.hasCategory(categoryId))
+                        .and(ProductSpecification.hasCategoryName(categoryName))
+                        .and(ProductSpecification.inStock(inStock));
+        return productRepository.findAll(specification, pageable)
+                .map(productMapper::toResponse);
     }
 
     // DTO (ProductRequest) used to create entity
