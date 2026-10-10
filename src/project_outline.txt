@@ -21,7 +21,7 @@ Architecture - DONE
                 Repository - handles database access
                 Service - handles business/application logic
                 Controller - handles HTTP Req/Res
-                DTOs - represents the data be transferred through the application/API.
+                DTOs (Request/Response) - represents the data be transferred through the application/API.
                 Mappers - converts objects/entity -> DTO
 
 First feature — Product - DONE
