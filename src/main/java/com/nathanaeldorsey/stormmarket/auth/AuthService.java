@@ -4,7 +4,6 @@ import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserMapper;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
 
-import com.nathanaeldorsey.stormmarket.user.UserResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
