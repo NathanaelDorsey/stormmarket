@@ -56,13 +56,13 @@ Product/catalog features - DONE
                 Product details
                 Categories
                 Inventory/stock
-Shopping cart
+Shopping cart - DONE
                 Cart
                 Cart items
                 Add/remove/update quantities
                 Price calculations
                 Validation
-Checkout & Orders
+Checkout & Orders - DONE
                 Create order
                 Order items
                 Order status
