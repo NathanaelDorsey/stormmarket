@@ -1,17 +1,20 @@
 package com.nathanaeldorsey.stormmarket.config;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.stereotype.Component;
 import org.springframework.context.annotation.Bean;
 
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Component
+@Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
     @Bean // Tells Spring, to create object and manage as bean
     public PasswordEncoder passwordEncoder(){ // Component for hashing passwords
@@ -41,7 +44,7 @@ public class SecurityConfig {
             throws Exception {
         // rules for handling incoming requests
         http
-                .csrf(csrf -> csrf.disable()) // Disable csrf as using bearer token
+                .csrf(AbstractHttpConfigurer::disable) // Disable csrf as using bearer token
                 .authorizeHttpRequests(auth -> auth // configure request permissions
                         .requestMatchers("/auth/**").permitAll()  // explicit permit all requests to /auth
                         .requestMatchers(HttpMethod.GET, "/products/**", "/categories/**")
