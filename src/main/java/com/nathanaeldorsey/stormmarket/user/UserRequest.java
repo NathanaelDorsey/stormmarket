@@ -11,7 +11,9 @@ import lombok.Setter;
 @Setter
 public class UserRequest {
     @NotBlank
-    private String firstName, lastName;
+    private String firstName;
+    @NotBlank
+    private String lastName;
 
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z0-9]+$") // only letters and numbers

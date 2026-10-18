@@ -5,7 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class ProductSpecification {
     // Describes how to filter products before database returns results
-
+    private ProductSpecification(){}
     public static Specification<Product> nameContains(String name) {
         return (root, query, criteriaBuilder) -> {
             // make name filter optional
