@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-    public UserResponse toResponse(User user){
+    public UserResponse toResponse(User user) {
         UserResponse response = new UserResponse();
 
         response.setFirstName(user.getFirstName());

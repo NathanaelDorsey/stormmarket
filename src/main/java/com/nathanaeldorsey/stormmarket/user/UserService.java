@@ -10,15 +10,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       UserMapper userMapper){
-        this.userRepository=userRepository;
-        this.passwordEncoder=passwordEncoder;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
     }
 
-    public UserResponse registerUser(UserRequest request){
+    public UserResponse registerUser(UserRequest request) {
         // Reject duplicate usernames
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already exists");
@@ -28,15 +26,14 @@ public class UserService {
         }
         User user = new User();
 
-        updateUserFields(user,request);
+        updateUserFields(user, request);
 
         User savedUser = userRepository.save(user);
 
         return userMapper.toResponse(savedUser);
-
     }
 
-    private void updateUserFields(User user, UserRequest request){
+    private void updateUserFields(User user, UserRequest request) {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());

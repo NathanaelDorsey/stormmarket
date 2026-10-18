@@ -1,11 +1,9 @@
 package com.nathanaeldorsey.stormmarket.category;
 
 import jakarta.validation.constraints.NotBlank;
-
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Set;
 
 @Getter
 @Setter
@@ -14,5 +12,4 @@ public class CategoryRequest {
     private String name;
     // For product relationship
     private Set<Long> productIds;
-
 }

@@ -1,10 +1,8 @@
 package com.nathanaeldorsey.stormmarket.category;
 
 import com.nathanaeldorsey.stormmarket.product.Product;
-
-import org.springframework.stereotype.Component;
-
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
 @Component
 public class CategoryMapper {
@@ -14,13 +12,8 @@ public class CategoryMapper {
         response.setId(category.getId());
         response.setName(category.getName());
         response.setProductIds(
-                category.getProducts()
-                        .stream()
-                        .map(Product::getId)
-                        .collect(Collectors.toSet())
-        );
+                category.getProducts().stream().map(Product::getId).collect(Collectors.toSet()));
 
         return response;
     }
 }
-

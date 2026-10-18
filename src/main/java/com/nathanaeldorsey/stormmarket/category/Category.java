@@ -1,16 +1,12 @@
 package com.nathanaeldorsey.stormmarket.category;
 
 import com.nathanaeldorsey.stormmarket.product.Product;
-
 import jakarta.persistence.*;
-
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
-
 
 @Entity
 @Table(name = "categories")
@@ -21,6 +17,7 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String name;
 

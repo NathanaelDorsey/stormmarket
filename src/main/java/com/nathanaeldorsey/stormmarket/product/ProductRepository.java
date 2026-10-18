@@ -6,11 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-
 // Extends JpaRepository to receive common methods for persistence (storing/retrieving objects from database)
-public interface ProductRepository extends
-        JpaRepository <Product, Long>,
-        JpaSpecificationExecutor<Product> {
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     // check and deduction atomic preventing double deductions
     @Modifying
@@ -20,9 +17,5 @@ public interface ProductRepository extends
     WHERE p.id = :productId
       AND p.stockQuantity >= :quantity
     """)
-    int deductStock(
-            @Param("productId") Long productId,
-            @Param("quantity") Integer quantity
-    );
-
+    int deductStock(@Param("productId") Long productId, @Param("quantity") Integer quantity);
 }

@@ -1,33 +1,31 @@
 package com.nathanaeldorsey.stormmarket.category;
 
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper){
-        this.categoryRepository=categoryRepository;
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+        this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
     }
 
-    public List<CategoryResponse> getAllCategories(){
-        return categoryRepository.findAll()
-                .stream()
+    public List<CategoryResponse> getAllCategories() {
+        return categoryRepository.findAll().stream()
                 .map(categoryMapper::toResponse)
                 .toList();
     }
-    public CategoryResponse getCategoryById(Long id){
-        Category category = categoryRepository.findById(id)
-                .orElseThrow();
+
+    public CategoryResponse getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id).orElseThrow();
 
         return categoryMapper.toResponse(category);
     }
 
-    public CategoryResponse createCategory(CategoryRequest request){
+    public CategoryResponse createCategory(CategoryRequest request) {
         Category category = new Category();
 
         updateCategoryFields(category, request);
@@ -36,9 +34,9 @@ public class CategoryService {
 
         return categoryMapper.toResponse(savedCategory);
     }
-    public CategoryResponse updateCategory(Long id, CategoryRequest request){
-        Category category = categoryRepository.findById(id)
-                .orElseThrow();
+
+    public CategoryResponse updateCategory(Long id, CategoryRequest request) {
+        Category category = categoryRepository.findById(id).orElseThrow();
 
         updateCategoryFields(category, request);
 
@@ -47,11 +45,11 @@ public class CategoryService {
         return categoryMapper.toResponse(updatedCategory);
     }
 
-    public void deleteCategory(Long id){
+    public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }
 
-	private void updateCategoryFields(Category category, CategoryRequest request){
-		category.setName(request.getName());
-	}
+    private void updateCategoryFields(Category category, CategoryRequest request) {
+        category.setName(request.getName());
+    }
 }

@@ -1,14 +1,11 @@
 package com.nathanaeldorsey.stormmarket.order;
 
-
 import com.nathanaeldorsey.stormmarket.product.Product;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
-
 
 @Entity
 @Table(name = "order_items")

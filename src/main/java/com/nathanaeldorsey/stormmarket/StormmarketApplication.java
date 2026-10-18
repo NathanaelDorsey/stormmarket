@@ -9,5 +9,4 @@ public class StormmarketApplication {
     static void main(String[] args) {
         SpringApplication.run(StormmarketApplication.class, args);
     }
-
 }

@@ -12,31 +12,25 @@ public class CartController {
     private final CartService cartService;
     private final UserRepository userRepository;
 
-    public CartController(
-            CartService cartService,
-            UserRepository userRepository){
-        this.cartService=cartService;
-        this.userRepository=userRepository;
+    public CartController(CartService cartService, UserRepository userRepository) {
+        this.cartService = cartService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
-    public CartResponse getCart(Authentication authentication){
-        User user = userRepository.findByUsername(authentication.getName())
+    public CartResponse getCart(Authentication authentication) {
+        User user = userRepository
+                .findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return cartService.getCart(user.getId());
     }
 
     @PostMapping("/items")
-    public CartResponse addProductToCart(
-            @Valid @RequestBody AddToCartRequest request,
-            Authentication authentication){
-        User user = userRepository.findByUsername(authentication.getName()).
-                orElseThrow(() -> new RuntimeException("User not found"));
-        cartService.addProductToCart(
-                user.getId(),
-                request.getProductId(),
-                request.getQuantity()
-        );
+    public CartResponse addProductToCart(@Valid @RequestBody AddToCartRequest request, Authentication authentication) {
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        cartService.addProductToCart(user.getId(), request.getProductId(), request.getQuantity());
         return cartService.getCart(user.getId());
     }
 
@@ -45,23 +39,19 @@ public class CartController {
             @PathVariable Long productId,
             @Valid @RequestBody UpdateCartItemRequest request,
             Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName())
+        User user = userRepository
+                .findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        cartService.updateProductQuantity(
-                user.getId(),
-                productId,
-                request.getQuantity()
-        );
+        cartService.updateProductQuantity(user.getId(), productId, request.getQuantity());
 
         return cartService.getCart(user.getId());
     }
 
     @DeleteMapping("/items/{productId:\\d+}")
-    public CartResponse removeProductFromCart(
-            @PathVariable Long productId,
-            Authentication authentication){
-        User user = userRepository.findByUsername(authentication.getName())
+    public CartResponse removeProductFromCart(@PathVariable Long productId, Authentication authentication) {
+        User user = userRepository
+                .findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         cartService.removeProductFromCart(user.getId(), productId);
@@ -71,9 +61,9 @@ public class CartController {
 
     @DeleteMapping
     public void clearCart(Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName())
+        User user = userRepository
+                .findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         cartService.clearCart(user.getId());
     }
-
 }

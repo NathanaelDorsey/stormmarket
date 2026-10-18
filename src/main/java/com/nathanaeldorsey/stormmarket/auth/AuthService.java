@@ -3,7 +3,6 @@ package com.nathanaeldorsey.stormmarket.auth;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserMapper;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,23 +14,21 @@ public class AuthService {
     private final UserMapper userMapper;
     private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       UserMapper userMapper,
-                       JwtService jwtService){
-        this.userRepository=userRepository;
-        this.passwordEncoder=passwordEncoder;
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            UserMapper userMapper,
+            JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
     }
 
-    public LoginResponse login(LoginRequest request){
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow();
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
-        if(!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
 
@@ -42,5 +39,4 @@ public class AuthService {
 
         return response;
     }
-
 }

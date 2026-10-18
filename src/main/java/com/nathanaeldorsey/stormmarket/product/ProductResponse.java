@@ -1,11 +1,9 @@
 package com.nathanaeldorsey.stormmarket.product;
 
-
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

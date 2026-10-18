@@ -9,10 +9,9 @@ import lombok.Setter;
 @Entity
 @Table(
         name = "cart_items",
-        uniqueConstraints = @UniqueConstraint( // 1 product per cart (increment qty)
-                columnNames = {"cart_id", "product_id"}
-    )
-)
+        uniqueConstraints =
+                @UniqueConstraint( // 1 product per cart (increment qty)
+                        columnNames = {"cart_id", "product_id"}))
 @Getter
 @Setter
 @NoArgsConstructor

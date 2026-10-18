@@ -7,7 +7,6 @@ import com.nathanaeldorsey.stormmarket.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Service
 public class CartService {
     private final CartRepository cartRepository;
@@ -23,22 +22,22 @@ public class CartService {
             CartItemRepository cartItemRepository,
             ProductRepository productRepository,
             UserRepository userRepository,
-            CartMapper cartMapper){
-        this.cartRepository=cartRepository;
-        this.cartItemRepository=cartItemRepository;
-        this.productRepository=productRepository;
-        this.userRepository=userRepository;
+            CartMapper cartMapper) {
+        this.cartRepository = cartRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
         this.cartMapper = cartMapper;
     }
 
     @Transactional // groups database changes into 1 transaction
-    public void addProductToCart(Long userId, Long productId, Integer quantity){
+    public void addProductToCart(Long userId, Long productId, Integer quantity) {
         validateQuantity(quantity);
         User user = getUser(userId);
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        if(product.getStockQuantity() <=0){
+        Product product =
+                productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+        if (product.getStockQuantity() <= 0) {
             throw new IllegalArgumentException("Product is out of stock");
         }
 
@@ -47,24 +46,19 @@ public class CartService {
         CartItem item = cartItemRepository
                 .findByCartIdAndProductId(cart.getId(), productId)
                 .orElse(null);
-        if(item == null && cart.getItems().size()>=MAX_DISTINCT_CART_ITEMS){
+        if (item == null && cart.getItems().size() >= MAX_DISTINCT_CART_ITEMS) {
             throw new IllegalArgumentException(
-                    "Cart cannot contain more than "
-                    + MAX_DISTINCT_CART_ITEMS +
-                            " different products"
-            );
+                    "Cart cannot contain more than " + MAX_DISTINCT_CART_ITEMS + " different products");
         }
-        int currentQuantity = (item==null ? 0 : item.getQuantity());
+        int currentQuantity = (item == null ? 0 : item.getQuantity());
         // check if quantity added is more than stock
-        if(currentQuantity + quantity > product.getStockQuantity()){
-            throw new IllegalArgumentException(
-                    "Requested quantity exceeds available stock"
-            );
+        if (currentQuantity + quantity > product.getStockQuantity()) {
+            throw new IllegalArgumentException("Requested quantity exceeds available stock");
         }
         // update quantity if item is found in cart
-        if(item != null){
+        if (item != null) {
             item.setQuantity(item.getQuantity() + quantity);
-        }else {
+        } else {
             // else add item to cart
             item = new CartItem();
             item.setProduct(product);
@@ -100,10 +94,7 @@ public class CartService {
     }
 
     @Transactional
-    public void updateProductQuantity(
-            Long userId,
-            Long productId,
-            Integer quantity) {
+    public void updateProductQuantity(Long userId, Long productId, Integer quantity) {
         validateQuantity(quantity);
         Cart cart = getExistingCart(userId);
 
@@ -111,50 +102,40 @@ public class CartService {
 
         Product product = item.getProduct();
 
-        if(quantity > product.getStockQuantity()){
-            throw new IllegalArgumentException(
-                    "Requested quantity exceeds available stock"
-            );
+        if (quantity > product.getStockQuantity()) {
+            throw new IllegalArgumentException("Requested quantity exceeds available stock");
         }
         item.setQuantity(quantity);
     }
 
     private Cart getOrCreateCart(User user) {
-        return cartRepository.findByUserId(user.getId())
-                .orElseGet(() -> {
-                    Cart newCart = new Cart();
-                    newCart.setUser(user);
-                    return cartRepository.save(newCart);
-                });
+        return cartRepository.findByUserId(user.getId()).orElseGet(() -> {
+            Cart newCart = new Cart();
+            newCart.setUser(user);
+            return cartRepository.save(newCart);
+        });
     }
 
-    private Cart getExistingCart(Long userId){
-        return cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+    private Cart getExistingCart(Long userId) {
+        return cartRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
     }
 
     private void validateQuantity(Integer quantity) {
         if (quantity == null || quantity <= 0) {
-            throw new IllegalArgumentException(
-                    "Quantity must be positive"
-            );
+            throw new IllegalArgumentException("Quantity must be positive");
         }
         if (quantity > MAX_CART_ITEM_QUANTITY) {
-            throw new IllegalArgumentException(
-                    "Quantity cannot exceed " + MAX_CART_ITEM_QUANTITY
-            );
+            throw new IllegalArgumentException("Quantity cannot exceed " + MAX_CART_ITEM_QUANTITY);
         }
     }
 
     private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    private CartItem getCartItem(Cart cart, Long productId){
+    private CartItem getCartItem(Cart cart, Long productId) {
         return cartItemRepository
                 .findByCartIdAndProductId(cart.getId(), productId)
                 .orElseThrow(() -> new RuntimeException("Product not found in cart"));
     }
-
 }
