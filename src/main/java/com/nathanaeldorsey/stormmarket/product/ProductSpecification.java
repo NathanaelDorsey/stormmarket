@@ -9,7 +9,7 @@ public class ProductSpecification {
     private ProductSpecification() {}
 
     public static Specification<Product> nameContains(String name) {
-        return (root, query, criteriaBuilder) -> {
+        return (root, _, criteriaBuilder) -> {
             // make name filter optional
             if (name == null || name.isBlank()) {
                 return criteriaBuilder.conjunction();
@@ -20,7 +20,7 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> priceBetween(BigDecimal minPrice, BigDecimal maxPrice) {
-        return (root, query, criteriaBuilder) -> {
+        return (root, _, criteriaBuilder) -> {
             // make price filter optional
             if (minPrice == null && maxPrice == null) {
                 return criteriaBuilder.conjunction();
@@ -49,7 +49,7 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> inStock(Boolean inStock) {
-        return (root, query, criteriaBuilder) -> {
+        return (root, _, criteriaBuilder) -> {
             // make stock filter optional
             if (inStock == null) {
                 return criteriaBuilder.conjunction();
@@ -75,11 +75,11 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> isActive() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("is_active"));
+        return (root, _, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("is_active"));
     }
 
     public static Specification<Product> activeStatus(Boolean active) {
-        return (root, query, criteriaBuilder) -> {
+        return (root, _, criteriaBuilder) -> {
             // make active status filter optional
             if (active == null) {
                 return criteriaBuilder.conjunction();
