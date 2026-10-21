@@ -11,8 +11,6 @@ The application is tested as a layered Spring REST service:
 
 This is preferred over only end-to-end tests because failures remain localized and fast to diagnose. MySQL Testcontainers is preferred over H2 for persistence tests because an in-memory database can accept SQL, types, constraints, and transaction behavior that differ from production MySQL.
 
-## Enterprise decision: Option A
-
 The default local/CI path is intentionally fast and lightweight:
 
 - `./mvnw test` runs the default smoke suite against H2.
