@@ -53,7 +53,10 @@ public class ProductService {
         Product product = productRepository
                 .findById(id)
                 .filter(p -> includeInactive || p.isActive())
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+        if (!includeInactive && !product.isActive()) {
+            throw new ResourceNotFoundException(PRODUCT_NOT_FOUND);
+        }
         return productMapper.toResponse(product);
     }
 
@@ -82,7 +85,7 @@ public class ProductService {
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest request) {
-        Product product = productRepository.findById(id).orElseThrow();
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
 
         updateProductFields(product, request);
 
@@ -92,7 +95,7 @@ public class ProductService {
     }
 
     public ProductResponse setProductActive(Long id, boolean active) {
-        Product product = productRepository.findById(id).orElseThrow();
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
 
         product.setActive(active);
 
@@ -102,8 +105,8 @@ public class ProductService {
     }
 
     public ProductResponse addCategory(Long productId, Long categoryId) {
-        Product product = productRepository.findById(productId).orElseThrow();
-        Category category = categoryRepository.findById(categoryId).orElseThrow();
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         product.addCategory(category);
 

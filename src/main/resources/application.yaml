@@ -2,16 +2,21 @@ spring:
   application:
     name: stormmarket
   datasource:
-      url: jdbc:mysql://100.97.128.106:3306/stormmarket
-      username: stormmarket
-      password: ${STORMMARKET_DB_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${STORMMARKET_DB_URL:jdbc:h2:mem:stormmarket_local;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false}
+    username: ${STORMMARKET_DB_USERNAME:sa}
+    password: ${STORMMARKET_DB_PASSWORD:}
+    driver-class-name: ${STORMMARKET_DB_DRIVER_CLASS_NAME:org.h2.Driver}
   security:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: ${STORMMARKET_JWT_PUBLIC_KEY_LOCATION}
+          public-key-location: ${STORMMARKET_JWT_PUBLIC_KEY_LOCATION:classpath:jwt/public-key.pem}
   data:
     web:
       pageable:
         max-page-size: 100
+
+stormmarket:
+  jwt:
+    private-key-location: ${STORMMARKET_JWT_PRIVATE_KEY_LOCATION:classpath:jwt/private-key.pem}
+    public-key-location: ${STORMMARKET_JWT_PUBLIC_KEY_LOCATION:classpath:jwt/public-key.pem}

@@ -75,7 +75,7 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> isActive() {
-        return (root, _, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("is_active"));
+        return (root, _, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("active"));
     }
 
     public static Specification<Product> activeStatus(Boolean active) {

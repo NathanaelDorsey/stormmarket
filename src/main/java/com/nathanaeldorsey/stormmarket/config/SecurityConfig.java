@@ -51,8 +51,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth // configure request permissions
                         .requestMatchers("/auth/**")
                         .permitAll() // explicit permit all requests to /auth
-                        .requestMatchers(HttpMethod.GET, PRODUCTS_PATH, CATEGORIES_PATH)
-                        .permitAll() // permit all get requests to products and categories
+                        .requestMatchers(HttpMethod.GET, CATEGORIES_PATH)
+                        .permitAll() // permit all GET requests to categories
+                        .requestMatchers(HttpMethod.GET, PRODUCTS_PATH)
+                        .authenticated() // require authentication for product reads
                         .requestMatchers(HttpMethod.POST, PRODUCTS_PATH, CATEGORIES_PATH)
                         .hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.PUT, PRODUCTS_PATH, CATEGORIES_PATH)
