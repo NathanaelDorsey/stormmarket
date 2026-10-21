@@ -76,7 +76,7 @@ The system is built around secure API practices:
 
 The project follows an enterprise-style layered testing approach, intentionally designed to balance speed and realism.
 
-### Option A: fast default H2 smoke suite + opt-in MySQL validation
+### Fast default H2 smoke suite + opt-in MySQL validation
 
 This is the selected strategy for the project:
 - default local and CI execution uses an in-memory H2 database for quick feedback
