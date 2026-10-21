@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.user;
 
+import com.nathanaeldorsey.stormmarket.common.exception.ResourceAlreadyExistsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,10 @@ public class UserService {
     public UserResponse registerUser(UserRequest request) {
         // Reject duplicate usernames
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new ResourceAlreadyExistsException("Username already exists");
         } // Reject duplicate emails
         if (userRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
-            throw new RuntimeException("Email already exists");
+            throw new ResourceAlreadyExistsException("Email already exists");
         }
         User user = new User();
 

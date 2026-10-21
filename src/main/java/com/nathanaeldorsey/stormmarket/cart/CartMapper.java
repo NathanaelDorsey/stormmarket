@@ -31,6 +31,8 @@ public class CartMapper {
         response.setQuantity(item.getQuantity());
         BigDecimal subtotal = item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
         response.setSubtotal(subtotal);
+        response.setActive(item.getProduct().isActive());
+        response.setInStock(item.getProduct().getStockQuantity() > 0);
         return response;
     }
 }

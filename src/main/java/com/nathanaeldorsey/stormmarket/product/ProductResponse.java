@@ -16,4 +16,5 @@ public class ProductResponse {
     private Integer stockQuantity;
     private String imageUrl;
     private Set<Long> categoryIds;
+    private boolean active;
 }

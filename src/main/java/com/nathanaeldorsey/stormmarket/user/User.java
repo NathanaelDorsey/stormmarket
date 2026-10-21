@@ -39,4 +39,7 @@ public class User {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING) // Stores enum as its name (string) in database
     private Role role = Role.USER; // Default - USER
+
+    @Column(name = "is_active", nullable = false)
+    private boolean active = true; // Default - active
 }

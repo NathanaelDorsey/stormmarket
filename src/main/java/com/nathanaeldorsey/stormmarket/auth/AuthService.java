@@ -3,6 +3,8 @@ package com.nathanaeldorsey.stormmarket.auth;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserMapper;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +28,15 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
-
+        User user = userRepository
+                .findByUsername(request.getUsername())
+                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password");
         }
-
+        if (!user.isActive()) {
+            throw new DisabledException("Account is deactivated");
+        }
         String token = jwtService.generateToken(user);
         LoginResponse response = new LoginResponse();
         response.setToken(token);

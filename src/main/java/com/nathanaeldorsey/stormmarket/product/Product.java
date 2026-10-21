@@ -34,6 +34,9 @@ public class Product {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean active = true;
+
     // Category information
     @ManyToMany // Product can have many Categories/Categories can have many Products
     @JoinTable( // The relationship is stored in product_categories table

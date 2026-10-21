@@ -4,6 +4,7 @@ import com.nathanaeldorsey.stormmarket.user.User;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -45,6 +46,6 @@ public class Order {
 
     @PrePersist // call before object persists in database
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(ZoneId.of("UTC"));
     }
 }

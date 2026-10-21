@@ -3,14 +3,16 @@ package com.nathanaeldorsey.stormmarket.order;
 import com.nathanaeldorsey.stormmarket.cart.Cart;
 import com.nathanaeldorsey.stormmarket.cart.CartItem;
 import com.nathanaeldorsey.stormmarket.cart.CartRepository;
+import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +24,15 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    private static final String ORDER_NOT_FOUND = "Order not found";
+    private static final String CART_NOT_FOUND = "Cart not found";
 
     private User getUserForCheckout(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private Cart getCartForCheckout(Long userId) {
-        return cartRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
+        return cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(CART_NOT_FOUND));
     }
 
     private void validateCart(Cart cart) {
@@ -88,6 +92,10 @@ public class OrderService {
         // Reduce stock for each purchased product.
         for (CartItem item : cart.getItems()) {
             Product product = item.getProduct();
+            // Check if the product is active before deducting stock (admin may have deactivated it).
+            if (!product.isActive()) {
+                throw new IllegalStateException("Cannot purchase inactive product: " + product.getName());
+            }
             int rowsUpdated = productRepository.deductStock(product.getId(), item.getQuantity());
             // Zero rows means the product is missing or stock is insufficient.
             if (rowsUpdated == 0) {
@@ -111,13 +119,58 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public Page<OrderResponse> getOrdersForAdmin(OrderStatus status, Pageable pageable) {
+        if (status != null) {
+            return orderRepository
+                    .findByStatusOrderByCreatedAtDesc(status, pageable)
+                    .map(orderMapper::toResponse);
+        }
+        return orderRepository.findAllByOrderByCreatedAtDesc(pageable).map(orderMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long userId, Long orderId) {
         Order order = orderRepository
                 .findById(orderId)
                 // checks requesting userID and existingOrders userId for match
                 .filter(existingOrder -> existingOrder.getUser().getId().equals(userId))
-                .orElseThrow(() -> new NoSuchElementException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND));
 
         return orderMapper.toResponse(order);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderDetailsForAdmin(Long orderId) {
+        Order order =
+                orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND));
+
+        return orderMapper.toResponse(order);
+    }
+
+    @Transactional
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
+        Order order =
+                orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND));
+
+        OrderStatus currentStatus = order.getStatus();
+        boolean validOrderFlow = switch (currentStatus) {
+            case PENDING -> status == OrderStatus.CONFIRMED || status == OrderStatus.CANCELED;
+            case CONFIRMED -> status == OrderStatus.SHIPPED || status == OrderStatus.CANCELED;
+            case SHIPPED -> status == OrderStatus.DELIVERED;
+            case DELIVERED, CANCELED -> false; // No further transitions allowed
+        };
+
+        if (!validOrderFlow) {
+            throw new IllegalStateException("Cannot change order status from " + currentStatus + " to " + status);
+        }
+        // If the order is canceled, restore stock for each item.
+        if (status == OrderStatus.CANCELED) {
+            for (OrderItem item : order.getItems()) {
+                productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
+            }
+        }
+        order.setStatus(status);
+        Order updatedOrder = orderRepository.save(order);
+        return orderMapper.toResponse(updatedOrder);
     }
 }

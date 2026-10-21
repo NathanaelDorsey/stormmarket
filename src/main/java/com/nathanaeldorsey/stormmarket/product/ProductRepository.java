@@ -18,4 +18,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
       AND p.stockQuantity >= :quantity
     """)
     int deductStock(@Param("productId") Long productId, @Param("quantity") Integer quantity);
+
+    @Modifying
+    @Query("""
+    UPDATE Product p
+    SET p.stockQuantity = p.stockQuantity + :quantity
+    WHERE p.id = :productId
+    """)
+    int restoreStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 }

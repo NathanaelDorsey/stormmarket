@@ -1,11 +1,11 @@
 package com.nathanaeldorsey.stormmarket.product;
 
 import jakarta.validation.Valid;
-import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController // Class handles HTTP requests and returned data is the response
@@ -33,14 +33,18 @@ public class ProductController {
 
     @GetMapping("/search")
     public Page<ProductResponse> searchProducts(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String categoryName,
-            @RequestParam(required = false) Boolean inStock,
+            @ModelAttribute ProductSearchRequest request,
             @PageableDefault(size = 10, sort = "name") Pageable pageable) {
-        return productService.searchProducts(name, minPrice, maxPrice, categoryId, categoryName, inStock, pageable);
+        return productService.searchProducts(request, pageable);
+    }
+
+    @GetMapping("/admin/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<ProductResponse> searchProductsForAdmin(
+            @ModelAttribute ProductSearchRequest request,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+
+        return productService.searchProductsForAdmin(request, pageable);
     }
 
     @GetMapping("/{id:\\d+}")
@@ -48,10 +52,23 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
+    @GetMapping("/admin/{id:\\d+}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ProductResponse getProductByIdForAdmin(@PathVariable Long id) {
+        return productService.getProductByIdForAdmin(id);
+    }
+
     /* UPDATE */
     @PutMapping("/{id:\\d+}")
     public ProductResponse updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         return productService.updateProduct(id, request);
+    }
+
+    @PatchMapping("/admin/{id:\\d+}/active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ProductResponse setProductActive(@PathVariable Long id, @RequestParam boolean active) {
+
+        return productService.setProductActive(id, active);
     }
 
     /* DELETE */

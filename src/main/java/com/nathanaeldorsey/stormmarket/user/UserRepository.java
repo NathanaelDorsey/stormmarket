@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     // Check duplicate emails
     boolean existsByEmail(String email);
+    // Count active users by role
+    long countActiveByRole(Role role);
 }

@@ -23,17 +23,17 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public CategoryResponse getCategoryById(@PathVariable Long id) {
         return categoryService.getCategoryById(id);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id:\\d+}")
     public CategoryResponse updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
         return categoryService.updateCategory(id, request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:\\d+}")
     public void deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
     }

@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.category;
 
+import com.nathanaeldorsey.stormmarket.product.Product;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,10 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id) {
+        Category category = categoryRepository.findById(id).orElseThrow();
+        for (Product product : category.getProducts()) {
+            product.removeCategory(category);
+        }
         categoryRepository.deleteById(id);
     }
 

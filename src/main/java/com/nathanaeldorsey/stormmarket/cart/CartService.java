@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.cart;
 
+import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
@@ -16,6 +17,7 @@ public class CartService {
     private final CartMapper cartMapper;
     private static final int MAX_CART_ITEM_QUANTITY = 100;
     private static final int MAX_DISTINCT_CART_ITEMS = 50;
+    private static final String PRODUCT_NOT_FOUND = "Product not found";
 
     public CartService(
             CartRepository cartRepository,
@@ -35,12 +37,15 @@ public class CartService {
         validateQuantity(quantity);
         User user = getUser(userId);
 
-        Product product =
-                productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
         if (product.getStockQuantity() <= 0) {
             throw new IllegalArgumentException("Product is out of stock");
         }
-
+        if (!product.isActive()) {
+            throw new IllegalArgumentException("Product is inactive");
+        }
         Cart cart = getOrCreateCart(user);
         // check if item in cart
         CartItem item = cartItemRepository
@@ -101,7 +106,9 @@ public class CartService {
         CartItem item = getCartItem(cart, productId);
 
         Product product = item.getProduct();
-
+        if (!product.isActive()) {
+            throw new IllegalArgumentException("Product is inactive");
+        }
         if (quantity > product.getStockQuantity()) {
             throw new IllegalArgumentException("Requested quantity exceeds available stock");
         }
@@ -117,7 +124,7 @@ public class CartService {
     }
 
     private Cart getExistingCart(Long userId) {
-        return cartRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
+        return cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
     }
 
     private void validateQuantity(Integer quantity) {
@@ -130,12 +137,15 @@ public class CartService {
     }
 
     private User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository
+                .findById(userId)
+                .filter(User::isActive)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found or inactive"));
     }
 
     private CartItem getCartItem(Cart cart, Long productId) {
         return cartItemRepository
                 .findByCartIdAndProductId(cart.getId(), productId)
-                .orElseThrow(() -> new RuntimeException("Product not found in cart"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found in cart"));
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -15,6 +16,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+    private static final String PRODUCTS_PATH = "/products/**";
+    private static final String CATEGORIES_PATH = "/categories/**";
+    private static final String ADMIN_ROLE = "ADMIN";
+
     @Bean // Tells Spring, to create object and manage as bean
     public PasswordEncoder passwordEncoder() { // Component for hashing passwords
         return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
@@ -37,20 +42,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
+            HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter) {
         // rules for handling incoming requests
-        http.csrf(AbstractHttpConfigurer::disable) // Disable csrf as using bearer token
+        // CSRF is disabled because this API uses stateless JWT bearer-token authentication.
+        http.csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Disable csrf as using bearer token
                 .authorizeHttpRequests(auth -> auth // configure request permissions
                         .requestMatchers("/auth/**")
                         .permitAll() // explicit permit all requests to /auth
-                        .requestMatchers(HttpMethod.GET, "/products/**", "/categories/**")
+                        .requestMatchers(HttpMethod.GET, PRODUCTS_PATH, CATEGORIES_PATH)
                         .permitAll() // permit all get requests to products and categories
-                        .requestMatchers(HttpMethod.POST, "/products/**", "/categories/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/products/**", "/categories/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/products/**", "/categories/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, PRODUCTS_PATH, CATEGORIES_PATH)
+                        .hasRole(ADMIN_ROLE)
+                        .requestMatchers(HttpMethod.PUT, PRODUCTS_PATH, CATEGORIES_PATH)
+                        .hasRole(ADMIN_ROLE)
+                        .requestMatchers(HttpMethod.DELETE, PRODUCTS_PATH, CATEGORIES_PATH)
+                        .hasRole(ADMIN_ROLE)
                         .anyRequest()
                         .authenticated()) // all others must be authenticated
                 .oauth2ResourceServer(

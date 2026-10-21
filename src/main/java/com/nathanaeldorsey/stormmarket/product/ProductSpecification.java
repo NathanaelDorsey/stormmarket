@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.product;
 
+import jakarta.persistence.criteria.Path;
 import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -24,13 +25,14 @@ public class ProductSpecification {
             if (minPrice == null && maxPrice == null) {
                 return criteriaBuilder.conjunction();
             }
+            Path<BigDecimal> price = root.get("price");
             if (minPrice == null) {
-                return criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice);
+                return criteriaBuilder.lessThanOrEqualTo(price, maxPrice);
             }
             if (maxPrice == null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice);
+                return criteriaBuilder.greaterThanOrEqualTo(price, minPrice);
             }
-            return criteriaBuilder.between(root.get("price"), minPrice, maxPrice);
+            return criteriaBuilder.between(price, minPrice, maxPrice);
         };
     }
 
@@ -69,6 +71,21 @@ public class ProductSpecification {
             return criteriaBuilder.equal(
                     criteriaBuilder.lower(root.join("categories").get("name")),
                     categoryName.trim().toLowerCase());
+        };
+    }
+
+    public static Specification<Product> isActive() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("is_active"));
+    }
+
+    public static Specification<Product> activeStatus(Boolean active) {
+        return (root, query, criteriaBuilder) -> {
+            // make active status filter optional
+            if (active == null) {
+                return criteriaBuilder.conjunction();
+            }
+
+            return criteriaBuilder.equal(root.get("active"), active);
         };
     }
 }

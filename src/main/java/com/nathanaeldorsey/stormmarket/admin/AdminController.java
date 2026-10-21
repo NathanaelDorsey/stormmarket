@@ -1,10 +1,14 @@
 package com.nathanaeldorsey.stormmarket.admin;
 
+import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.user.User;
+import com.nathanaeldorsey.stormmarket.user.UserRepository;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,13 +17,28 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private final UserRepository userRepository;
 
     @PutMapping("/{userId:\\d+}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateUserRole(
-            @PathVariable Long userId, @Valid @RequestBody UpdateUserRoleRequest request) {
-        adminService.updateUserRole(userId, request.getRole());
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateUserRoleRequest request,
+            Authentication authentication) {
+        User admin = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Admin user not found"));
+        adminService.updateUserRole(userId, request.getRole(), admin.getId());
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{userId}/active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> setUserActive(
+            @PathVariable Long userId, @RequestParam boolean active, Authentication authentication) {
+        User admin = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        adminService.setUserActive(userId, active, admin.getId());
         return ResponseEntity.noContent().build();
     }
 

@@ -12,4 +12,13 @@
         <Class name="com.nathanaeldorsey.stormmarket.product.ProductController"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
+    <Match>
+        <Class name="com.nathanaeldorsey.stormmarket.cart.CartService"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.nathanaeldorsey.stormmarket.product.ProductService"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
 </FindBugsFilter>

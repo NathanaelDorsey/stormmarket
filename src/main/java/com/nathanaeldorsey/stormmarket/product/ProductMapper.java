@@ -22,7 +22,7 @@ public class ProductMapper {
                         .map(Category::getId) // For each Category map to return of getId instead
                         .collect(Collectors.toSet()) // Collect stream back to Set
                 );
-
+        response.setActive(product.isActive());
         return response;
     }
 }

@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.config;
 
+import com.nathanaeldorsey.stormmarket.auth.ActiveUserJwtValidator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -10,10 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.converter.RsaKeyConverters;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.*;
 
 @Configuration
 public class JwtConfig {
@@ -41,7 +41,21 @@ public class JwtConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(RSAPublicKey publicKey) {
-        return NimbusJwtDecoder.withPublicKey(publicKey).build();
+    public JwtDecoder jwtDecoder(RSAPublicKey publicKey, ActiveUserJwtValidator activeUserJwtValidator) {
+
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
+
+        decoder.setJwtValidator(jwt -> {
+            OAuth2TokenValidatorResult result = JwtValidators.createDefault().validate(jwt);
+            if (result.hasErrors()) {
+                return result;
+            }
+            if (!activeUserJwtValidator.test(jwt)) {
+                return OAuth2TokenValidatorResult.failure(
+                        new OAuth2Error("invalid_token", "User account is inactive or does not exist", null));
+            }
+            return OAuth2TokenValidatorResult.success();
+        });
+        return decoder;
     }
 }

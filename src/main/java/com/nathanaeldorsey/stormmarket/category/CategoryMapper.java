@@ -11,8 +11,10 @@ public class CategoryMapper {
 
         response.setId(category.getId());
         response.setName(category.getName());
-        response.setProductIds(
-                category.getProducts().stream().map(Product::getId).collect(Collectors.toSet()));
+        response.setProductIds(category.getProducts().stream()
+                .filter(Product::isActive)
+                .map(Product::getId)
+                .collect(Collectors.toSet()));
 
         return response;
     }

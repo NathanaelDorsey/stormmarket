@@ -11,6 +11,8 @@ public class OrderMapper {
         OrderResponse response = new OrderResponse();
 
         response.setId(order.getId());
+        response.setUserId(order.getUser().getId());
+        response.setUsername(order.getUser().getUsername());
         response.setTotal(order.getTotal());
         response.setOrderStatus(order.getStatus());
         response.setCreatedAt(order.getCreatedAt());
@@ -24,7 +26,7 @@ public class OrderMapper {
     private OrderItemResponse toItemResponse(OrderItem item) {
         OrderItemResponse response = new OrderItemResponse();
 
-        response.setProductId(item.getId());
+        response.setProductId(item.getProduct().getId());
         response.setProductName(item.getProductName());
         response.setPrice(item.getPrice());
         response.setQuantity(item.getQuantity());

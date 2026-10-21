@@ -12,4 +12,6 @@ public class CartItemResponse {
     private BigDecimal price;
     private Integer quantity;
     private BigDecimal subtotal;
+    private boolean isActive;
+    private boolean inStock;
 }

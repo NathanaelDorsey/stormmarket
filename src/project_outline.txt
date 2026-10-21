@@ -68,7 +68,7 @@ Checkout & Orders - DONE
                 Order status
                 Transactions
                 Order history
-Admin functionality
+Admin functionality - DONE
                 Manage products
                 Manage categories
                 Manage users

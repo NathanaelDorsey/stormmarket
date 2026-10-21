@@ -10,6 +10,8 @@ import lombok.Setter;
 @Setter
 public class OrderResponse {
     private Long id;
+    private Long userId;
+    private String username;
     private BigDecimal total;
     private OrderStatus orderStatus;
     private LocalDateTime createdAt;
