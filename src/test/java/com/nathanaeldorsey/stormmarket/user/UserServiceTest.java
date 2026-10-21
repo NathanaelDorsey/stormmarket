@@ -61,7 +61,10 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals("janedoe", result.getUsername());
-        verify(userRepository).save(any(User.class));
+        verify(userRepository).save(argThat(user ->
+                "encoded-password".equals(user.getPassword())
+                        && "jane@example.com".equals(user.getEmail())
+                        && user.getRole() == Role.USER));
     }
 
     @Test
@@ -76,6 +79,7 @@ class UserServiceTest {
         when(userRepository.existsByUsername("janedoe")).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class, () -> userService.registerUser(request));
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -91,6 +95,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail("jane@example.com")).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class, () -> userService.registerUser(request));
+        verify(userRepository, never()).save(any(User.class));
     }
 }
 

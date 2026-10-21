@@ -3,33 +3,29 @@ package com.nathanaeldorsey.stormmarket.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest
+@AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
 class SecurityConfigTest {
 
     @Autowired
-    private WebApplicationContext context;
-
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-    }
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Test
     void publicAuthEndpointsAreAccessibleWithoutAuthentication() throws Exception {
@@ -41,9 +37,10 @@ class SecurityConfigTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
     void adminCanAccessProtectedAdminProductSearchEndpoint() throws Exception {
-        mockMvc.perform(get("/products/admin/search")).andExpect(status().isOk());
+        mockMvc.perform(get("/products/admin/search")
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -53,7 +50,22 @@ class SecurityConfigTest {
     }
 
     @Test
+    void anonymousUserCannotAccessAdminProductSearch() throws Exception {
+        mockMvc.perform(get("/products/admin/search").with(anonymous()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void regularUserCannotAccessAdminProductSearch() throws Exception {
+        mockMvc.perform(get("/products/admin/search")
+                        .with(user("customer").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
     void securityConfigurationLoads() {
-        assertThat(true).isTrue();
+        assertThat(applicationContext.getBean(SecurityFilterChain.class))
+                .isNotNull();
     }
 }

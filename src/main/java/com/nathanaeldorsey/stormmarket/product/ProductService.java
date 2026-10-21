@@ -5,12 +5,12 @@ import com.nathanaeldorsey.stormmarket.category.Category;
 import com.nathanaeldorsey.stormmarket.category.CategoryRepository;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.order.OrderItemRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -59,12 +59,13 @@ public class ProductService {
         }
         return productMapper.toResponse(product);
     }
-
+    @Transactional(readOnly = true)
     public Page<ProductResponse> searchProducts(ProductSearchRequest request, Pageable pageable) {
         Specification<Product> specification = buildSearchSpecification(request).and(ProductSpecification.isActive());
         return productRepository.findAll(specification, pageable).map(productMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<ProductResponse> searchProductsForAdmin(ProductSearchRequest request, Pageable pageable) {
 
         Specification<Product> specification =

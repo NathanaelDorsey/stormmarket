@@ -25,5 +25,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     SET p.stockQuantity = p.stockQuantity + :quantity
     WHERE p.id = :productId
     """)
-    int restoreStock(@Param("productId") Long productId, @Param("quantity") int quantity);
+    void restoreStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 }

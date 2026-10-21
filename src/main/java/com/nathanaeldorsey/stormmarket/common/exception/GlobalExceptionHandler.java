@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -71,8 +72,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiErrorResponse> handleMalformedRequest(
-            HttpMessageNotReadableException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleMalformedRequest(HttpServletRequest request) {
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST, "Request body is missing or contains invalid JSON", request.getRequestURI());
     }
@@ -96,13 +96,19 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
     }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(
+            HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiErrorResponse> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleBadCredentials(HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials", request.getRequestURI());
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ApiErrorResponse> handleDisabledAccount(DisabledException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleDisabledAccount(HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Account is disabled", request.getRequestURI());
     }
 }

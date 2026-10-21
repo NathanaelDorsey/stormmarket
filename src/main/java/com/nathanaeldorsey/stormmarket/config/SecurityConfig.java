@@ -51,10 +51,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth // configure request permissions
                         .requestMatchers("/auth/**")
                         .permitAll() // explicit permit all requests to /auth
+                        // Admin product endpoints require the ADMIN role.
+                        .requestMatchers("/products/admin/**").hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.GET, CATEGORIES_PATH)
                         .permitAll() // permit all GET requests to categories
                         .requestMatchers(HttpMethod.GET, PRODUCTS_PATH)
-                        .authenticated() // require authentication for product reads
+                        .permitAll() // permit all GET requests to products
                         .requestMatchers(HttpMethod.POST, PRODUCTS_PATH, CATEGORIES_PATH)
                         .hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.PUT, PRODUCTS_PATH, CATEGORIES_PATH)

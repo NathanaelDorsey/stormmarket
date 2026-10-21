@@ -85,6 +85,7 @@ class ProductServiceTest {
 
         assertThrows(IllegalStateException.class, () -> productService.deleteProduct(7L));
         verify(cartItemRepository, never()).deleteByProductId(anyLong());
+        verify(productRepository, never()).delete(any(Product.class));
     }
 
     @Test
