@@ -24,6 +24,7 @@ class SecurityConfigTest {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -38,34 +39,28 @@ class SecurityConfigTest {
 
     @Test
     void adminCanAccessProtectedAdminProductSearchEndpoint() throws Exception {
-        mockMvc.perform(get("/products/admin/search")
-                        .with(user("admin").roles("ADMIN")))
+        mockMvc.perform(get("/products/admin/search").with(user("admin").roles("ADMIN")))
                 .andExpect(status().isOk());
     }
 
     @Test
     void anonymousUserCanAccessPublicProductsEndpoint() throws Exception {
-        mockMvc.perform(get("/products").with(anonymous()))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/products").with(anonymous())).andExpect(status().isOk());
     }
 
     @Test
     void anonymousUserCannotAccessAdminProductSearch() throws Exception {
-        mockMvc.perform(get("/products/admin/search").with(anonymous()))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/products/admin/search").with(anonymous())).andExpect(status().isUnauthorized());
     }
 
     @Test
     void regularUserCannotAccessAdminProductSearch() throws Exception {
-        mockMvc.perform(get("/products/admin/search")
-                        .with(user("customer").roles("USER")))
+        mockMvc.perform(get("/products/admin/search").with(user("customer").roles("USER")))
                 .andExpect(status().isForbidden());
     }
 
-
     @Test
     void securityConfigurationLoads() {
-        assertThat(applicationContext.getBean(SecurityFilterChain.class))
-                .isNotNull();
+        assertThat(applicationContext.getBean(SecurityFilterChain.class)).isNotNull();
     }
 }

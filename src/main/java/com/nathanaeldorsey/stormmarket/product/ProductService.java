@@ -59,6 +59,7 @@ public class ProductService {
         }
         return productMapper.toResponse(product);
     }
+
     @Transactional(readOnly = true)
     public Page<ProductResponse> searchProducts(ProductSearchRequest request, Pageable pageable) {
         Specification<Product> specification = buildSearchSpecification(request).and(ProductSpecification.isActive());
@@ -86,7 +87,8 @@ public class ProductService {
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest request) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+        Product product =
+                productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
 
         updateProductFields(product, request);
 
@@ -96,7 +98,8 @@ public class ProductService {
     }
 
     public ProductResponse setProductActive(Long id, boolean active) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+        Product product =
+                productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
 
         product.setActive(active);
 
@@ -105,9 +108,14 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    @Transactional
     public ProductResponse addCategory(Long productId, Long categoryId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+        Category category = categoryRepository
+                .findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         product.addCategory(category);
 
@@ -116,6 +124,7 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    @Transactional
     public ProductResponse removeCategory(Long productId, Long categoryId) {
         Product product = productRepository
                 .findById(productId)

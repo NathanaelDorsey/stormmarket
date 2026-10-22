@@ -97,8 +97,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(
-            HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
     }
 

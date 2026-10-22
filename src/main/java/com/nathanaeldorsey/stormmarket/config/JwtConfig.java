@@ -19,8 +19,9 @@ import org.springframework.security.oauth2.jwt.*;
 public class JwtConfig {
     @Bean
     public RSAPublicKey rsaPublicKey(
-            @Value("${STORMMARKET_JWT_PUBLIC_KEY_LOCATION:${stormmarket.jwt.public-key-location:classpath:jwt/public-key.pem}}")
-            String location)
+            @Value(
+                            "${STORMMARKET_JWT_PUBLIC_KEY_LOCATION:${stormmarket.jwt.public-key-location:classpath:jwt/public-key.pem}}")
+                    String location)
             throws IOException {
 
         try (InputStream input = Files.newInputStream(Path.of(location.replace("file:", "")))) {
@@ -30,8 +31,9 @@ public class JwtConfig {
 
     @Bean
     public RSAPrivateKey rsaPrivateKey(
-            @Value("${STORMMARKET_JWT_PRIVATE_KEY_LOCATION:${stormmarket.jwt.private-key-location:classpath:jwt/private-key.pem}}")
-            String location)
+            @Value(
+                            "${STORMMARKET_JWT_PRIVATE_KEY_LOCATION:${stormmarket.jwt.private-key-location:classpath:jwt/private-key.pem}}")
+                    String location)
             throws IOException {
 
         try (InputStream input = Files.newInputStream(Path.of(location.replace("file:", "")))) {

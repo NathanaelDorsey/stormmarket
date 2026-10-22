@@ -61,8 +61,8 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals("janedoe", result.getUsername());
-        verify(userRepository).save(argThat(user ->
-                "encoded-password".equals(user.getPassword())
+        verify(userRepository)
+                .save(argThat(user -> "encoded-password".equals(user.getPassword())
                         && "jane@example.com".equals(user.getEmail())
                         && user.getRole() == Role.USER));
     }
@@ -98,4 +98,3 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 }
-

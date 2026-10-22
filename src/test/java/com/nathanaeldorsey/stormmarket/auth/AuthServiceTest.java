@@ -108,4 +108,3 @@ class AuthServiceTest {
         assertThrows(DisabledException.class, () -> authService.login(request));
     }
 }
-
