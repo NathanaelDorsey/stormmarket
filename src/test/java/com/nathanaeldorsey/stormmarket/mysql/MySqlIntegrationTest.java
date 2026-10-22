@@ -33,6 +33,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class MySqlIntegrationTest {
 
     @Container
+    @SuppressWarnings("resource")
     static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.4")
             .withDatabaseName("stormmarket_test")
             .withUsername("stormmarket")
@@ -167,7 +168,7 @@ class MySqlIntegrationTest {
         Category reloadedCategory =
                 categoryRepository.findById(savedCategory.getId()).orElseThrow();
 
-        assertThat(reloadedProduct.getCategories()).extracting(Category::getId).doesNotContain(savedCategory.getId());
+        assertThat(reloadedProduct.getCategories()).isEmpty();
 
         assertThat(reloadedCategory.getId()).isEqualTo(savedCategory.getId());
     }

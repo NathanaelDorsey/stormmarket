@@ -12,9 +12,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -59,13 +59,14 @@ class ProductServiceTest {
         response.setId(1L);
         response.setName("Widget");
 
-        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(activeProduct));
+        when(productRepository.findAll(ArgumentMatchers.<Specification<Product>>any()))
+                .thenReturn(List.of(activeProduct));
         when(productMapper.toResponse(activeProduct)).thenReturn(response);
 
         List<ProductResponse> result = productService.getAllProducts();
 
         assertEquals(1, result.size());
-        assertEquals("Widget", result.get(0).getName());
+        assertEquals("Widget", result.getFirst().getName());
     }
 
     @Test
@@ -89,6 +90,20 @@ class ProductServiceTest {
     }
 
     @Test
+    void deleteProductRemovesCartItemsAndDeletesProductWhenNotInOrderHistory() {
+        Product product = new Product();
+        product.setId(8L);
+
+        when(productRepository.findById(8L)).thenReturn(java.util.Optional.of(product));
+        when(orderItemRepository.existsByProductId(8L)).thenReturn(false);
+
+        productService.deleteProduct(8L);
+
+        verify(cartItemRepository).deleteByProductId(8L);
+        verify(productRepository).delete(product);
+    }
+
+    @Test
     void searchProductsReturnsPageOfMappedResponses() {
         Product product = new Product();
         product.setId(3L);
@@ -100,8 +115,8 @@ class ProductServiceTest {
         response.setId(3L);
         response.setName("Laptop");
 
-        when(productRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(product)));
+        when(productRepository.findAll(ArgumentMatchers.<Specification<Product>>any()))
+                .thenReturn(List.of(product));
         when(productMapper.toResponse(product)).thenReturn(response);
 
         ProductSearchRequest request = new ProductSearchRequest();
@@ -110,6 +125,6 @@ class ProductServiceTest {
         var page = productService.searchProducts(request, Pageable.unpaged());
 
         assertEquals(1, page.getTotalElements());
-        assertEquals("Laptop", page.getContent().get(0).getName());
+        assertEquals("Laptop", page.getContent().getFirst().getName());
     }
 }
