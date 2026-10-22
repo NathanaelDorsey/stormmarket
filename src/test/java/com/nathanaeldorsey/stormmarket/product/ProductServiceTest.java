@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -115,8 +116,8 @@ class ProductServiceTest {
         response.setId(3L);
         response.setName("Laptop");
 
-        when(productRepository.findAll(ArgumentMatchers.<Specification<Product>>any()))
-                .thenReturn(List.of(product));
+        when(productRepository.findAll(ArgumentMatchers.<Specification<Product>>any(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(product)));
         when(productMapper.toResponse(product)).thenReturn(response);
 
         ProductSearchRequest request = new ProductSearchRequest();
