@@ -39,9 +39,6 @@ class MySqlIntegrationTest {
             .withUsername("stormmarket")
             .withPassword("stormmarket");
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
@@ -50,6 +47,8 @@ class MySqlIntegrationTest {
         registry.add("spring.datasource.driver-class-name", () -> "com.mysql.cj.jdbc.Driver");
     }
 
+    @Autowired
+    private CategoryRepository categoryRepository;
     @Autowired
     private UserRepository userRepository;
 
