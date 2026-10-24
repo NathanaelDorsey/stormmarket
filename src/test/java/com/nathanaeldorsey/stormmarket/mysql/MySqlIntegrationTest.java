@@ -49,6 +49,7 @@ class MySqlIntegrationTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
     @Autowired
     private UserRepository userRepository;
 
