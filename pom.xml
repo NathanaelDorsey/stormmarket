@@ -178,6 +178,9 @@
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>@{argLine} "-javaagent:${org.mockito:mockito-core:jar}"</argLine>
+                    <excludes>
+                        <exclude>com/nathanaeldorsey/stormmarket/mysql/MySqlIntegrationTest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -244,4 +247,26 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>mysql-integration</id>
+            <activation>
+                <property>
+                    <name>run.mysql.integration</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes combine.self="override"/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
