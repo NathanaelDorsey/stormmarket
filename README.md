@@ -1,27 +1,26 @@
 # StormMarket
 
-StormMarket is a Spring Boot e-commerce backend built to demonstrate production-minded backend engineering: secure authentication, database persistence, layered architecture, migration-driven schema evolution, and a practical testing strategy that balances speed with realism.
+StormMarket is a Spring Boot e-commerce backend built to demonstrate production-minded backend engineering: secure authentication, migration-driven persistence, layered architecture, and a testing strategy that balances speed with real-world validation.
 
-This project is designed to read like a real-world service: it exposes REST APIs, protects admin operations with role-based authorization, persists domain data in MySQL, and validates behavior with a fast H2-based smoke suite alongside opt-in MySQL/Testcontainers integration checks.
+This project models a marketplace API with JWT-based auth, role-aware admin actions, catalog management, and persistence using MySQL in production and H2 in the default local test path.
 
 ## Why this project exists
 
-This application is meant to showcase the kind of backend work expected in a modern software engineering environment:
-- clean separation of concerns between controller, service, repository, and domain layers
-- secure API design with JWT-based authentication and authorization
-- database-first development using Flyway migrations
-- maintainable API contracts with DTOs, validation, and structured error responses
-- a disciplined testing strategy suited for real delivery teams
+This application is meant to showcase the kinds of decisions real backend teams make:
+- separate controller, service, repository, and domain responsibilities
+- secure API design with JWT bearer authentication
+- migration-based schema evolution with Flyway
+- API contracts built around DTOs, validation, and structured errors
+- testing that is fast by default but realistic when database behavior matters
 
 ## Core capabilities
 
 - user registration and authentication
 - role-based access control for admin-only workflows
 - product and category management
-- product search and catalog exposure
-- shopping cart and order processing foundations
-- transaction and shipping-related domain models
-- full application boot verification with a default smoke test profile
+- public product and category catalog reads
+- cart, order, shipping, and transaction foundations
+- application boot verification with a lightweight smoke suite
 
 ## Tech stack
 
@@ -30,11 +29,11 @@ This application is meant to showcase the kind of backend work expected in a mod
 - Spring Web
 - Spring Data JPA
 - Spring Security
-- OAuth2 Resource Server / JWT authentication
+- OAuth2 Resource Server + JWT
 - MySQL
 - Flyway
-- H2 for default testing
-- Testcontainers for MySQL integration validation
+- H2 (test default)
+- Testcontainers (MySQL integration validation)
 - Maven
 - Lombok
 - JUnit 5 + Spring Test
@@ -42,58 +41,53 @@ This application is meant to showcase the kind of backend work expected in a mod
 
 ## Architecture
 
-The application follows a standard layered backend pattern:
+The project follows a standard layered backend structure:
 
-- Controllers: accept HTTP requests and translate them into application actions
-- Services: implement business logic and validation
-- Repositories: persist and retrieve data through JPA
-- Entities: represent database tables and domain state
-- DTOs: define request/response contracts for the API
-- Mappers: convert between entities and API models
-- SecurityConfig: enforces public routes, protected routes, and JWT validation
+- Controllers: accept HTTP requests and translate them into use cases
+- Services: contain business rules and validation
+- Repositories: persist and retrieve JPA entities
+- Entities: represent the database/domain model
+- DTOs: define API contracts
+- Mappers: convert between entity and response models
+- SecurityConfig: defines public routes, protected routes, and JWT authorization
 
-This separation keeps the codebase easier to maintain, test, and extend as the business domain grows.
-
-## Domain overview
-
-StormMarket models a marketplace with a practical e-commerce domain:
-- users and authentication
-- roles and authorization boundaries
-- products and categories
-- cart and cart item workflows
-- orders, transactions, and shipping data
-- admin management of catalog and platform operations
+This keeps the codebase easier to test, reason about, and extend.
 
 ## Security and API behavior
 
 The system is built around secure API practices:
-- public endpoints for authentication and catalog read access where appropriate
-- protected admin functionality behind role checks
-- JWT authentication for authenticated requests
-- validation and consistent error handling for invalid inputs and auth failures
+- public auth endpoints are allowed for sign-in and registration flows
+- public GET access is intentionally allowed for products and categories
+- admin-only workflows require ADMIN authority
+- JWT authentication is enforced for protected requests
+- invalid credentials and disabled accounts return 401-style responses
 
 ## Testing strategy
 
-The project follows an enterprise-style layered testing approach, intentionally designed to balance speed and realism.
+The project uses a layered testing strategy designed for real delivery teams.
 
-### Fast default H2 smoke suite + opt-in MySQL validation
+### Default path: H2 smoke tests
 
-This is the selected strategy for the project:
-- default local and CI execution uses an in-memory H2 database for quick feedback
-- the app boots and validates under a lightweight test profile without requiring a production database
-- MySQL validation is enabled through Testcontainers when persistence realism matters
-- Docker is valuable because it creates disposable, deterministic MySQL environments for validation runs
+The default local and CI path runs against an in-memory H2 database:
+- fast feedback during development
+- minimal setup cost
+- validates application wiring, security rules, and core service behavior
 
-This approach is preferred over a pure H2-only strategy because it misses MySQL-specific behavior, and over a pure MySQL-only strategy because it makes everyday development slower and less productive.
+### Opt-in path: MySQL + Testcontainers
 
-### Coverage types in this project
+When persistence correctness matters, the project runs MySQL in disposable containers:
+- validates JPA behavior against MySQL semantics
+- verifies Flyway migrations and schema compatibility
+- helps catch issues that H2 would miss
 
-- unit tests for service-level logic and business rules
-- security tests for authentication and authorization contracts
-- application context smoke tests for configuration and boot integrity
-- MySQL integration tests for migration and persistence parity
+### Why this approach
 
-The implementation and rationale are documented in `src/testing_stage_plan.md`.
+This is the preferred balance over a single-database strategy:
+- H2-only is too optimistic and misses MySQL-specific behavior
+- MySQL-only is slower and frustrating for daily iteration
+- Docker/Testcontainers provide the realism we need without forcing every local run to use MySQL
+
+The rationale and project-specific test plan are documented in `src/testing_stage_plan.md`.
 
 ## Project structure
 
@@ -118,95 +112,62 @@ stormmarket/
 ## Getting started
 
 ### Prerequisites
+
 - Java 25
 - Maven
-- Docker (required for MySQL/Testcontainers validation runs)
+- Docker for MySQL/Testcontainers validation
 
 ### Run the application
+
 ```bash
 ./mvnw spring-boot:run
 ```
 
 ### Run the default test suite
+
 ```bash
 ./mvnw test
 ```
 
-### Run the MySQL integration test profile
+### Run the MySQL integration suite
+
 ```bash
-./mvnw test -Dspring.profiles.active=mysql-integration
+./mvnw test -Drun.mysql.integration=true
 ```
 
-## Notes for recruiters and reviewers
-
-This project demonstrates practical engineering judgment rather than a toy CRUD example. It reflects the kinds of decisions teams make in production:
-- where to optimize for speed
-- where to test against real infrastructure
-- how to secure a backend without overcomplicating the system
-- how to keep local development fast while still validating critical behavior
-
-## Project status
-
-The backend is in a working, test-verified state with a layered architecture and a realistic delivery-oriented testing plan.
-
-## License
-
-This repository is currently intended for portfolio and learning use.
+This requires Docker because the MySQL integration tests start a disposable MySQL container via Testcontainers.
 
 ## What I built
 
-This project is a complete backend for a marketplace-style application. It includes secure authentication, role-based access control, catalog management, cart and order foundations, and a database-driven architecture that uses real migration and persistence patterns.
-
-I designed the application to look and feel like a real product backend rather than a simple tutorial project. The code separates concerns cleanly, uses validation and consistent error handling, and includes testing at multiple levels so the system is easier to trust and extend.
+This is a marketplace backend with a realistic, production-aware structure. It includes:
+- JWT-based authentication and authorization
+- role-protected admin operations
+- catalog and product management
+- migration-based persistence conventions
+- layered services and repository-based domain logic
+- a multi-layered test suite for trust and maintainability
 
 ## Challenges I solved
 
-- implemented JWT-based authentication and authorization with Spring Security
-- enforced public vs protected API routes using a structured security configuration
-- handled persistence and schema evolution through Flyway migrations
-- created a fast default testing profile using H2 while keeping MySQL parity checks available via Testcontainers
-- ensured authentication failures and invalid requests returned meaningful HTTP behavior instead of generic server errors
-- resolved runtime issues related to JPA criteria, validation, and service contract mismatches during the testing phase
+- secured endpoints with Spring Security and JWT claims
+- aligned authorization rules with the app’s intended public/private contract
+- fixed service and JPA issues surfaced by tests
+- hardened startup behavior so local tests do not depend on external secrets or DB setup
+- created a fast default smoke suite while keeping MySQL parity checks available
+- validated migration and persistence behavior with Testcontainers
 
 ## What I learned
 
-- how to design a backend around clear boundaries between API, business logic, and persistence
-- how to balance developer speed with production realism when choosing testing strategies
-- how to secure a REST API with JWTs and authorization rules without overengineering the solution
-- why migration-based schema management and realistic integration tests matter for database correctness
-- how test failures reveal product and contract issues early when the app is structured for real-world use
+- how to balance developer speed with production realism in testing
+- how to manage security policy and JWT authority mapping in a real API
+- why migration-backed schema validation matters for database correctness
+- how test failures reveal service contract issues early
+- how to design a backend that is secure, maintainable, and testable
 
 ## Future improvements
 
-- add a frontend client for a complete end-to-end user experience
-- expand the admin dashboard and reporting workflows
-- add stronger observability with structured logs, metrics, and health dashboards
-- improve containerization and deployment automation
-- add CI/CD pipelines for automated build, test, and release validation
-
-## Demo / walkthrough
-
-A typical flow for the app includes:
-1. register a user or authenticate with existing credentials
-2. browse catalog products and categories
-3. create or manage products as an admin
-4. perform cart and order-related operations through the backend API
-5. validate access control and business rules through the test suite
-
-This gives a clear picture of how the product behaves in a realistic e-commerce context.
-
-## Architecture highlights
-
-- Spring Boot application with REST controllers
-- JPA entities for business domain modeling
-- repository/service/controller separation
-- Flyway-managed MySQL schema evolution
-- JWT resource-server configuration
-- H2 smoke tests for fast developer feedback
-- MySQL/Testcontainers checks for persistence confidence
-
-## Why this is portfolio-worthy
-
-This project reflects practical engineering judgment and real backend work: it is not just a CRUD list, but a layered system with authentication, persistence, testing discipline, and deployment-oriented design decisions.
-
-The codebase is structured to show that I can build service-oriented applications that are secure, maintainable, and testable—qualities that matter in production development teams.
+- expand admin workflows and reporting
+- add full e2e API documentation and examples
+- improve observability with structured logging and metrics
+- add CI/CD automation for build and release validation
+- optionally add a frontend client for a complete storefront experience
