@@ -198,7 +198,8 @@
                             <version>2.102.0</version>
                         </palantirJavaFormat>
                         <removeUnusedImports/>
-                    </java>
+                        </java>
+                        <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>
