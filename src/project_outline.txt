@@ -73,11 +73,11 @@ Admin functionality - DONE
                 Manage categories
                 Manage users
                 Manage orders
-Validation & error handling
+Validation & error handling - DONE
                 Request validation
                 Global exception handling
                 Consistent API error responses
-Testing
+Testing - DONE
                 Unit tests
                 Repository/integration tests
                 Controller tests

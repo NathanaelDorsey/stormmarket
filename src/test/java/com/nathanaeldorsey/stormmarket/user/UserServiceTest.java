@@ -65,6 +65,7 @@ class UserServiceTest {
                 .save(argThat(user -> "encoded-password".equals(user.getPassword())
                         && "jane@example.com".equals(user.getEmail())
                         && user.getRole() == Role.USER));
+        verify(passwordEncoder).encode("secret123");
     }
 
     @Test
