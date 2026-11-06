@@ -13,6 +13,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+/**
+ * Represents a user's shopping cart. One-to-one with a user, holding a list of cart items.
+ * Provides addItem to maintain the bidirectional cart-item relationship.
+ */
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

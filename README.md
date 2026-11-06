@@ -64,7 +64,7 @@ The system is built around secure API practices:
 
 ## Testing strategy
 
-The project uses a layered testing strategy designed for real delivery teams.
+The project uses a layered testing strategy designed for real delivery teams. Tests assert observable behavior and API contracts — service unit tests mock repositories and mappers, MVC/security tests validate HTTP behavior and auth boundaries, and persistence tests use real repositories against a disposable database. Shared mutable fixtures and test-order coupling are avoided.
 
 ### Default path: H2 smoke tests
 
@@ -72,22 +72,59 @@ The default local and CI path runs against an in-memory H2 database:
 - fast feedback during development
 - minimal setup cost
 - validates application wiring, security rules, and core service behavior
+- requires no Docker, remote database, or production secrets
 
 ### Opt-in path: MySQL + Testcontainers
 
 When persistence correctness matters, the project runs MySQL in disposable containers:
 - validates JPA behavior against MySQL semantics
 - verifies Flyway migrations and schema compatibility
-- helps catch issues that H2 would miss
+- catches MySQL-specific behavior that H2 would miss
 
 ### Why this approach
 
-This is the preferred balance over a single-database strategy:
-- H2-only is too optimistic and misses MySQL-specific behavior
+This balances speed and realism:
+- H2-only is too optimistic and misses MySQL-specific migration and SQL issues
 - MySQL-only is slower and frustrating for daily iteration
-- Docker/Testcontainers provide the realism we need without forcing every local run to use MySQL
+- Docker/Testcontainers provide realism without forcing every local run to use MySQL
 
-The rationale and project-specific test plan are documented in `src/testing_stage_plan.md`.
+The default smoke test uses an isolated H2 profile. MySQL integration tests are explicitly gated behind `-Drun.mysql.integration=true` and require Docker.
+
+### Test coverage by domain
+
+| Domain | What is tested | Test class |
+|--------|---------------|------------|
+| Auth & users | Registration, login, JWT validation, inactive users, duplicate detection | `AuthControllerTest`, `AuthServiceTest`, `GlobalExceptionHandlerTest` |
+| Categories | CRUD, unique constraints, authorization, validation errors | `CategoryControllerTest`, `CategoryServiceTest` |
+| Products | Create/update/delete, search/filter, pagination, admin endpoints, stock | `ProductControllerTest`, `ProductServiceTest` |
+| Cart | Add/remove/update items, quantity boundaries, stock checks, totals, cross-user isolation | `CartControllerTest`, `CartServiceTest`, `MySqlIntegrationTest` |
+| Orders | Checkout, stock reduction, cart clearing, snapshots, transactional rollback, history | `OrderControllerTest`, `OrderServiceTest`, `MySqlIntegrationTest` | Admin | User CRUD, role changes, activate/deactivate, authorization | `AdminControllerTest`, `AdminServiceTest` |
+| Errors & validation | Malformed JSON, missing fields, invalid types, consistent error schema | `GlobalExceptionHandlerTest` |
+| Database | Flyway migrations, constraints, FKs, indexes, transaction rollback, H2 vs MySQL differences | `MySqlIntegrationTest` |
+| Application wiring | Full-context startup composition | `StormmarketApplicationSmokeTest`, `StormmarketApplicationTests` |
+
+### Quality gates
+
+```bash
+# Run the default H2 smoke suite (no Docker required)
+./mvnw test
+
+# Run the MySQL/Testcontainers integration suite (requires Docker)
+./mvnw test -Drun.mysql.integration=true
+
+# Full verification: tests, static analysis, formatting, coverage
+./mvnw verify
+```
+
+### Test status
+
+All 119 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
+
+### Notes on fuzz testing
+
+A `FuzzTest` (jqwik property-based tests for cart quantities) was previously included but removed because random `@Positive` quantity generation caused OutOfMemory errors. Property-based fuzzing is useful for catching edge cases, but where each test run is expensive or unbounded inputs risk resource exhaustion, targeted boundary-value tests (`@IntRange` instead of `@Positive`) are preferred.
+
+The full test plan and boundaries are documented in `src/testing_stage_plan.md` and `testPt2.md`.
 
 ## Project structure
 
@@ -171,3 +208,46 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 - improve observability with structured logging and metrics
 - add CI/CD automation for build and release validation
 - optionally add a frontend client for a complete storefront experience
+
+## AI Code Review (Greptile)
+
+The project includes [Greptile](https://www.greptile.com) AI code review integration:
+
+### GitHub Actions (CI)
+
+Workflow: `.github/workflows/greptile-review.yml`
+- Triggers on PR opened/synchronize/reopened
+- Runs `greptile review -b main --json`
+- Posts findings as PR comment with severity badges (🔴 critical, 🟠 major, 🟡 minor, 🔵 info)
+- Requires `GREPTILE_API_KEY` secret in GitHub repository settings
+
+### Local Development
+
+```bash
+# Install Greptile CLI
+npm install -g greptile@latest
+
+# Login (requires account at https://app.greptile.com)
+greptile login
+
+# Run on feature branch (after committing changes)
+git commit -am "your changes"
+greptile review -b main --agent
+```
+
+### Pre-Push Workflow
+
+```bash
+# 1. Run tests and lint
+./mvnw verify
+
+# 2. Run Greptile review (max 2 runs per change set)
+greptile review -b main --agent
+
+# 3. Push if clean
+git push
+```
+
+### Skill Reference
+
+See `.agents/skills/greptile-review/SKILL.md` for detailed usage.

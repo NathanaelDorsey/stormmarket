@@ -5,6 +5,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ * Maps category entities to response DTOs, including ids of active products.
+ */
 public class CategoryMapper {
     public CategoryResponse toResponse(Category category) {
         CategoryResponse response = new CategoryResponse();

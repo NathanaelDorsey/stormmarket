@@ -8,6 +8,12 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 @Service
+/**
+ * Issues signed JWT access tokens for authenticated users.
+ *
+ * The token contains the username as subject, the user's role as a claim, and expires
+ * one hour after issuance.
+ */
 public class JwtService {
     private final JwtEncoder jwtEncoder;
 
@@ -15,6 +21,12 @@ public class JwtService {
         this.jwtEncoder = jwtEncoder;
     }
 
+    /**
+     * Generates a signed JWT access token for the given user.
+     *
+     * @param user the authenticated user
+     * @return the signed JWT token value string
+     */
     public String generateToken(User user) {
         Instant now = Instant.now(); // get current time
 

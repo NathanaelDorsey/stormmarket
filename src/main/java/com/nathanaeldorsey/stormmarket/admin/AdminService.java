@@ -11,6 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Provides administrative user management: updating user roles, activating/deactivating
+ * accounts, and listing or retrieving user profiles.
+ *
+ * Role changes are serialized using a shared lock row. An administrator cannot remove
+ * their own admin role, deactivate themselves, or remove/deactivate the last remaining
+ * active administrator.
+ */
 public class AdminService {
     private final UserRepository userRepository;
     private final AdminRoleLockRepository adminRoleLockRepository;

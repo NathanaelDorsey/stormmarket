@@ -7,6 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Response DTO for a product: id, name, description, price, stock quantity, image URL,
+ * category ids, and active state.
+ */
 public class ProductResponse {
 
     private Long id;

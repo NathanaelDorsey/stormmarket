@@ -137,3 +137,5 @@ buildNumber.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,intellij+all!/src/main/java/com/nathanaeldorsey/stormmarket/auth/private.pem
 
+DEPENDENCIES.md
+

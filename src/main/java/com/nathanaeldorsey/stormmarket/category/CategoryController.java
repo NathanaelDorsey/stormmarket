@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/categories")
+/**
+ * HTTP entry point for category management.
+ * Public endpoints (GET /categories, GET /categories/{id}) are open to everyone.
+ * Create, update, and delete operations require the ADMIN role.
+ */
 public class CategoryController {
     private final CategoryService categoryService;
 

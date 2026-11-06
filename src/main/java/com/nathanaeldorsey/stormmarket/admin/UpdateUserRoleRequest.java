@@ -7,6 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Request to update a user's role. Requires a non-null role value.
+ */
 public class UpdateUserRoleRequest {
     @NotNull
     private Role role;

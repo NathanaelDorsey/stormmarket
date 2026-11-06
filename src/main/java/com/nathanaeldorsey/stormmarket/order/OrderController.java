@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
+/**
+ * HTTP entry point for order management.
+ * Users can place orders from their cart and view their own order history and details.
+ * Admin endpoints allow viewing and updating any order's status.
+ */
 public class OrderController {
     private final OrderService orderService;
     private final UserRepository userRepository;

@@ -5,6 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Response DTO for a user profile: id, first name, last name, username, email, phone,
+ * address, and role. Password is intentionally omitted from the response.
+ */
 public class UserResponse {
 
     private Long id;

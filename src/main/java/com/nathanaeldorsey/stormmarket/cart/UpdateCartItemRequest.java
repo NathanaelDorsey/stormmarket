@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Request to update a cart line item quantity. Quantity is required and must be positive.
+ */
 @Getter
 @Setter
 public class UpdateCartItemRequest {

@@ -7,6 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Request DTO for creating or updating a category. Requires a non-blank name.
+ * productIds holds the ids of products to associate with the category.
+ */
 public class CategoryRequest {
     @NotBlank
     private String name;

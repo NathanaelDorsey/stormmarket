@@ -4,7 +4,10 @@ import com.nathanaeldorsey.stormmarket.category.Category;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
-@Component // Tells Spring, class is used for configuration
+@Component
+/**
+ * Maps product entities to response DTOs, including category ids and active state.
+ */
 public class ProductMapper {
     public ProductResponse toResponse(Product product) {
         ProductResponse response = new ProductResponse();

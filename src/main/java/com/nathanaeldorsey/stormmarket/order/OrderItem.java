@@ -12,6 +12,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+/**
+ * Represents a snapshot of a product within an order. Holds the product, product name,
+ * price at purchase time, and quantity. The name and price are snapshotted so the
+ * order record is independent of later product changes.
+ */
 public class OrderItem {
 
     @Id

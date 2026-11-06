@@ -5,6 +5,10 @@ import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Request to add a product to a cart: product id and quantity. Both fields are required
+ * and quantity must be positive.
+ */
 @Getter
 @Setter
 public class AddToCartRequest {

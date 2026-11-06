@@ -15,6 +15,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+/**
+ * Represents a line item in a cart: a product with a quantity.
+ * Enforces one product per cart via a unique constraint on (cart_id, product_id).
+ */
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

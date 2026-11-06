@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
+/**
+ * HTTP entry point for admin user management.
+ * All endpoints require the ADMIN role. Allows updating user roles,
+ * activating/deactivating users, and listing or retrieving user profiles.
+ */
 public class AdminController {
 
     private final AdminService adminService;

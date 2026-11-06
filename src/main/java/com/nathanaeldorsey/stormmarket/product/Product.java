@@ -14,6 +14,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+/**
+ * Represents a product in the catalog. Holds name, description, price, stock quantity,
+ * active flag, image URL, and a many-to-many set of categories.
+ *
+ * Provides bidirectional category management via addCategory and removeCategory.
+ */
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

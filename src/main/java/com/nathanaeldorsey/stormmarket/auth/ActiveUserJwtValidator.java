@@ -7,6 +7,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ * JWT validator that rejects tokens for inactive or non-existent users.
+ * Implements Predicate<Jwt> so it can be chained into the Nimbus JWT decoder validation.
+ */
 public class ActiveUserJwtValidator implements Predicate<Jwt> {
     private final UserRepository userRepository;
 

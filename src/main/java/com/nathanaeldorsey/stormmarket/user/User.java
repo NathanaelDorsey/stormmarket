@@ -10,6 +10,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+/**
+ * Represents a registered user. Holds name, username, hashed password, email, phone,
+ * address, role (USER or ADMIN), and active flag.
+ *
+ * Defaults to role USER and active true.
+ */
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
