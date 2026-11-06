@@ -16,6 +16,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+/**
+ * Represents a customer order. Holds the owning user, total amount, creation timestamp,
+ * order status, and a list of order items.
+ *
+ * The creation timestamp is set to UTC on persist via onCreate. Provides addItem to
+ * maintain the bidirectional order-item relationship.
+ */
 public class Order {
 
     @Id

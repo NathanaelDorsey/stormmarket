@@ -5,6 +5,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+/**
+ * Handles user registration: validates unique username and email, hashes the password,
+ * assigns the default USER role, and persists the new user.
+ */
 public class UserService {
     // Service has Password encoder and user repository
     private final UserRepository userRepository;

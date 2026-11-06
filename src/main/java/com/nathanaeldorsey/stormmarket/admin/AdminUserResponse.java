@@ -6,6 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Response DTO for admin user listing: id, username, email, role, and active state.
+ */
 public class AdminUserResponse {
     private Long id;
     private String username;

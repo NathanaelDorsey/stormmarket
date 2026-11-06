@@ -9,6 +9,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Request DTO for user registration. Requires first name, last name, username, password,
+ * and email. Username must be alphanumeric; password minimum 8 characters; email must be
+ * valid format; phone must be 10 digits if provided.
+ */
 public class UserRequest {
     @NotBlank
     private String firstName;

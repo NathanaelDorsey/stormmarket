@@ -19,6 +19,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
+/**
+ * Centralized exception handler for all REST controllers.
+ *
+ * Converts domain and framework exceptions into consistent ApiErrorResponse bodies
+ * with HTTP status, timestamp, message, request path, and optional validation field errors.
+ * Unexpected exceptions are logged server-side but return a generic message to clients
+ * (no stack traces or internal details leaked).
+ */
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 

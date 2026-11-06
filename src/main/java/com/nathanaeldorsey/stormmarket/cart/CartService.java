@@ -9,6 +9,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+/**
+ * Manages shopping-cart operations for users: adding products, updating quantities,
+ * removing items, clearing carts, and retrieving cart contents with totals.
+ *
+ * Enforces business rules:
+ * - quantity must be positive and not exceed {@value #MAX_CART_ITEM_QUANTITY} per line item
+ * - a cart may hold at most {@value #MAX_DISTINCT_CART_ITEMS} different products
+ * - requested quantity cannot exceed available stock
+ * - inactive products cannot be added to a cart
+ */
 public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
@@ -32,6 +42,17 @@ public class CartService {
         this.cartMapper = cartMapper;
     }
 
+    /**
+     * Adds the given quantity of a product to the user's cart, or increases the quantity
+     * if the product is already present.
+     *
+     * @param userId   the id of the user whose cart receives the item
+     * @param productId the id of the product to add
+     * @param quantity  quantity to add; must be positive, at most 100, and within available stock
+     * @throws ResourceNotFoundException if the user or product does not exist
+     * @throws IllegalArgumentException if the product is inactive, out of stock, quantity is invalid,
+     *                                  or the cart already holds 50 distinct products
+     */
     @Transactional // groups database changes into 1 transaction
     public void addProductToCart(Long userId, Long productId, Integer quantity) {
         validateQuantity(quantity);
@@ -74,6 +95,13 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    /**
+     * Retrieves the user's cart, creating an empty cart if none exists yet.
+     *
+     * @param userId the id of the user whose cart to retrieve
+     * @return the cart response containing items and total
+     * @throws ResourceNotFoundException if the user does not exist or is inactive
+     */
     @Transactional
     public CartResponse getCart(Long userId) {
         User user = getUser(userId);
@@ -82,6 +110,12 @@ public class CartService {
         return cartMapper.toResponse(cart);
     }
 
+    /**
+     * Removes all items from the user's cart.
+     *
+     * @param userId the id of the user whose cart to clear
+     * @throws ResourceNotFoundException if the user's cart does not exist
+     */
     @Transactional
     public void clearCart(Long userId) {
         Cart cart = getExistingCart(userId);
@@ -89,6 +123,13 @@ public class CartService {
         cart.getItems().clear();
     }
 
+    /**
+     * Removes a single product from the user's cart.
+     *
+     * @param userId   the id of the user whose cart to modify
+     * @param productId the id of the product to remove
+     * @throws ResourceNotFoundException if the user's cart or the product in the cart does not exist
+     */
     @Transactional
     public void removeProductFromCart(Long userId, Long productId) {
         Cart cart = getExistingCart(userId);
@@ -98,6 +139,15 @@ public class CartService {
         cart.getItems().remove(item); // remove item from collection and database(orphanRemoval = true)
     }
 
+    /**
+     * Replaces the quantity of a product already in the user's cart.
+     *
+     * @param userId   the id of the user whose cart to modify
+     * @param productId the id of the product to update
+     * @param quantity  new quantity; must be positive, at most 100, and within available stock
+     * @throws ResourceNotFoundException if the user's cart or the product in the cart does not exist
+     * @throws IllegalArgumentException if the product is inactive, quantity is invalid, or exceeds stock
+     */
     @Transactional
     public void updateProductQuantity(Long userId, Long productId, Integer quantity) {
         validateQuantity(quantity);

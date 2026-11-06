@@ -13,8 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+/**
+ * Manages product catalog operations: retrieval, search, creation, updates,
+ * activation toggling, category assignment, and deletion.
+ *
+ * Products that appear in order history cannot be deleted. Search supports
+ * filtering by name, category, price range, active state, and stock state.
+ */
 public class ProductService {
-    // Product Service has-a Product Repository (Service needs Repository to access database)
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;

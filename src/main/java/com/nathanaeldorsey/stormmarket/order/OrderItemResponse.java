@@ -6,6 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Response DTO for an order line item: product id, name, price, quantity, and subtotal.
+ */
 public class OrderItemResponse {
     private Long productId;
     private String productName;

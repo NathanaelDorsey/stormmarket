@@ -4,6 +4,15 @@ import jakarta.persistence.criteria.Path;
 import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
 
+/**
+ * Builds JPA Specification predicates for product search and filtering.
+ *
+ * Each static method returns an optional predicate: when the filter value is null or blank,
+ * it returns a conjunction (no restriction), otherwise it builds the appropriate comparison.
+ * Category joins use distinct to avoid duplicate rows from the many-to-many relationship.
+ *
+ * All constructors are private; this is a static factory-only class.
+ */
 public class ProductSpecification {
     // Describes how to filter products before database returns results
     private ProductSpecification() {}

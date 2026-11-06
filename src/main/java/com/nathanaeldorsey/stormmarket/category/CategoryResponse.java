@@ -6,6 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Response DTO for a category: id, name, and ids of active products in the category.
+ */
 public class CategoryResponse {
 
     private Long id;

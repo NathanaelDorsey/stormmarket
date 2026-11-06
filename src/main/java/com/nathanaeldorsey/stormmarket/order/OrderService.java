@@ -18,6 +18,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Manages the order lifecycle: placing orders from a cart, retrieving order history,
+ * viewing order details, admin order listing, and updating order status.
+ *
+ * Order placement snapshots product details into order items, deducts stock,
+ * clears the cart, and runs in a single transaction. Order status transitions
+ * follow a fixed flow: PENDING -> CONFIRMED -> SHIPPED -> DELIVERED, with
+ * cancellation allowed from PENDING, CONFIRMED, or SHIPPED.
+ */
 public class OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;

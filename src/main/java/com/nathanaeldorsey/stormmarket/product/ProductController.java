@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController // Class handles HTTP requests and returned data is the response
 @RequestMapping("/products") // Maps get request of /products to method
+/**
+ * HTTP entry point for product catalog management.
+ * Public endpoints (GET /products, GET /products/search) are open to everyone.
+ * Admin endpoints (create, update, delete, activate, admin search) require the ADMIN role.
+ */
 public class ProductController {
     // Product Controller has-a ProductService (Controller needs service to decide what should happen)
     private final ProductService productService;
@@ -21,12 +26,23 @@ public class ProductController {
     /* CREATE */
     @PostMapping
     // @Valid used tells Spring to enforce rules
+    /**
+     * Creates a new product. Requires ADMIN role.
+     *
+     * @param request the product details to create
+     * @return the created product response
+     */
     public ProductResponse createProduct(@Valid @RequestBody ProductRequest request) {
         return productService.createProduct(request);
     }
 
     /* READ */
     @GetMapping
+    /**
+     * Returns all active products.
+     *
+     * @return list of product responses
+     */
     public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
     }

@@ -1,13 +1,19 @@
 package com.nathanaeldorsey.stormmarket.category;
 
+import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
+/**
+ * Manages product categories: retrieval, creation, updates, and deletion.
+ * Deleting a category removes it from all products that reference it.
+ */
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private static final String CATEGORY_NOT_FOUND = "Category not found";
 
     public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
@@ -21,7 +27,8 @@ public class CategoryService {
     }
 
     public CategoryResponse getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow();
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND));
 
         return categoryMapper.toResponse(category);
     }
@@ -37,7 +44,8 @@ public class CategoryService {
     }
 
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
-        Category category = categoryRepository.findById(id).orElseThrow();
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND));
 
         updateCategoryFields(category, request);
 
@@ -47,7 +55,8 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow();
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND));
         for (Product product : category.getProducts()) {
             product.removeCategory(category);
         }

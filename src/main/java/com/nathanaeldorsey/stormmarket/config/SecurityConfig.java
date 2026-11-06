@@ -15,6 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableMethodSecurity
+/**
+ * Configures Spring Security for the application.
+ *
+ * Sets up Argon2 password hashing, JWT authentication (converting the "role" claim to
+ * ROLE_* authorities), and a stateless session filter chain. Public access is granted
+ * to /auth/** and GET /products/** and GET /categories/**; all other endpoints require
+ * authentication, with product/admin and category mutating endpoints restricted to ADMIN.
+ */
 public class SecurityConfig {
     private static final String PRODUCTS_PATH = "/products/**";
     private static final String CATEGORIES_PATH = "/categories/**";

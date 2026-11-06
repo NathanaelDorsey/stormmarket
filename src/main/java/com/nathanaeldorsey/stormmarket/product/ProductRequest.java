@@ -8,7 +8,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-// DTO (Data-Transfer-Object) - defines what the client is allowed to send to the API/Application
+/**
+ * Request DTO for creating or updating a product. Defines the fields a client may send.
+ * The id is omitted because the database assigns it. Jakarta validation annotations
+ * enforce required fields, size limits, and positive numeric values.
+ *
+ * categoryIds holds the ids of categories to associate with the product.
+ */
 public class ProductRequest {
     // id left out as database provides it
     // Input-Validation rules provided by Jakarta bean validation

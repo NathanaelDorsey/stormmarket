@@ -8,6 +8,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Response DTO for an order: id, user id and username, total, status, creation timestamp,
+ * and list of line items.
+ */
 public class OrderResponse {
     private Long id;
     private Long userId;

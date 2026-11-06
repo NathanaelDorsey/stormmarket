@@ -20,6 +20,13 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
 @Configuration
+/**
+ * Configures JWT signing and verification keys plus the JWT encoder/decoder beans.
+ *
+ * Loads RSA public and private keys from PEM files (configurable via properties or
+ * environment variables), builds a Nimbus JwtEncoder/decoder pair, and installs a custom
+ * JWT validator that rejects tokens for inactive or non-existent users.
+ */
 public class JwtConfig {
 
     @Bean

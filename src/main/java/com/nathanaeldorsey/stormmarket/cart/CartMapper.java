@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ * Maps cart domain entities to their response DTOs, computing item subtotals and cart total.
+ */
 public class CartMapper {
     public CartResponse toResponse(Cart cart) {
         CartResponse response = new CartResponse();

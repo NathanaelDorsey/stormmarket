@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ * Maps order entities to response DTOs, including user info and mapped line items.
+ */
 public class OrderMapper {
 
     public OrderResponse toResponse(Order order) {

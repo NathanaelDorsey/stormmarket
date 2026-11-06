@@ -13,6 +13,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+/**
+ * Represents a product category. Holds a name and a bidirectional set of products.
+ */
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

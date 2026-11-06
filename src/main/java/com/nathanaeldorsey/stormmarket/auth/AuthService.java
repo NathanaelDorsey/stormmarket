@@ -9,6 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+/**
+ * Handles user authentication: login validation and JWT token generation.
+ * Validates credentials against stored user records, checks account activation status,
+ * and issues a signed JWT access token upon successful login.
+ */
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -27,6 +32,14 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
+    /**
+     * Authenticates a user and issues a JWT access token.
+     *
+     * @param request the login credentials (username and password)
+     * @return the login response containing the JWT token and mapped user profile
+     * @throws BadCredentialsException if the username or password is invalid
+     * @throws DisabledException       if the user account is deactivated
+     */
     public LoginResponse login(LoginRequest request) {
         User user = userRepository
                 .findByUsername(request.getUsername())
