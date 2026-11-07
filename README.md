@@ -118,13 +118,7 @@ The default smoke test uses an isolated H2 profile. MySQL integration tests are 
 
 ### Test status
 
-All 119 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
-
-### Notes on fuzz testing
-
-A `FuzzTest` (jqwik property-based tests for cart quantities) was previously included but removed because random `@Positive` quantity generation caused OutOfMemory errors. Property-based fuzzing is useful for catching edge cases, but where each test run is expensive or unbounded inputs risk resource exhaustion, targeted boundary-value tests (`@IntRange` instead of `@Positive`) are preferred.
-
-The full test plan and boundaries are documented in `src/testing_stage_plan.md` and `testPt2.md`.
+All 175 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
 
 ## Project structure
 
@@ -208,6 +202,3 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 - improve observability with structured logging and metrics
 - add CI/CD automation for build and release validation
 - optionally add a frontend client for a complete storefront experience
-
-
-See `.agents/skills/greptile-review/SKILL.md` for detailed usage.
