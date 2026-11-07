@@ -177,7 +177,7 @@ public class ProductService {
             product.setActive(request.getActive());
         }
         // Handle categories from import
-        if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
+        if (request.getCategoryIds() != null) {
             product.getCategories().clear();
             for (Long categoryId : request.getCategoryIds()) {
                 Category category = categoryRepository.findById(categoryId)
