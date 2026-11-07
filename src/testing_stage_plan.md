@@ -20,7 +20,7 @@ This balances speed and realism:
 
 - H2 is enough for fast smoke coverage, application wiring, and daily feedback loops.
 - MySQL/Testcontainers are used only when database behavior matters, so we avoid slowing every developer iteration.
-- Docker is valuable because it creates a disposable, deterministic MySQL environment for local validation and CI without manual database setup.
+- Docker or Podman is valuable because it creates a disposable, deterministic MySQL environment for local validation and CI without manual database setup.
 
 This is better than an H2-only strategy because it misses MySQL-specific migration and SQL issues. It is also better than a MySQL-only strategy because it slows down everyday development and makes quick iteration harder.
 
@@ -28,7 +28,7 @@ This is better than an H2-only strategy because it misses MySQL-specific migrati
 
 Tests assert observable behavior and API contracts. Service unit tests mock repositories and mappers; MVC/security tests validate HTTP behavior and auth boundaries; persistence tests use real repositories and a disposable database. Shared mutable fixtures and test-order coupling are avoided.
 
-The default smoke test uses an isolated H2 profile and does not require a remote database or production secrets. The MySQL integration tests are explicitly gated behind `-Drun.mysql.integration=true`, and Docker must be available for that profile.
+The default smoke test uses an isolated H2 profile and does not require a remote database or production secrets. The MySQL integration tests are explicitly gated behind `-Drun.mysql.integration=true`, and Docker or Podman must be available for that profile.
 
 The current security policy allows public GET access to product and category catalog endpoints while protecting admin mutating endpoints and authenticated routes. This is intentional and is covered by the security tests.
 
@@ -40,7 +40,7 @@ The current security policy allows public GET access to product and category cat
 ./mvnw verify
 ```
 
-The first command runs the default H2 smoke suite. The second runs the MySQL/Testcontainers integration suite when Docker is available. The verify phase keeps the full quality gate, including formatting and coverage checks.
+The first command runs the default H2 smoke suite. The second runs the MySQL/Testcontainers integration suite when Docker or Podman is available. The verify phase keeps the full quality gate, including formatting and coverage checks.
 
 ## Current project status
 
@@ -190,7 +190,7 @@ Use focused tests for service logic, MVC/API behavior, security boundaries, vali
 ## 9. Quality gates
 
 - [x] Run `./mvnw test`.
-- [x] Run `./mvnw test -Drun.mysql.integration=true` with Docker available.
+- [x] Run `./mvnw test -Drun.mysql.integration=true` with Docker or Podman available.
 - [x] Run `./mvnw verify`.
 - [ ] Review the JaCoCo report and set a project-approved minimum line and branch coverage.
 - [ ] Add Maven coverage thresholds so coverage regressions fail the build.
