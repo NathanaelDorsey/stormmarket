@@ -34,6 +34,11 @@ import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+/**
+ * Tests for OrderService order lifecycle business logic.
+ * Covers checkout, stock reduction, cart clearing, snapshots, and rollback.
+ */
+
 class OrderServiceTest {
 
     @Mock

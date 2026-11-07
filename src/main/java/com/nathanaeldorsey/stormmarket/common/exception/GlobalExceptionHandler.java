@@ -40,6 +40,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    /**
+     * Handles unexpected exceptions with a generic error response (no internal details leaked).
+     *
+     * @param ex      the exception
+     * @param request the HTTP request
+     * @return 500 Internal Server Error with a generic message
+     */
     // Handle unexpected exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnexpectedException(Exception ex, HttpServletRequest request) {
@@ -51,6 +58,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request.getRequestURI());
     }
 
+    /**
+     * Handles bean validation failures with per-field error details.
+     *
+     * @param ex      the validation exception
+     * @param request the HTTP request
+     * @return 400 Bad Request with field error map
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidationErrors(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -72,22 +86,49 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    /**
+     * Handles missing resource exceptions.
+     *
+     * @param ex      the not found exception
+     * @param request the HTTP request
+     * @return 404 Not Found
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Handles business rule violations (e.g., insufficient stock, invalid order status).
+     *
+     * @param ex      the illegal state exception
+     * @param request the HTTP request
+     * @return 409 Conflict
+     */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ApiErrorResponse> handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Handles malformed or missing JSON request bodies.
+     *
+     * @param request the HTTP request
+     * @return 400 Bad Request
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiErrorResponse> handleMalformedRequest(HttpServletRequest request) {
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST, "Request body is missing or contains invalid JSON", request.getRequestURI());
     }
 
+    /**
+     * Handles invalid path variable or query parameter values.
+     *
+     * @param ex      the type mismatch exception
+     * @param request the HTTP request
+     * @return 400 Bad Request
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidParameter(
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
@@ -95,11 +136,24 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST, "Invalid value for parameter: " + ex.getName(), request.getRequestURI());
     }
 
+    /**
+     * Handles illegal argument exceptions.
+     *
+     * @param request the HTTP request
+     * @return 400 Bad Request
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiErrorResponse> handleIllegalArgument(HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request argument", request.getRequestURI());
     }
 
+    /**
+     * Handles concurrent modification detected via optimistic locking.
+     *
+     * @param ex      the locking failure exception
+     * @param request the HTTP request
+     * @return 409 Conflict
+     */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ApiErrorResponse> handleOptimisticLockingFailure(
             ObjectOptimisticLockingFailureException ex, HttpServletRequest request) {
@@ -109,6 +163,13 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
     }
 
+    /**
+     * Handles duplicate resource exceptions (e.g., duplicate username or email).
+     *
+     * @param ex      the already exists exception
+     * @param request the HTTP request
+     * @return 409 Conflict
+     */
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ApiErrorResponse> handleResourceAlreadyExists(
             ResourceAlreadyExistsException ex, HttpServletRequest request) {
@@ -116,18 +177,39 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Handles invalid image file uploads.
+     *
+     * @param ex      the invalid image exception
+     * @param request the HTTP request
+     * @return 400 Bad Request
+     */
     @ExceptionHandler(InvalidImageFileException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidImageFile(
             InvalidImageFileException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Handles invalid file uploads.
+     *
+     * @param ex      the invalid file exception
+     * @param request the HTTP request
+     * @return 400 Bad Request
+     */
     @ExceptionHandler(InvalidFileException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidFile(
             InvalidFileException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Handles file storage failures.
+     *
+     * @param ex      the file storage exception
+     * @param request the HTTP request
+     * @return 500 Internal Server Error
+     */
     @ExceptionHandler(FileStorageException.class)
     public ResponseEntity<ApiErrorResponse> handleFileStorage(FileStorageException ex, HttpServletRequest request) {
         logger.error("File storage error while handling request: {}", request.getRequestURI(), ex);
@@ -135,6 +217,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store or retrieve the uploaded file", request.getRequestURI());
     }
 
+    /**
+     * Handles uploads exceeding the maximum file size (5MB).
+     *
+     * @param ex      the size exceeded exception
+     * @param request the HTTP request
+     * @return 400 Bad Request
+     */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiErrorResponse> handleMaxUploadSizeExceeded(
             MaxUploadSizeExceededException ex, HttpServletRequest request) {
@@ -142,6 +231,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST, "File exceeds maximum size of 5MB", request.getRequestURI());
     }
 
+    /**
+     * Handles missing required request parts (e.g., missing file upload).
+     *
+     * @param ex      the missing part exception
+     * @param request the HTTP request
+     * @return 400 Bad Request
+     */
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ApiErrorResponse> handleMissingRequestPart(
             MissingServletRequestPartException ex, HttpServletRequest request) {
@@ -149,16 +245,34 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST, "Required request part 'file' is missing", request.getRequestURI());
     }
 
+    /**
+     * Handles authorization denials (insufficient role/authority).
+     *
+     * @param request the HTTP request
+     * @return 403 Forbidden
+     */
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
     }
 
+    /**
+     * Handles invalid login credentials.
+     *
+     * @param request the HTTP request
+     * @return 401 Unauthorized
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiErrorResponse> handleBadCredentials(HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials", request.getRequestURI());
     }
 
+    /**
+     * Handles deactivated user accounts.
+     *
+     * @param request the HTTP request
+     * @return 401 Unauthorized
+     */
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ApiErrorResponse> handleDisabledAccount(HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Account is disabled", request.getRequestURI());

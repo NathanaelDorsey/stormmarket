@@ -30,6 +30,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("mysql-integration")
+/**
+ * MySQL integration tests using Testcontainers.
+ * Validates JPA behavior, Flyway migrations, and schema compatibility against real MySQL.
+ */
+
 class MySqlIntegrationTest {
 
     @Container

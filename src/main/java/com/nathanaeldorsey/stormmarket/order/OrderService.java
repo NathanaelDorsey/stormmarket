@@ -112,6 +112,17 @@ public class OrderService {
         return order;
     }
 
+    /**
+     * Places an order from a user's cart or from a guest checkout request.
+     * For authenticated users, reserves stock and creates a payment intent.
+     * For guests, creates the order directly from the provided request.
+     *
+     * @param userId       the authenticated user's ID, or null for guest checkout
+     * @param guestRequest the guest checkout details (required when userId is null)
+     * @return the placed order response
+     * @throws IllegalArgumentException if guest checkout is missing its request
+     * @throws IllegalStateException    if the cart is empty, stock is insufficient, or a product is inactive
+     */
     @Transactional
     public OrderResponse placeOrder(Long userId, GuestCheckoutRequest guestRequest) {
         if (userId != null) {
@@ -272,6 +283,12 @@ public class OrderService {
         return orderMapper.toResponse(updatedOrder);
     }
 
+    /**
+     * Retrieves a user's order history, newest first.
+     *
+     * @param userId the user whose orders to retrieve
+     * @return list of order responses
+     */
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrderHistory(Long userId) {
         User user = getUserForCheckout(userId);
@@ -280,6 +297,13 @@ public class OrderService {
                 .toList();
     }
 
+    /**
+     * Retrieves orders for admin, optionally filtered by status, paginated newest first.
+     *
+     * @param status   the order status to filter by, or null for all
+     * @param pageable the pagination request
+     * @return page of order responses
+     */
     @Transactional(readOnly = true)
     public Page<OrderResponse> getOrdersForAdmin(OrderStatus status, Pageable pageable) {
         if (status != null) {
@@ -290,6 +314,14 @@ public class OrderService {
         return orderRepository.findAllByOrderByCreatedAtDesc(pageable).map(orderMapper::toResponse);
     }
 
+    /**
+     * Retrieves an order owned by the given user.
+     *
+     * @param userId the user requesting the order
+     * @param orderId the order ID
+     * @return the order response
+     * @throws ResourceNotFoundException if the order does not exist or does not belong to the user
+     */
     @Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long userId, Long orderId) {
         Order order = orderRepository
@@ -301,6 +333,13 @@ public class OrderService {
         return orderMapper.toResponse(order);
     }
 
+    /**
+     * Retrieves an order by ID for admin access.
+     *
+     * @param orderId the order ID
+     * @return the order response
+     * @throws ResourceNotFoundException if the order does not exist
+     */
     @Transactional(readOnly = true)
     public OrderResponse getOrderDetailsForAdmin(Long orderId) {
         Order order =
@@ -309,6 +348,18 @@ public class OrderService {
         return orderMapper.toResponse(order);
     }
 
+    /**
+     * Updates an order's status following valid transitions.
+     * PENDING -> CONFIRMED requires payment to be captured.
+     * Restores stock when canceling or expiring captured orders.
+     *
+     * @param orderId   the order ID
+     * @param status    the new order status
+     * @param changedBy the user making the change
+     * @return the updated order response
+     * @throws IllegalStateException if the transition is invalid or payment is not captured
+     * @throws ResourceNotFoundException if the order does not exist
+     */
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, String changedBy) {
         // Lock the order row to prevent race conditions with payment capture

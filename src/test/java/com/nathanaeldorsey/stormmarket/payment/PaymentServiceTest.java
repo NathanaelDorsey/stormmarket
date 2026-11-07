@@ -27,6 +27,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for PaymentService payment processing logic.
+ * Covers payment state transitions, ownership checks, and refund protection.
+ */
+
 class PaymentServiceTest {
 
     @Mock

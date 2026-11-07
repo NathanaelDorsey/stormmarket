@@ -38,6 +38,11 @@ import org.springframework.test.web.servlet.MockMvc;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+/**
+ * Tests for CartController HTTP endpoints.
+ * Covers add/remove/update items, quantities, totals, and cross-user isolation.
+ */
+
 class CartControllerTest {
 
     @Autowired

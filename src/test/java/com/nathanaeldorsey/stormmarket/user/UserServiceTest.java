@@ -12,6 +12,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for UserService user registration, login, and account management.
+ * Covers duplicate detection, JWT validation, and inactive user handling.
+ */
+
 class UserServiceTest {
 
     @Mock

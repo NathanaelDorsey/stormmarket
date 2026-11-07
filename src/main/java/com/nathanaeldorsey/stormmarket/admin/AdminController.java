@@ -38,6 +38,15 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Activates or deactivates a user.
+     *
+     * @param userId      the user to activate/deactivate
+     * @param active      whether the user should be active
+     * @param authentication the authenticated admin
+     * @return 204 No Content on success
+     * @throws ResourceNotFoundException if the admin or target user does not exist
+     */
     @PatchMapping("/{userId}/active")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> setUserActive(
@@ -47,6 +56,12 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Lists all users.
+     *
+     * @param authentication the authenticated admin
+     * @return list of all user responses
+     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public List<AdminUserResponse> getAllUsers() {

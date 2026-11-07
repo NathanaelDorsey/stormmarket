@@ -34,6 +34,11 @@ import org.springframework.test.web.servlet.MockMvc;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+/**
+ * Tests for CategoryController HTTP endpoints.
+ * Covers CRUD, authorization, and validation errors.
+ */
+
 class CategoryControllerTest {
 
     @Autowired

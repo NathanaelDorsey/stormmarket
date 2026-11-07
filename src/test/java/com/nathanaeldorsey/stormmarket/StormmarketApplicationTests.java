@@ -12,6 +12,10 @@ import org.springframework.test.context.ActiveProfiles;
     "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.flyway.enabled=false"
 })
+/**
+ * Context load test verifying Spring Boot application wiring.
+ */
+
 class StormmarketApplicationTests {
 
     @Test

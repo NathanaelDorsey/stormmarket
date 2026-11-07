@@ -20,6 +20,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for ProductService business logic.
+ * Covers product retrieval, search, creation, updates, activation/deactivation,
+ * category management, deletion, and stock validation.
+ */
+
 class ProductServiceTest {
 
     @Mock

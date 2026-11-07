@@ -16,6 +16,10 @@ import org.springframework.test.context.ActiveProfiles;
     "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.flyway.enabled=false"
 })
+/**
+ * Smoke test verifying full application context startup composition.
+ */
+
 class StormmarketApplicationSmokeTest {
 
     @Autowired

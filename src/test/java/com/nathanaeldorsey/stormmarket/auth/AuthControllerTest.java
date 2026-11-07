@@ -28,6 +28,11 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
+/**
+ * Tests for AuthController registration and login HTTP endpoints.
+ * Covers valid/invalid registration, duplicate detection, and JWT login responses.
+ */
+
 class AuthControllerTest {
 
     @DynamicPropertySource

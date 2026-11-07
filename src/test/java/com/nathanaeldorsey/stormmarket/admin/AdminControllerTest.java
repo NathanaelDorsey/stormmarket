@@ -37,6 +37,11 @@ import org.springframework.test.web.servlet.MockMvc;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+/**
+ * Tests for AdminController admin user management endpoints.
+ * Covers role updates, activation/deactivation, and user listing.
+ */
+
 class AdminControllerTest {
 
     @Autowired

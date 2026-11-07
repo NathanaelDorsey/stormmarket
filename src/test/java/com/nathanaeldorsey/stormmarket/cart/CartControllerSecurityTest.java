@@ -26,6 +26,11 @@ import org.springframework.test.web.servlet.MockMvc;
     "spring.security.oauth2.resourceserver.jwt.public-key-location=classpath:jwt/public-key.pem",
     "spring.security.oauth2.resourceserver.jwt.private-key-location=classpath:jwt/private-key.pem",
 })
+/**
+ * Tests for CartController security boundaries.
+ * Covers authentication and authorization for cart endpoints.
+ */
+
 class CartControllerSecurityTest {
 
     @Autowired

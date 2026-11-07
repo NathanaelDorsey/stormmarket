@@ -30,6 +30,11 @@ import org.springframework.web.multipart.MultipartFile;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+/**
+ * Tests for BulkImportController bulk product import/export endpoints.
+ * Covers CSV and JSON import, export, and error handling.
+ */
+
 class BulkImportControllerTest {
 
     @Autowired

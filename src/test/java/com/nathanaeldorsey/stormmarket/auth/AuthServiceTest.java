@@ -14,6 +14,11 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for AuthService authentication logic.
+ * Covers login success/failure, inactive users, and JWT token handling.
+ */
+
 class AuthServiceTest {
 
     @Mock

@@ -32,6 +32,13 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
  */
 public class JwtConfig {
 
+    /**
+     * Loads the RSA public key from a PEM file.
+     *
+     * @param location the key file location
+     * @return the RSA public key
+     * @throws IOException if the key file cannot be read
+     */
     @Bean
     public RSAPublicKey rsaPublicKey(
             @Value(
@@ -46,6 +53,13 @@ public class JwtConfig {
         }
     }
 
+    /**
+     * Loads the RSA private key from a PEM file.
+     *
+     * @param location the key file location
+     * @return the RSA private key
+     * @throws IOException if the key file cannot be read
+     */
     @Bean
     public RSAPrivateKey rsaPrivateKey(
             @Value(
@@ -70,12 +84,26 @@ public class JwtConfig {
         return new DefaultResourceLoader().getResource(resourceLocation);
     }
 
+    /**
+     * Creates a JWT encoder using the RSA key pair.
+     *
+     * @param publicKey  the RSA public key
+     * @param privateKey the RSA private key
+     * @return the JWT encoder
+     */
     @Bean
     public JwtEncoder jwtEncoder(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
 
         return NimbusJwtEncoder.withKeyPair(publicKey, privateKey).build();
     }
 
+    /**
+     * Creates a JWT decoder that validates tokens and checks user accounts are active.
+     *
+     * @param publicKey          the RSA public key
+     * @param activeUserJwtValidator validates that the token's user is active
+     * @return the JWT decoder
+     */
     @Bean
     public JwtDecoder jwtDecoder(RSAPublicKey publicKey, ActiveUserJwtValidator activeUserJwtValidator) {
 

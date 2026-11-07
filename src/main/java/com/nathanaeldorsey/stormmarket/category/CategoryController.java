@@ -16,11 +16,23 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
     private final CategoryService categoryService;
 
+    /**
+     * Creates a new category.
+     *
+     * @param request the category creation request
+     * @return the created category response
+     * @throws ResourceAlreadyExistsException if the category name already exists
+     */
     @PostMapping
     public CategoryResponse createCategory(@Valid @RequestBody CategoryRequest request) {
         return categoryService.createCategory(request);
     }
 
+    /**
+     * Retrieves all categories.
+     *
+     * @return list of all category responses
+     */
     @GetMapping
     public List<CategoryResponse> getAllCategories() {
         return categoryService.getAllCategories();

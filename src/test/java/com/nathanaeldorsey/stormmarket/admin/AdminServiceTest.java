@@ -16,6 +16,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for AdminService administrative user management logic.
+ * Covers role changes, activation/deactivation, and admin protection rules.
+ */
+
 class AdminServiceTest {
 
     @Mock

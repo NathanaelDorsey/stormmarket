@@ -31,6 +31,11 @@ import org.springframework.test.web.servlet.MockMvc;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+/**
+ * Tests for ProductController HTTP endpoints.
+ * Covers CRUD, search/filter, pagination, admin authorization, and stock management.
+ */
+
 class ProductControllerTest {
 
     @Autowired

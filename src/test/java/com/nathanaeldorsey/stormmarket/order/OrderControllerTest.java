@@ -39,6 +39,11 @@ import org.springframework.test.web.servlet.MockMvc;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+/**
+ * Tests for OrderController HTTP endpoints.
+ * Covers order creation, history, details, and admin status updates.
+ */
+
 class OrderControllerTest {
 
     @Autowired

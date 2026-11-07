@@ -18,6 +18,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for CartService shopping cart business logic.
+ * Covers item management, quantity boundaries, stock checks, and totals.
+ */
+
 class CartServiceTest {
 
     @Mock

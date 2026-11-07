@@ -10,6 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * Tests for GlobalExceptionHandler error responses.
+ * Covers consistent error schema, HTTP status codes, and validation field errors.
+ */
+
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler exceptionHandler;

@@ -15,6 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for CategoryService category business logic.
+ * Covers CRUD, unique constraints, and deletion with product relationships.
+ */
+
 class CategoryServiceTest {
 
     @Mock

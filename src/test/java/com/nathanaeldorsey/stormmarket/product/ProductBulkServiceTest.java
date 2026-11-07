@@ -27,6 +27,11 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 
 @ExtendWith(MockitoExtension.class)
+/**
+ * Tests for ProductBulkService bulk import functionality.
+ * Covers CSV/JSON parsing, validation, and import results.
+ */
+
 class ProductBulkServiceTest {
 
     @Mock

@@ -42,11 +42,25 @@ public class ProductService {
                 .toList();
     }
 
+    /**
+     * Retrieves a product by ID (active products only).
+     *
+     * @param id the product ID
+     * @return the product response
+     * @throws ResourceNotFoundException if the product does not exist
+     */
     // findById(id) returns Optional<Product>: product or empty. .orElseThrow throws on empty case
     public ProductResponse getProductById(Long id) {
         return getProduct(id, false);
     }
 
+    /**
+     * Retrieves a product by ID for admin access (includes inactive products).
+     *
+     * @param id the product ID
+     * @return the product response
+     * @throws ResourceNotFoundException if the product does not exist
+     */
     public ProductResponse getProductByIdForAdmin(Long id) {
         return getProduct(id, true);
     }
@@ -62,12 +76,26 @@ public class ProductService {
         return productMapper.toResponse(product);
     }
 
+    /**
+     * Searches active products by name, category, price range, active state, and stock state.
+     *
+     * @param request  the search criteria
+     * @param pageable the pagination request
+     * @return page of matching product responses
+     */
     @Transactional(readOnly = true)
     public Page<ProductResponse> searchProducts(ProductSearchRequest request, Pageable pageable) {
         Specification<Product> specification = buildSearchSpecification(request).and(ProductSpecification.isActive());
         return productRepository.findAll(specification, pageable).map(productMapper::toResponse);
     }
 
+    /**
+     * Searches all products (including inactive) for admin by name, category, price range, active state, and stock state.
+     *
+     * @param request  the search criteria
+     * @param pageable the pagination request
+     * @return page of matching product responses
+     */
     @Transactional(readOnly = true)
     public Page<ProductResponse> searchProductsForAdmin(ProductSearchRequest request, Pageable pageable) {
 
@@ -77,6 +105,12 @@ public class ProductService {
         return productRepository.findAll(specification, pageable).map(productMapper::toResponse);
     }
 
+    /**
+     * Creates a new product from the given request.
+     *
+     * @param request the product creation request
+     * @return the created product response
+     */
     // DTO (ProductRequest) used to create entity
     public ProductResponse createProduct(ProductRequest request) {
         Product product = new Product();
@@ -88,6 +122,14 @@ public class ProductService {
         return productMapper.toResponse(savedProduct);
     }
 
+    /**
+     * Updates an existing product's fields.
+     *
+     * @param id     the product ID
+     * @param request the updated product data
+     * @return the updated product response
+     * @throws ResourceNotFoundException if the product does not exist
+     */
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product =
                 productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
@@ -99,6 +141,14 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    /**
+     * Activates or deactivates a product.
+     *
+     * @param id    the product ID
+     * @param active whether the product should be active
+     * @return the updated product response
+     * @throws ResourceNotFoundException if the product does not exist
+     */
     public ProductResponse setProductActive(Long id, boolean active) {
         Product product =
                 productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
@@ -110,6 +160,14 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    /**
+     * Adds a category to a product.
+     *
+     * @param productId  the product ID
+     * @param categoryId the category ID
+     * @return the updated product response
+     * @throws ResourceNotFoundException if the product or category does not exist
+     */
     @Transactional
     public ProductResponse addCategory(Long productId, Long categoryId) {
         Product product = productRepository
@@ -126,6 +184,14 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    /**
+     * Removes a category from a product.
+     *
+     * @param productId  the product ID
+     * @param categoryId the category ID
+     * @return the updated product response
+     * @throws ResourceNotFoundException if the product or category does not exist
+     */
     @Transactional
     public ProductResponse removeCategory(Long productId, Long categoryId) {
         Product product = productRepository
@@ -142,6 +208,14 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    /**
+     * Updates a product's image URL.
+     *
+     * @param id       the product ID
+     * @param imageUrl the new image URL
+     * @return the updated product response
+     * @throws ResourceNotFoundException if the product does not exist
+     */
     public ProductResponse updateProductImage(Long id, String imageUrl) {
         Product product =
                 productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
@@ -153,6 +227,13 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    /**
+     * Deletes a product. Rejected if the product appears in order history.
+     *
+     * @param id the product ID
+     * @throws IllegalStateException if the product appears in order history
+     * @throws ResourceNotFoundException if the product does not exist
+     */
     @Transactional
     public void deleteProduct(Long id) {
         Product product =

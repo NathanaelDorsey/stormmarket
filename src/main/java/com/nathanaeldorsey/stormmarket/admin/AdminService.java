@@ -24,6 +24,16 @@ public class AdminService {
     private final AdminRoleLockRepository adminRoleLockRepository;
     private static final String USER_NOT_FOUND = "User not found";
 
+    /**
+     * Updates a user's role. Serialized via a shared lock row.
+     * Prevents administrators from removing their own admin role or the last administrator.
+     *
+     * @param userId     the user whose role to update
+     * @param role       the new role
+     * @param adminUserId the administrator making the change
+     * @throws IllegalStateException if self-demotion or removing the last admin
+     * @throws ResourceNotFoundException if the user does not exist
+     */
     @Transactional
     public void updateUserRole(Long userId, Role role, Long adminUserId) {
         // Serialize all role changes using the shared lock row.
@@ -42,6 +52,16 @@ public class AdminService {
         user.setRole(role);
     }
 
+    /**
+     * Activates or deactivates a user.
+     * Prevents administrators from deactivating themselves or the last active administrator.
+     *
+     * @param userId     the user to activate/deactivate
+     * @param active     whether the user should be active
+     * @param adminUserId the administrator making the change
+     * @throws IllegalStateException if self-deactivation or deactivating the last admin
+     * @throws ResourceNotFoundException if the user does not exist
+     */
     @Transactional
     public void setUserActive(Long userId, boolean active, Long adminUserId) {
         if (userId.equals(adminUserId) && !active) {
@@ -57,6 +77,11 @@ public class AdminService {
         user.setActive(active);
     }
 
+    /**
+     * Lists all users.
+     *
+     * @return list of all user responses
+     */
     @Transactional(readOnly = true)
     public List<AdminUserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -68,6 +93,13 @@ public class AdminService {
                 .toList();
     }
 
+    /**
+     * Retrieves a user by ID.
+     *
+     * @param userId the user ID
+     * @return the user response
+     * @throws ResourceNotFoundException if the user does not exist
+     */
     @Transactional(readOnly = true)
     public AdminUserResponse getUserById(Long userId) {
         User user = getUser(userId);
