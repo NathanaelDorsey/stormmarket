@@ -237,4 +237,158 @@ class PaymentServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Cannot fail payment in state");
     }
+
+
+    @Test
+    void authorizePayment_ThrowsWhenNotOwner() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+
+        assertThatThrownBy(() -> paymentService.authorizePayment("pi_test", 2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Payment not found or access denied");
+    }
+
+    @Test
+    void capturePayment_ThrowsWhenNotOwner() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> paymentService.capturePayment("pi_test", 2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Payment not found or access denied");
+    }
+
+    @Test
+    void capturePayment_ThrowsWhenAlreadyCaptured() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.CAPTURED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> paymentService.capturePayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot capture payment in state");
+    }
+
+    @Test
+    void capturePayment_ThrowsWhenOrderNotPending() {
+        Order shippedOrder = new Order();
+        shippedOrder.setId(1L);
+        shippedOrder.setUser(user);
+        shippedOrder.setStatus(OrderStatus.SHIPPED);
+        shippedOrder.setTotal(new BigDecimal("100.00"));
+
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(shippedOrder);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(shippedOrder));
+
+        assertThatThrownBy(() -> paymentService.capturePayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot capture payment for order in status");
+    }
+
+    @Test
+    void refundPayment_ThrowsWhenNotOwner() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.CAPTURED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> paymentService.refundPayment("pi_test", 2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Payment not found or access denied");
+    }
+
+    @Test
+    void refundPayment_ThrowsWhenAlreadyRefunded() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.REFUNDED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> paymentService.refundPayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot refund payment in state");
+    }
+
+    @Test
+    void refundPayment_ThrowsWhenOrderShipped() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.CAPTURED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        Order shippedOrder = new Order();
+        shippedOrder.setId(1L);
+        shippedOrder.setStatus(OrderStatus.SHIPPED);
+        shippedOrder.setUser(user);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(shippedOrder));
+
+        assertThatThrownBy(() -> paymentService.refundPayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot refund");
+    }
+
+    @Test
+    void failPayment_ThrowsWhenRefunded() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.REFUNDED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+
+        assertThatThrownBy(() -> paymentService.failPayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot fail payment in state");
+    }
+
+    @Test
+    void failPayment_ThrowsWhenNotOwner() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+
+        assertThatThrownBy(() -> paymentService.failPayment("pi_test", 2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Payment not found or access denied");
+    }
+
+    @Test
+    void getPaymentByOrderId_ThrowsWhenNotFound() {
+        when(paymentRepository.findByOrderId(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> paymentService.getPaymentByOrderId(99L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Payment not found");
+    }
+
 }
