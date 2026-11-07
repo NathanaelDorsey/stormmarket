@@ -15,21 +15,27 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/v1/orders")
 @RequiredArgsConstructor
 /**
  * HTTP entry point for order management.
  * Users can place orders from their cart and view their own order history and details.
  * Admin endpoints allow viewing and updating any order's status.
+ * Guest checkout is supported via unauthenticated POST /orders with shipping details.
  */
 public class OrderController {
     private final OrderService orderService;
     private final UserRepository userRepository;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> placeOrder(Authentication authentication) {
-        User user = getUser(authentication);
-        OrderResponse response = orderService.placeOrder(user.getId());
+    public ResponseEntity<OrderResponse> placeOrder(
+            Authentication authentication,
+            @RequestBody(required = false) GuestCheckoutRequest guestRequest) {
+        Long userId = null;
+        if (authentication != null && authentication.isAuthenticated()) {
+            userId = getUser(authentication).getId();
+        }
+        OrderResponse response = orderService.placeOrder(userId, guestRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -64,8 +70,9 @@ public class OrderController {
 
     @PatchMapping("/admin/{orderId:\\d+}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public OrderResponse updateOrderStatus(@PathVariable Long orderId, @RequestParam OrderStatus status) {
-        return orderService.updateOrderStatus(orderId, status);
+    public OrderResponse updateOrderStatus(@PathVariable Long orderId, @RequestParam OrderStatus status, Authentication authentication) {
+        User user = getUser(authentication);
+        return orderService.updateOrderStatus(orderId, status, user.getUsername());
     }
 
     private User getUser(Authentication authentication) {

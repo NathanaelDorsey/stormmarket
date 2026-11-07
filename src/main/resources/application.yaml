@@ -15,8 +15,28 @@ spring:
     web:
       pageable:
         max-page-size: 100
+  servlet:
+    multipart:
+      # Code-level validation rejects anything above 5MB; the servlet limit is set
+      # slightly higher so oversized files surface a clean validation error.
+      max-file-size: 6MB
+      max-request-size: 6MB
 
 stormmarket:
   jwt:
     private-key-location: ${STORMMARKET_JWT_PRIVATE_KEY_LOCATION:classpath:jwt/private-key.pem}
     public-key-location: ${STORMMARKET_JWT_PUBLIC_KEY_LOCATION:classpath:jwt/public-key.pem}
+  file:
+    storage:
+      # Toggle between "local" (default) and "s3" via STORMMARKET_FILE_STORAGE_TYPE
+      type: ${STORMMARKET_FILE_STORAGE_TYPE:local}
+      local:
+        upload-dir: ${STORMMARKET_FILE_STORAGE_LOCAL_UPLOAD_DIR:uploads/products}
+        base-url: ${STORMMARKET_FILE_STORAGE_LOCAL_BASE_URL:/v1/files}
+      s3:
+        bucket: ${STORMMARKET_FILE_STORAGE_S3_BUCKET:}
+        region: ${STORMMARKET_FILE_STORAGE_S3_REGION:us-east-1}
+        endpoint: ${STORMMARKET_FILE_STORAGE_S3_ENDPOINT:}
+        access-key: ${STORMMARKET_FILE_STORAGE_S3_ACCESS_KEY:}
+        secret-key: ${STORMMARKET_FILE_STORAGE_S3_SECRET_KEY:}
+        base-url: ${STORMMARKET_FILE_STORAGE_S3_BASE_URL:}

@@ -37,4 +37,7 @@ public class ProductRequest {
     private String imageUrl;
     // For category relationship
     private Set<@NotNull @Positive Long> categoryIds;
+
+    // For import: active status (defaults to null - preserve existing if not provided)
+    private Boolean active;
 }

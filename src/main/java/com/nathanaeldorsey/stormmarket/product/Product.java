@@ -12,8 +12,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "products")
 @Getter
-@Setter
-@NoArgsConstructor
+    @Setter
+    @NoArgsConstructor
 /**
  * Represents a product in the catalog. Holds name, description, price, stock quantity,
  * active flag, image URL, and a many-to-many set of categories.
@@ -36,6 +36,12 @@ public class Product {
 
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity = 0;
+
+    @Column(name = "reserved_stock", nullable = false)
+    private Integer reservedStock = 0;
+
+    @Version
+    private Long version;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;

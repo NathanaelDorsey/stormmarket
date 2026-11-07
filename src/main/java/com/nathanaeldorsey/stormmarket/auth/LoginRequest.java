@@ -6,6 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * Request to log in: requires a non-blank username and password.
+ */
 public class LoginRequest {
     @NotBlank
     private String username;

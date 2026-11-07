@@ -8,6 +8,7 @@ import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.security.converter.RsaKeyConverters;
@@ -20,12 +21,14 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
 @Configuration
+@EnableScheduling
 /**
  * Configures JWT signing and verification keys plus the JWT encoder/decoder beans.
  *
  * Loads RSA public and private keys from PEM files (configurable via properties or
  * environment variables), builds a Nimbus JwtEncoder/decoder pair, and installs a custom
  * JWT validator that rejects tokens for inactive or non-existent users.
+ * Enables @Scheduled annotation support for order expiration job.
  */
 public class JwtConfig {
 

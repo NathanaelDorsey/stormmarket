@@ -2,21 +2,19 @@ package com.nathanaeldorsey.stormmarket.category;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/v1/categories")
 /**
  * HTTP entry point for category management.
  * Public endpoints (GET /categories, GET /categories/{id}) are open to everyone.
  * Create, update, and delete operations require the ADMIN role.
  */
+@RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @PostMapping
     public CategoryResponse createCategory(@Valid @RequestBody CategoryRequest request) {

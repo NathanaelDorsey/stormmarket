@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.order;
 
+import com.nathanaeldorsey.stormmarket.payment.Payment;
 import com.nathanaeldorsey.stormmarket.user.User;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import lombok.Setter;
  *
  * The creation timestamp is set to UTC on persist via onCreate. Provides addItem to
  * maintain the bidirectional order-item relationship.
+ * Stock is deducted only when payment is captured (tracked via stockDeducted flag).
  */
 public class Order {
 
@@ -30,7 +32,7 @@ public class Order {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @Column(nullable = false, precision = 12, scale = 2)
@@ -45,6 +47,15 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Payment payment;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ShippingAddress shippingAddress;
+
+    @Column(name = "stock_deducted", nullable = false)
+    private boolean stockDeducted = false;
 
     public void addItem(OrderItem item) {
         items.add(item);

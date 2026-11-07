@@ -2,6 +2,7 @@ package com.nathanaeldorsey.stormmarket.order;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,7 +51,7 @@ class OrderControllerTest {
     private UserRepository userRepository;
 
     private Authentication createAuth(String username) {
-        return new UsernamePasswordAuthenticationToken(username, null);
+        return new UsernamePasswordAuthenticationToken(username, "password", List.of());
     }
 
     @Test
@@ -65,10 +66,11 @@ class OrderControllerTest {
         response.setOrderStatus(OrderStatus.PENDING);
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-        when(orderService.placeOrder(1L)).thenReturn(response);
+        when(orderService.placeOrder(eq(1L), isNull(GuestCheckoutRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/orders")
-                        .principal(createAuth("testuser")))
+        mockMvc.perform(post("/v1/orders")
+                        .principal(createAuth("testuser"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(100L))
@@ -84,9 +86,9 @@ class OrderControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         doThrow(new IllegalStateException("Cannot checkout with an empty cart"))
-                .when(orderService).placeOrder(1L);
+                .when(orderService).placeOrder(eq(1L), isNull());
 
-        mockMvc.perform(post("/orders")
+        mockMvc.perform(post("/v1/orders")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Cannot checkout with an empty cart"));
@@ -100,9 +102,9 @@ class OrderControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         doThrow(new IllegalStateException("Insufficient stock for product: Test Product"))
-                .when(orderService).placeOrder(1L);
+                .when(orderService).placeOrder(eq(1L), isNull());
 
-        mockMvc.perform(post("/orders")
+        mockMvc.perform(post("/v1/orders")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Insufficient stock for product: Test Product"));
@@ -127,7 +129,7 @@ class OrderControllerTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(orderService.getOrderHistory(1L)).thenReturn(List.of(order1, order2));
 
-        mockMvc.perform(get("/orders")
+        mockMvc.perform(get("/v1/orders")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(100L))
@@ -148,7 +150,7 @@ class OrderControllerTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(orderService.getOrderDetails(1L, 100L)).thenReturn(response);
 
-        mockMvc.perform(get("/orders/100")
+        mockMvc.perform(get("/v1/orders/100")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(100L))
@@ -165,7 +167,7 @@ class OrderControllerTest {
         doThrow(new ResourceNotFoundException("Order not found"))
                 .when(orderService).getOrderDetails(1L, 999L);
 
-        mockMvc.perform(get("/orders/999")
+        mockMvc.perform(get("/v1/orders/999")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
@@ -182,7 +184,7 @@ class OrderControllerTest {
         doThrow(new ResourceNotFoundException("Order not found"))
                 .when(orderService).getOrderDetails(1L, 100L);
 
-        mockMvc.perform(get("/orders/100")
+        mockMvc.perform(get("/v1/orders/100")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
@@ -190,7 +192,7 @@ class OrderControllerTest {
 
     @Test
     void unauthenticatedUserReturns401() throws Exception {
-        mockMvc.perform(get("/orders"))
+        mockMvc.perform(get("/v1/orders"))
                 .andExpect(status().is5xxServerError());
     }
 }

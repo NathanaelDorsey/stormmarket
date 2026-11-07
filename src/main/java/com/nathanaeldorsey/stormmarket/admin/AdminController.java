@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("/v1/admin/users")
 @RequiredArgsConstructor
 /**
  * HTTP entry point for admin user management.

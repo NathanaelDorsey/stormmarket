@@ -61,7 +61,7 @@ class AdminControllerTest {
 
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
 
-        mockMvc.perform(put("/admin/users/2/role")
+        mockMvc.perform(put("/v1/admin/users/2/role")
                         .principal(createAuth("admin"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -83,7 +83,7 @@ class AdminControllerTest {
 
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
 
-        mockMvc.perform(put("/admin/users/2/role")
+        mockMvc.perform(put("/v1/admin/users/2/role")
                         .principal(createAuth("admin"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -103,7 +103,7 @@ class AdminControllerTest {
 
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
 
-        mockMvc.perform(patch("/admin/users/2/active")
+        mockMvc.perform(patch("/v1/admin/users/2/active")
                         .principal(createAuth("admin"))
                         .param("active", "false"))
                 .andExpect(status().isNoContent());
@@ -135,7 +135,7 @@ class AdminControllerTest {
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
         when(adminService.getAllUsers()).thenReturn(List.of(user1, user2));
 
-        mockMvc.perform(get("/admin/users")
+        mockMvc.perform(get("/v1/admin/users")
                         .principal(createAuth("admin")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").value("admin"))
@@ -159,7 +159,7 @@ class AdminControllerTest {
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
         when(adminService.getUserById(2L)).thenReturn(response);
 
-        mockMvc.perform(get("/admin/users/2")
+        mockMvc.perform(get("/v1/admin/users/2")
                         .principal(createAuth("admin")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("target"))
@@ -177,7 +177,7 @@ class AdminControllerTest {
         doThrow(new IllegalStateException("Administrators cannot remove their own admin role"))
                 .when(adminService).updateUserRole(eq(1L), eq(Role.USER), eq(1L));
 
-        mockMvc.perform(put("/admin/users/1/role")
+        mockMvc.perform(put("/v1/admin/users/1/role")
                         .principal(createAuth("admin"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -200,7 +200,7 @@ class AdminControllerTest {
         doThrow(new IllegalStateException("You cannot deactivate your own account"))
                 .when(adminService).setUserActive(eq(1L), eq(false), eq(1L));
 
-        mockMvc.perform(patch("/admin/users/1/active")
+        mockMvc.perform(patch("/v1/admin/users/1/active")
                         .principal(createAuth("admin"))
                         .param("active", "false"))
                 .andExpect(status().isConflict())

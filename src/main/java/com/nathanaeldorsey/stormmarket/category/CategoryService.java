@@ -3,9 +3,11 @@ package com.nathanaeldorsey.stormmarket.category;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 /**
  * Manages product categories: retrieval, creation, updates, and deletion.
  * Deleting a category removes it from all products that reference it.
@@ -14,11 +16,6 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private static final String CATEGORY_NOT_FOUND = "Category not found";
-
-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
-        this.categoryRepository = categoryRepository;
-        this.categoryMapper = categoryMapper;
-    }
 
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
