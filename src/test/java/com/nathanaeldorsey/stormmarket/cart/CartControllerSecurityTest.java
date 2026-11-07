@@ -45,7 +45,7 @@ class CartControllerSecurityTest {
 
     @Test
     void unauthenticatedPostCartReturns401() throws Exception {
-        mockMvc.perform(post("/v1/cart")
+        mockMvc.perform(post("/v1/cart/items")
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .content("{\"productId\":1,\"quantity\":1}"))
                 .andExpect(status().isUnauthorized());
@@ -53,7 +53,7 @@ class CartControllerSecurityTest {
 
     @Test
     void unauthenticatedPutCartReturns401() throws Exception {
-        mockMvc.perform(put("/v1/cart/1")
+        mockMvc.perform(put("/v1/cart/items/1")
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .content("{\"quantity\":2}"))
                 .andExpect(status().isUnauthorized());
@@ -61,7 +61,7 @@ class CartControllerSecurityTest {
 
     @Test
     void unauthenticatedDeleteCartItemReturns401() throws Exception {
-        mockMvc.perform(delete("/v1/cart/1"))
+        mockMvc.perform(delete("/v1/cart/items/1"))
                 .andExpect(status().isUnauthorized());
     }
 
