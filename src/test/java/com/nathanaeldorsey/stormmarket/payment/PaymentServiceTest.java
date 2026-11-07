@@ -136,6 +136,7 @@ class PaymentServiceTest {
         payment.setOrder(order);
 
         when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
 
         Payment result = paymentService.capturePayment("pi_test", 1L);
 
@@ -151,6 +152,7 @@ class PaymentServiceTest {
         payment.setOrder(order);
 
         when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
 
         assertThatThrownBy(() -> paymentService.capturePayment("pi_test", 1L))
                 .isInstanceOf(IllegalStateException.class)

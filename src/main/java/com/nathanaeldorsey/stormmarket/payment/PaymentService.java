@@ -115,12 +115,17 @@ public class PaymentService {
         Payment payment = paymentRepository.findByIntentIdWithLock(intentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
-        if (!payment.getOrder().getUser().getId().equals(userId)) {
+        // Lock the order row before reading any state to prevent race conditions
+        // with concurrent shipping/cancellation. Lock first, then check ownership
+        // and status on the locked order instance.
+        Order order = orderRepository.findByIdWithLock(payment.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        if (!order.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Payment not found or access denied");
         }
 
         // Check order state - only PENDING orders can be captured
-        Order order = payment.getOrder();
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new IllegalStateException("Cannot capture payment for order in status: " + order.getStatus());
         }
