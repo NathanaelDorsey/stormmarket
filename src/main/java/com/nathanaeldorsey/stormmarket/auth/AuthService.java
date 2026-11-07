@@ -6,9 +6,11 @@ import com.nathanaeldorsey.stormmarket.user.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 /**
  * Handles user authentication: login validation and JWT token generation.
  * Validates credentials against stored user records, checks account activation status,
@@ -20,17 +22,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final JwtService jwtService;
-
-    public AuthService(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            UserMapper userMapper,
-            JwtService jwtService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
-        this.jwtService = jwtService;
-    }
 
     /**
      * Authenticates a user and issues a JWT access token.

@@ -3,6 +3,7 @@ package com.nathanaeldorsey.stormmarket.cart;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -74,7 +75,7 @@ class CartControllerTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(cartService.getCart(1L)).thenReturn(response);
 
-        mockMvc.perform(get("/cart").principal(createAuth("testuser")))
+        mockMvc.perform(get("/v1/cart").principal(createAuth("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -96,7 +97,7 @@ class CartControllerTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(cartService.getCart(1L)).thenReturn(response);
 
-        mockMvc.perform(post("/cart/items")
+        mockMvc.perform(post("/v1/cart/items")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -107,6 +108,7 @@ class CartControllerTest {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
+        verify(cartService).addProductToCart(eq(1L), eq(10L), eq(1));
     }
 
     @Test
@@ -117,7 +119,7 @@ class CartControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        mockMvc.perform(post("/cart/items")
+        mockMvc.perform(post("/v1/cart/items")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -137,7 +139,7 @@ class CartControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        mockMvc.perform(post("/cart/items")
+        mockMvc.perform(post("/v1/cart/items")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -161,7 +163,7 @@ class CartControllerTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(cartService.getCart(1L)).thenReturn(response);
 
-        mockMvc.perform(put("/cart/items/10")
+        mockMvc.perform(put("/v1/cart/items/10")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -170,6 +172,7 @@ class CartControllerTest {
                                 }
                                 """))
                 .andExpect(status().isOk());
+        verify(cartService).updateProductQuantity(eq(1L), eq(10L), eq(3));
     }
 
     @Test
@@ -180,7 +183,7 @@ class CartControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        mockMvc.perform(put("/cart/items/10")
+        mockMvc.perform(put("/v1/cart/items/10")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -204,9 +207,10 @@ class CartControllerTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(cartService.getCart(1L)).thenReturn(response);
 
-        mockMvc.perform(delete("/cart/items/10")
+        mockMvc.perform(delete("/v1/cart/items/10")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isOk());
+        verify(cartService).removeProductFromCart(eq(1L), eq(10L));
     }
 
     @Test
@@ -217,9 +221,10 @@ class CartControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        mockMvc.perform(delete("/cart")
+        mockMvc.perform(delete("/v1/cart")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isOk());
+        verify(cartService).clearCart(eq(1L));
     }
 
     @Test
@@ -232,7 +237,7 @@ class CartControllerTest {
         doThrow(new ResourceNotFoundException("Product not found"))
                 .when(cartService).addProductToCart(eq(1L), eq(999L), eq(1));
 
-        mockMvc.perform(post("/cart/items")
+        mockMvc.perform(post("/v1/cart/items")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -256,7 +261,7 @@ class CartControllerTest {
         doThrow(new IllegalArgumentException("Product is inactive"))
                 .when(cartService).addProductToCart(eq(1L), eq(10L), eq(1));
 
-        mockMvc.perform(post("/cart/items")
+        mockMvc.perform(post("/v1/cart/items")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -279,7 +284,7 @@ class CartControllerTest {
         doThrow(new ResourceNotFoundException("Product not found in cart"))
                 .when(cartService).removeProductFromCart(eq(1L), eq(999L));
 
-        mockMvc.perform(delete("/cart/items/999")
+        mockMvc.perform(delete("/v1/cart/items/999")
                         .principal(createAuth("testuser")))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
@@ -294,7 +299,7 @@ class CartControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        mockMvc.perform(post("/cart/items")
+        mockMvc.perform(post("/v1/cart/items")
                         .principal(createAuth("testuser"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("not valid json"))
@@ -305,7 +310,7 @@ class CartControllerTest {
     void unauthenticatedUserReturns401() throws Exception {
         // With addFilters=false, security is disabled; this test verifies the endpoint
         // requires authentication by checking that principal is required
-        mockMvc.perform(get("/cart"))
+        mockMvc.perform(get("/v1/cart"))
                 .andExpect(status().is5xxServerError()); // Returns 500 when principal is null
     }
 }

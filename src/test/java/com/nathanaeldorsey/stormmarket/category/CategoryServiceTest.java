@@ -152,9 +152,13 @@ class CategoryServiceTest {
 
         Product product = new Product();
         product.setId(10L);
-        category.getProducts().add(product);
+        product.addCategory(category); // Set up bidirectional relationship
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+
+        // Verify the relationship exists before deletion
+        assertFalse(product.getCategories().isEmpty());
+        assertTrue(product.getCategories().contains(category));
 
         categoryService.deleteCategory(1L);
 

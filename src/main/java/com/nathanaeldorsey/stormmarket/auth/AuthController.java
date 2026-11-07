@@ -4,27 +4,24 @@ import com.nathanaeldorsey.stormmarket.user.UserRequest;
 import com.nathanaeldorsey.stormmarket.user.UserResponse;
 import com.nathanaeldorsey.stormmarket.user.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/v1/auth")
 /**
  * HTTP entry point for user registration and login.
  * Registration creates a new user with a hashed password; login validates credentials
  * and returns a signed JWT access token plus the user profile.
  * These endpoints are publicly accessible (no authentication required).
  */
+@RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
     private final AuthService authService;
-
-    public AuthController(UserService userService, AuthService authService) {
-        this.userService = userService;
-        this.authService = authService;
-    }
 
     /**
      * Registers a new user with the given details.

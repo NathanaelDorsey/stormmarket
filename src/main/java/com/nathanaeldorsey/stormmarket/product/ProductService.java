@@ -6,6 +6,7 @@ import com.nathanaeldorsey.stormmarket.category.CategoryRepository;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.order.OrderItemRepository;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 /**
  * Manages product catalog operations: retrieval, search, creation, updates,
  * activation toggling, category assignment, and deletion.
@@ -28,24 +30,18 @@ public class ProductService {
     private final CartItemRepository cartItemRepository;
     private static final String PRODUCT_NOT_FOUND = "Product not found";
 
-    public ProductService(
-            ProductRepository productRepository,
-            CategoryRepository categoryRepository,
-            ProductMapper productMapper,
-            OrderItemRepository orderItemRepository,
-            CartItemRepository cartItemRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.productMapper = productMapper;
-        this.orderItemRepository = orderItemRepository;
-        this.cartItemRepository = cartItemRepository;
-    }
-
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll(ProductSpecification.isActive()).stream()
                 .map(productMapper::toResponse)
                 .toList();
     }
+
+    public List<ProductResponse> getAllProductsForAdmin() {
+        return productRepository.findAll().stream()
+                .map(productMapper::toResponse)
+                .toList();
+    }
+
     // findById(id) returns Optional<Product>: product or empty. .orElseThrow throws on empty case
     public ProductResponse getProductById(Long id) {
         return getProduct(id, false);
@@ -146,6 +142,17 @@ public class ProductService {
         return productMapper.toResponse(updatedProduct);
     }
 
+    public ProductResponse updateProductImage(Long id, String imageUrl) {
+        Product product =
+                productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+
+        product.setImageUrl(imageUrl);
+
+        Product updatedProduct = productRepository.save(product);
+
+        return productMapper.toResponse(updatedProduct);
+    }
+
     @Transactional
     public void deleteProduct(Long id) {
         Product product =
@@ -165,6 +172,19 @@ public class ProductService {
         product.setPrice(request.getPrice());
         product.setStockQuantity(request.getStockQuantity());
         product.setImageUrl(request.getImageUrl());
+        // Handle active status from import
+        if (request.getActive() != null) {
+            product.setActive(request.getActive());
+        }
+        // Handle categories from import
+        if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
+            product.getCategories().clear();
+            for (Long categoryId : request.getCategoryIds()) {
+                Category category = categoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + categoryId));
+                product.addCategory(category);
+            }
+        }
     }
 
     private Specification<Product> buildSearchSpecification(ProductSearchRequest request) {

@@ -2,26 +2,23 @@ package com.nathanaeldorsey.stormmarket.product;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@RestController // Class handles HTTP requests and returned data is the response
-@RequestMapping("/products") // Maps get request of /products to method
+@RestController
+@RequestMapping("/v1/products")
 /**
  * HTTP entry point for product catalog management.
  * Public endpoints (GET /products, GET /products/search) are open to everyone.
  * Admin endpoints (create, update, delete, activate, admin search) require the ADMIN role.
  */
+@RequiredArgsConstructor
 public class ProductController {
-    // Product Controller has-a ProductService (Controller needs service to decide what should happen)
     private final ProductService productService;
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
     /* CREATE */
     @PostMapping

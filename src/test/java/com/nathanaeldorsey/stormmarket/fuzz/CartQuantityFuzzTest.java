@@ -17,6 +17,7 @@ package com.nathanaeldorsey.stormmarket.fuzz;
  */
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,6 +63,10 @@ class CartQuantityFuzzTest {
         when(cartRepository.save(any())).thenReturn(cart);
 
         cartService.addProductToCart(1L, 10L, quantity);
+
+        // Assert the saved item has the correct quantity
+        assertEquals(1, cart.getItems().size());
+        assertEquals(Integer.valueOf(quantity), cart.getItems().get(0).getQuantity());
     }
 
     @Property(tries = 100)

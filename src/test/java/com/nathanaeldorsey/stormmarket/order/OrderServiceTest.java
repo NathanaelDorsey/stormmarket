@@ -1,12 +1,17 @@
 package com.nathanaeldorsey.stormmarket.order;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.*;
 
 import com.nathanaeldorsey.stormmarket.cart.Cart;
 import com.nathanaeldorsey.stormmarket.cart.CartItem;
 import com.nathanaeldorsey.stormmarket.cart.CartRepository;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.payment.Payment;
+import com.nathanaeldorsey.stormmarket.payment.PaymentService;
+import com.nathanaeldorsey.stormmarket.payment.PaymentStatus;
+import com.nathanaeldorsey.stormmarket.order.OrderEventRepository;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.Role;
@@ -20,11 +25,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class OrderServiceTest {
 
     @Mock
@@ -42,12 +51,18 @@ class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
 
+    @Mock
+    private PaymentService paymentService;
+
+    @Mock
+    private OrderEventRepository orderEventRepository;
+
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
         orderService = new OrderService(
-                orderRepository, cartRepository, userRepository, productRepository, orderMapper);
+                orderRepository, cartRepository, userRepository, productRepository, orderMapper, paymentService, orderEventRepository);
     }
 
     @Test
@@ -87,17 +102,32 @@ class OrderServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(Optional.of(cart));
-        when(productRepository.deductStock(10L, 2)).thenReturn(1);
+        when(productRepository.reserveStock(anyLong(), anyInt())).thenReturn(1);
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
+        when(paymentService.createPaymentIntent(100L)).thenReturn("pi_test_123");
         when(orderMapper.toResponse(savedOrder)).thenReturn(response);
 
-        OrderResponse result = orderService.placeOrder(1L);
+        OrderResponse result = orderService.placeOrder(1L, null);
 
         assertEquals(100L, result.getId());
         assertEquals(new BigDecimal("59.98"), result.getTotal());
         assertEquals(OrderStatus.PENDING, result.getOrderStatus());
-        verify(productRepository).deductStock(10L, 2);
         verify(orderRepository).save(any(Order.class));
+        verify(paymentService).createPaymentIntent(100L);
+
+        // Capture the order passed to save and verify its contents
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepository).save(orderCaptor.capture());
+        Order capturedOrder = orderCaptor.getValue();
+        assertEquals(user, capturedOrder.getUser());
+        assertEquals(new BigDecimal("59.98"), capturedOrder.getTotal());
+        assertEquals(OrderStatus.PENDING, capturedOrder.getStatus());
+        assertEquals(1, capturedOrder.getItems().size());
+        OrderItem capturedItem = capturedOrder.getItems().get(0);
+        assertEquals(product, capturedItem.getProduct());
+        assertEquals("Test Product", capturedItem.getProductName());
+        assertEquals(new BigDecimal("29.99"), capturedItem.getPrice());
+        assertEquals(2, capturedItem.getQuantity());
     }
 
     @Test
@@ -113,7 +143,7 @@ class OrderServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(Optional.of(cart));
 
-        assertThrows(IllegalStateException.class, () -> orderService.placeOrder(1L));
+        assertThrows(IllegalStateException.class, () -> orderService.placeOrder(1L, null));
     }
 
     @Test
@@ -125,7 +155,7 @@ class OrderServiceTest {
         product.setId(10L);
         product.setName("Test Product");
         product.setPrice(new BigDecimal("29.99"));
-        product.setStockQuantity(1);
+        product.setStockQuantity(10); // Enough to pass availability check
         product.setActive(true);
 
         Cart cart = new Cart();
@@ -134,16 +164,21 @@ class OrderServiceTest {
 
         CartItem item = new CartItem();
         item.setId(1L);
-        item.setQuantity(5); // More than stock
+        item.setQuantity(5); // Passes availability (5 <= 10) but reserveStock returns 0
         item.setProduct(product);
         item.setCart(cart);
         cart.getItems().add(item);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(Optional.of(cart));
-        when(productRepository.deductStock(10L, 5)).thenReturn(0); // Zero rows = insufficient stock
+        when(productRepository.reserveStock(10L, 5)).thenReturn(0); // Reservation fails
+        when(paymentService.createPaymentIntent(100L)).thenReturn("pi_test_123");
+        when(orderRepository.save(any(Order.class))).thenReturn(new Order());
 
-        assertThrows(IllegalStateException.class, () -> orderService.placeOrder(1L));
+        assertThrows(IllegalStateException.class, () -> orderService.placeOrder(1L, null));
+        // Checkout must stop before saving an order or creating a payment
+        verify(orderRepository, never()).save(any(Order.class));
+        verify(paymentService, never()).createPaymentIntent(anyLong());
     }
 
     @Test
@@ -171,8 +206,11 @@ class OrderServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(Optional.of(cart));
+        when(productRepository.reserveStock(anyLong(), anyInt())).thenReturn(1);
+        when(paymentService.createPaymentIntent(100L)).thenReturn("pi_test_123");
+        when(orderRepository.save(any(Order.class))).thenReturn(new Order());
 
-        assertThrows(IllegalStateException.class, () -> orderService.placeOrder(1L));
+        assertThrows(IllegalStateException.class, () -> orderService.placeOrder(1L, null));
     }
 
     @Test
@@ -203,10 +241,11 @@ class OrderServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(Optional.of(cart));
+        when(productRepository.reserveStock(anyLong(), anyInt())).thenReturn(1);
         when(productRepository.deductStock(10L, 2)).thenReturn(1);
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
-        orderService.placeOrder(1L);
+        orderService.placeOrder(1L, null);
 
         assertTrue(cart.getItems().isEmpty());
     }
@@ -315,6 +354,14 @@ class OrderServiceTest {
         Order order = new Order();
         order.setId(100L);
         order.setStatus(OrderStatus.PENDING);
+        order.setStockDeducted(true); // Stock must be deducted to confirm
+
+        // Create a captured payment for the order
+        Payment payment = new Payment();
+        payment.setId(1L);
+        payment.setOrder(order);
+        payment.setStatus(PaymentStatus.CAPTURED);
+        order.setPayment(payment);
 
         Order updatedOrder = new Order();
         updatedOrder.setId(100L);
@@ -324,11 +371,11 @@ class OrderServiceTest {
         response.setId(100L);
         response.setOrderStatus(OrderStatus.CONFIRMED);
 
-        when(orderRepository.findById(100L)).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdWithLock(100L)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(updatedOrder);
         when(orderMapper.toResponse(updatedOrder)).thenReturn(response);
 
-        OrderResponse result = orderService.updateOrderStatus(100L, OrderStatus.CONFIRMED);
+        OrderResponse result = orderService.updateOrderStatus(100L, OrderStatus.CONFIRMED, "admin");
 
         assertEquals(OrderStatus.CONFIRMED, result.getOrderStatus());
     }
@@ -339,9 +386,9 @@ class OrderServiceTest {
         order.setId(100L);
         order.setStatus(OrderStatus.DELIVERED);
 
-        when(orderRepository.findById(100L)).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdWithLock(100L)).thenReturn(Optional.of(order));
 
-        assertThrows(IllegalStateException.class, () -> orderService.updateOrderStatus(100L, OrderStatus.CONFIRMED));
+        assertThrows(IllegalStateException.class, () -> orderService.updateOrderStatus(100L, OrderStatus.CONFIRMED, "admin"));
     }
 
     @Test
@@ -349,6 +396,7 @@ class OrderServiceTest {
         Order order = new Order();
         order.setId(100L);
         order.setStatus(OrderStatus.CONFIRMED);
+        order.setStockDeducted(true); // Stock must be deducted for restore to happen
 
         Product product = new Product();
         product.setId(10L);
@@ -367,11 +415,11 @@ class OrderServiceTest {
         response.setId(100L);
         response.setOrderStatus(OrderStatus.CANCELED);
 
-        when(orderRepository.findById(100L)).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdWithLock(100L)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(updatedOrder);
         when(orderMapper.toResponse(updatedOrder)).thenReturn(response);
 
-        OrderResponse result = orderService.updateOrderStatus(100L, OrderStatus.CANCELED);
+        OrderResponse result = orderService.updateOrderStatus(100L, OrderStatus.CANCELED, "admin");
 
         assertEquals(OrderStatus.CANCELED, result.getOrderStatus());
         verify(productRepository).restoreStock(10L, 3);

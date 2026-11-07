@@ -95,6 +95,11 @@ class CartServiceTest {
 
         verify(cartItemRepository).findByCartIdAndProductId(1L, 10L);
         verify(cartRepository).save(cart);
+
+        // Assert the saved item has the correct product and quantity
+        assertEquals(1, cart.getItems().size());
+        assertEquals(product, cart.getItems().get(0).getProduct());
+        assertEquals(Integer.valueOf(2), cart.getItems().get(0).getQuantity());
     }
 
     @Test

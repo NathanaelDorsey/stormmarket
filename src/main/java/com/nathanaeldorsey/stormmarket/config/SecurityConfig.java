@@ -20,12 +20,13 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * Sets up Argon2 password hashing, JWT authentication (converting the "role" claim to
  * ROLE_* authorities), and a stateless session filter chain. Public access is granted
- * to /auth/** and GET /products/** and GET /categories/**; all other endpoints require
+ * to /v1/auth/** and GET /v1/products/** and GET /v1/categories/**; all other endpoints require
  * authentication, with product/admin and category mutating endpoints restricted to ADMIN.
  */
 public class SecurityConfig {
-    private static final String PRODUCTS_PATH = "/products/**";
-    private static final String CATEGORIES_PATH = "/categories/**";
+    private static final String AUTH_PATH = "/v1/auth/**";
+    private static final String PRODUCTS_PATH = "/v1/products/**";
+    private static final String CATEGORIES_PATH = "/v1/categories/**";
     private static final String ADMIN_ROLE = "ADMIN";
 
     @Bean // Tells Spring, to create object and manage as bean
@@ -57,10 +58,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Disable csrf as using bearer token
                 .authorizeHttpRequests(auth -> auth // configure request permissions
-                        .requestMatchers("/auth/**")
-                        .permitAll() // explicit permit all requests to /auth
+                        .requestMatchers(AUTH_PATH)
+                        .permitAll() // explicit permit all requests to /v1/auth
                         // Admin product endpoints require the ADMIN role.
-                        .requestMatchers("/products/admin/**")
+                        .requestMatchers("/v1/products/admin/**")
                         .hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.GET, CATEGORIES_PATH)
                         .permitAll() // permit all GET requests to categories
@@ -72,6 +73,9 @@ public class SecurityConfig {
                         .hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.DELETE, PRODUCTS_PATH, CATEGORIES_PATH)
                         .hasRole(ADMIN_ROLE)
+                        // Uploaded product images are public.
+                        .requestMatchers(HttpMethod.GET, "/v1/files/**")
+                        .permitAll()
                         .anyRequest()
                         .authenticated()) // all others must be authenticated
                 .oauth2ResourceServer(

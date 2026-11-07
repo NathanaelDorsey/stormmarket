@@ -53,7 +53,7 @@ class ProductControllerTest {
 
         when(productService.getAllProducts()).thenReturn(List.of(product));
 
-        mockMvc.perform(get("/products"))
+        mockMvc.perform(get("/v1/products"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -80,7 +80,7 @@ class ProductControllerTest {
 
         when(productService.getProductById(1L)).thenReturn(product);
 
-        mockMvc.perform(get("/products/1"))
+        mockMvc.perform(get("/v1/products/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -92,12 +92,12 @@ class ProductControllerTest {
     void getProductByIdWhenProductDoesNotExistReturnsNotFound() throws Exception {
         when(productService.getProductById(999L)).thenThrow(new ResourceNotFoundException("Product not found"));
 
-        mockMvc.perform(get("/products/999"))
+        mockMvc.perform(get("/v1/products/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Product not found"))
-                .andExpect(jsonPath("$.path").value("/products/999"));
+                .andExpect(jsonPath("$.path").value("/v1/products/999"));
     }
 
     @Test
@@ -117,7 +117,7 @@ class ProductControllerTest {
                         org.mockito.ArgumentMatchers.any(Pageable.class)))
                 .thenReturn(page);
 
-        mockMvc.perform(get("/products/search")
+        mockMvc.perform(get("/v1/products/search")
                         .param("name", "Keyboard")
                         .param("page", "0")
                         .param("size", "10"))
@@ -132,12 +132,12 @@ class ProductControllerTest {
 
     @Test
     void searchProductsWithInvalidMinPriceReturnsBadRequest() throws Exception {
-        mockMvc.perform(get("/products/search").param("minPrice", "not-a-number"))
+        mockMvc.perform(get("/v1/products/search").param("minPrice", "not-a-number"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Validation Failed"))
                 .andExpect(jsonPath("$.message").value("One or more fields have invalid values"))
                 .andExpect(jsonPath("$.validationErrors.minPrice").exists())
-                .andExpect(jsonPath("$.path").value("/products/search"));
+                .andExpect(jsonPath("$.path").value("/v1/products/search"));
     }
 }

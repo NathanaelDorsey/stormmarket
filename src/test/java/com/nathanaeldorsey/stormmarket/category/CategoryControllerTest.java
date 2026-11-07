@@ -50,7 +50,7 @@ class CategoryControllerTest {
 
         when(categoryService.createCategory(any(CategoryRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/v1/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -65,7 +65,7 @@ class CategoryControllerTest {
 
     @Test
     void createCategoryWithInvalidNameReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/v1/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -90,7 +90,7 @@ class CategoryControllerTest {
 
         when(categoryService.getAllCategories()).thenReturn(List.of(cat1, cat2));
 
-        mockMvc.perform(get("/categories"))
+        mockMvc.perform(get("/v1/categories"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -107,7 +107,7 @@ class CategoryControllerTest {
 
         when(categoryService.getCategoryById(1L)).thenReturn(response);
 
-        mockMvc.perform(get("/categories/1"))
+        mockMvc.perform(get("/v1/categories/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -119,11 +119,11 @@ class CategoryControllerTest {
         when(categoryService.getCategoryById(999L))
                 .thenThrow(new ResourceNotFoundException("Category not found"));
 
-        mockMvc.perform(get("/categories/999"))
+        mockMvc.perform(get("/v1/categories/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Category not found"))
-                .andExpect(jsonPath("$.path").value("/categories/999"));
+                .andExpect(jsonPath("$.path").value("/v1/categories/999"));
     }
 
     @Test
@@ -134,7 +134,7 @@ class CategoryControllerTest {
 
         when(categoryService.updateCategory(eq(1L), any(CategoryRequest.class))).thenReturn(response);
 
-        mockMvc.perform(put("/categories/1")
+        mockMvc.perform(put("/v1/categories/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -151,7 +151,7 @@ class CategoryControllerTest {
         when(categoryService.updateCategory(eq(999L), any(CategoryRequest.class)))
                 .thenThrow(new ResourceNotFoundException("Category not found"));
 
-        mockMvc.perform(put("/categories/999")
+        mockMvc.perform(put("/v1/categories/999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -165,7 +165,7 @@ class CategoryControllerTest {
 
     @Test
     void deleteCategoryReturnsNoContent() throws Exception {
-        mockMvc.perform(delete("/categories/1"))
+        mockMvc.perform(delete("/v1/categories/1"))
                 .andExpect(status().isOk());
     }
 
@@ -174,7 +174,7 @@ class CategoryControllerTest {
         doThrow(new ResourceNotFoundException("Category not found"))
                 .when(categoryService).deleteCategory(999L);
 
-        mockMvc.perform(delete("/categories/999"))
+        mockMvc.perform(delete("/v1/categories/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Category not found"));
@@ -182,7 +182,7 @@ class CategoryControllerTest {
 
     @Test
     void invalidRequestBodyReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/v1/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("not valid json"))
                 .andExpect(status().isBadRequest());
@@ -190,7 +190,7 @@ class CategoryControllerTest {
 
     @Test
     void missingRequiredFieldReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/v1/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {

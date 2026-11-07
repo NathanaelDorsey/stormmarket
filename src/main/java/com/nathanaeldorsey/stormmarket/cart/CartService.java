@@ -5,10 +5,12 @@ import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 /**
  * Manages shopping-cart operations for users: adding products, updating quantities,
  * removing items, clearing carts, and retrieving cart contents with totals.
@@ -28,19 +30,6 @@ public class CartService {
     private static final int MAX_CART_ITEM_QUANTITY = 100;
     private static final int MAX_DISTINCT_CART_ITEMS = 50;
     private static final String PRODUCT_NOT_FOUND = "Product not found";
-
-    public CartService(
-            CartRepository cartRepository,
-            CartItemRepository cartItemRepository,
-            ProductRepository productRepository,
-            UserRepository userRepository,
-            CartMapper cartMapper) {
-        this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.cartMapper = cartMapper;
-    }
 
     /**
      * Adds the given quantity of a product to the user's cart, or increases the quantity
@@ -89,6 +78,7 @@ public class CartService {
             item = new CartItem();
             item.setProduct(product);
             item.setCart(cart);
+            item.setQuantity(quantity);
             cart.addItem(item); // keep cart and items synchronized
         }
 

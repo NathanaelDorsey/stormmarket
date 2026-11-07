@@ -5,9 +5,11 @@ import java.time.Instant;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 /**
  * Issues signed JWT access tokens for authenticated users.
  *
@@ -16,10 +18,6 @@ import org.springframework.stereotype.Service;
  */
 public class JwtService {
     private final JwtEncoder jwtEncoder;
-
-    public JwtService(JwtEncoder jwtEncoder) {
-        this.jwtEncoder = jwtEncoder;
-    }
 
     /**
      * Generates a signed JWT access token for the given user.
