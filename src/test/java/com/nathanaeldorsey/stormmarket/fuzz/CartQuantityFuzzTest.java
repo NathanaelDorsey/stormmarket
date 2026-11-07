@@ -27,6 +27,7 @@ import com.nathanaeldorsey.stormmarket.cart.CartRepository;
 import com.nathanaeldorsey.stormmarket.cart.CartItemRepository;
 import com.nathanaeldorsey.stormmarket.cart.CartMapper;
 import com.nathanaeldorsey.stormmarket.cart.CartService;
+import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
@@ -44,9 +45,10 @@ class CartQuantityFuzzTest {
     private final ProductRepository productRepository = mock(ProductRepository.class);
     private final UserRepository userRepository = mock(UserRepository.class);
     private final CartMapper cartMapper = mock(CartMapper.class);
+    private final CouponService couponService = mock(CouponService.class);
 
     private final CartService cartService = new CartService(
-            cartRepository, cartItemRepository, productRepository, userRepository, cartMapper);
+            cartRepository, cartItemRepository, productRepository, userRepository, cartMapper, couponService);
 
     @Property(tries = 100)
     void validQuantitiesBetween1And100AreAccepted(

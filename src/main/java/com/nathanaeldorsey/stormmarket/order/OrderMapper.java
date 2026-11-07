@@ -19,6 +19,8 @@ public class OrderMapper {
         response.setTotal(order.getTotal());
         response.setOrderStatus(order.getStatus());
         response.setCreatedAt(order.getCreatedAt());
+        response.setCouponCode(order.getCouponCode());
+        response.setDiscountAmount(order.getDiscountAmount());
         List<OrderItemResponse> items =
                 order.getItems().stream().map(this::toItemResponse).toList();
         response.setItems(items);

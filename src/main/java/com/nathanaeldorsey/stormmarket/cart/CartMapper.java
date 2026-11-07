@@ -17,10 +17,19 @@ public class CartMapper {
                 cart.getItems().stream().map(this::toItemResponse).toList();
         response.setItems(items);
 
-        BigDecimal total = items.stream()
+        BigDecimal subtotal = items.stream()
                 .map(CartItemResponse::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add); // add all subtotals starting from 0.00
-        response.setTotal(total);
+
+        // Apply coupon discount if a coupon code is set on the cart
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        if (cart.getCouponCode() != null && !cart.getCouponCode().isBlank()) {
+            // Discount is applied at checkout time; here we just report the coupon code
+            // and a zero discount in the cart view (final discount applied in OrderService)
+            response.setCouponCode(cart.getCouponCode());
+        }
+        response.setDiscountAmount(discountAmount);
+        response.setTotal(subtotal.subtract(discountAmount));
 
         return response;
     }

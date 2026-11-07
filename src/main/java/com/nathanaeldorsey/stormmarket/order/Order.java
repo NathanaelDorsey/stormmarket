@@ -57,6 +57,12 @@ public class Order {
     @Column(name = "stock_deducted", nullable = false)
     private boolean stockDeducted = false;
 
+    @Column(name = "coupon_code", length = 50)
+    private String couponCode;
+
+    @Column(name = "discount_amount", precision = 12, scale = 2)
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+
     public void addItem(OrderItem item) {
         items.add(item);
         item.setOrder(this);

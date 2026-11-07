@@ -20,4 +20,6 @@ public class OrderResponse {
     private OrderStatus orderStatus;
     private LocalDateTime createdAt;
     private List<OrderItemResponse> items;
+    private String couponCode;
+    private BigDecimal discountAmount;
 }

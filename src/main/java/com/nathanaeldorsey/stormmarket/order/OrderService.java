@@ -6,6 +6,8 @@ import com.nathanaeldorsey.stormmarket.cart.CartRepository;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.payment.PaymentService;
 import com.nathanaeldorsey.stormmarket.payment.PaymentStatus;
+import com.nathanaeldorsey.stormmarket.product.Coupon;
+import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
@@ -40,6 +42,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     private final PaymentService paymentService;
+    private final CouponService couponService;
     private final OrderEventRepository orderEventRepository;
     private static final String ORDER_NOT_FOUND = "Order not found";
     private static final String CART_NOT_FOUND = "Cart not found";
@@ -82,6 +85,17 @@ public class OrderService {
         order.setUser(user);
         order.setTotal(calculateOrderTotal(cart));
         order.setStatus(OrderStatus.PENDING);
+
+        // Snapshot coupon code and discount amount from cart onto the order
+        if (cart.getCouponCode() != null && !cart.getCouponCode().isBlank()) {
+            Coupon coupon = couponService.validate(cart.getCouponCode());
+            BigDecimal subtotal = calculateOrderTotal(cart);
+            BigDecimal discount = couponService.calculateDiscount(coupon, subtotal);
+            order.setCouponCode(cart.getCouponCode());
+            order.setDiscountAmount(discount);
+            order.setTotal(subtotal.subtract(discount));
+        }
+
         for (CartItem cartItem : cart.getItems()) {
             OrderItem orderItem = createOrderItem(cartItem);
             order.addItem(orderItem);
@@ -158,8 +172,10 @@ public class OrderService {
             // payment is captured, not at order placement time.
             paymentService.createPaymentIntent(savedOrder.getId());
 
-            // Remove the purchased items from the cart.
+            // Remove the purchased items and consumed coupon from the cart.
             cart.getItems().clear();
+            cart.setCouponCode(null);
+            cartRepository.save(cart);
 
             return orderMapper.toResponse(savedOrder);
         } else {

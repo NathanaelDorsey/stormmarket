@@ -110,4 +110,38 @@ public class CartController {
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
         cartService.clearCart(user.getId());
     }
+
+    /**
+     * Applies a coupon code to the authenticated user's cart.
+     *
+     * @param code           the coupon code to apply
+     * @param authentication the current authenticated user's security context
+     * @return the updated cart response with discount applied
+     * @throws ResourceNotFoundException if the user or coupon does not exist
+     * @throws IllegalStateException if the coupon is expired or usage limit reached
+     */
+    @PostMapping("/coupon")
+    public CartResponse applyCoupon(
+            @RequestParam String code,
+            Authentication authentication) {
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
+        return cartService.applyCoupon(user.getId(), code);
+    }
+
+    /**
+     * Removes the applied coupon code from the authenticated user's cart.
+     *
+     * @param authentication the current authenticated user's security context
+     * @return the updated cart response without discount
+     * @throws ResourceNotFoundException if the user does not exist
+     */
+    @DeleteMapping("/coupon")
+    public CartResponse removeCoupon(Authentication authentication) {
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
+        return cartService.removeCoupon(user.getId());
+    }
 }

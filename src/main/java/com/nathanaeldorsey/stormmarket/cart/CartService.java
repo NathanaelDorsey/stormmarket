@@ -1,10 +1,13 @@
 package com.nathanaeldorsey.stormmarket.cart;
 
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.product.Coupon;
+import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - a cart may hold at most {@value #MAX_DISTINCT_CART_ITEMS} different products
  * - requested quantity cannot exceed available stock
  * - inactive products cannot be added to a cart
+ * - an optional coupon code may be applied to reduce the cart total
  */
 public class CartService {
     private final CartRepository cartRepository;
@@ -27,6 +31,7 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
+    private final CouponService couponService;
     private static final int MAX_CART_ITEM_QUANTITY = 100;
     private static final int MAX_DISTINCT_CART_ITEMS = 50;
     private static final String PRODUCT_NOT_FOUND = "Product not found";
@@ -87,9 +92,11 @@ public class CartService {
 
     /**
      * Retrieves the user's cart, creating an empty cart if none exists yet.
+     * If a coupon code is applied, the discount amount is computed and subtracted
+     * from the cart total.
      *
      * @param userId the id of the user whose cart to retrieve
-     * @return the cart response containing items and total
+     * @return the cart response containing items, total, coupon code, and discount
      * @throws ResourceNotFoundException if the user does not exist or is inactive
      */
     @Transactional
@@ -97,7 +104,21 @@ public class CartService {
         User user = getUser(userId);
         // create cart if none to view empty cart
         Cart cart = getOrCreateCart(user);
-        return cartMapper.toResponse(cart);
+        CartResponse response = cartMapper.toResponse(cart);
+
+        // Apply coupon discount if a coupon code is present
+        if (cart.getCouponCode() != null && !cart.getCouponCode().isBlank()) {
+            Coupon coupon = couponService.validate(cart.getCouponCode());
+            BigDecimal subtotal = response.getItems().stream()
+                    .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal discount = couponService.calculateDiscount(coupon, subtotal);
+            response.setCouponCode(cart.getCouponCode());
+            response.setDiscountAmount(discount);
+            response.setTotal(subtotal.subtract(discount));
+        }
+
+        return response;
     }
 
     /**
@@ -111,6 +132,40 @@ public class CartService {
         Cart cart = getExistingCart(userId);
 
         cart.getItems().clear();
+    }
+
+    /**
+     * Applies a coupon code to the user's cart. Validates the coupon code and stores
+     * it on the cart so the discount is applied when the cart is retrieved or checked out.
+     *
+     * @param userId   the id of the user whose cart to modify
+     * @param code     the coupon code to apply
+     * @return the updated cart response with discount applied
+     * @throws ResourceNotFoundException if the user's cart does not exist or the coupon is not found
+     * @throws IllegalStateException if the coupon is expired or usage limit reached
+     */
+    @Transactional
+    public CartResponse applyCoupon(Long userId, String code) {
+        Coupon coupon = couponService.validate(code);
+        Cart cart = getExistingCart(userId);
+        cart.setCouponCode(code);
+        cartRepository.save(cart);
+        return getCart(userId);
+    }
+
+    /**
+     * Removes the applied coupon code from the user's cart.
+     *
+     * @param userId the id of the user whose cart to modify
+     * @return the updated cart response without discount
+     * @throws ResourceNotFoundException if the user's cart does not exist
+     */
+    @Transactional
+    public CartResponse removeCoupon(Long userId) {
+        Cart cart = getExistingCart(userId);
+        cart.setCouponCode(null);
+        cartRepository.save(cart);
+        return getCart(userId);
     }
 
     /**

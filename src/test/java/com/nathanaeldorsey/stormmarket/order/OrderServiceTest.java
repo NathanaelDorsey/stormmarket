@@ -11,6 +11,7 @@ import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundExceptio
 import com.nathanaeldorsey.stormmarket.payment.Payment;
 import com.nathanaeldorsey.stormmarket.payment.PaymentService;
 import com.nathanaeldorsey.stormmarket.payment.PaymentStatus;
+import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.order.OrderEventRepository;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
@@ -60,6 +61,9 @@ class OrderServiceTest {
     private PaymentService paymentService;
 
     @Mock
+    private CouponService couponService;
+
+    @Mock
     private OrderEventRepository orderEventRepository;
 
     private OrderService orderService;
@@ -67,7 +71,7 @@ class OrderServiceTest {
     @BeforeEach
     void setUp() {
         orderService = new OrderService(
-                orderRepository, cartRepository, userRepository, productRepository, orderMapper, paymentService, orderEventRepository);
+                orderRepository, cartRepository, userRepository, productRepository, orderMapper, paymentService, couponService, orderEventRepository);
     }
 
     @Test

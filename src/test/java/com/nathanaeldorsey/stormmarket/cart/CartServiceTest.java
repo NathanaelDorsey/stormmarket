@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.Role;
@@ -40,12 +41,15 @@ class CartServiceTest {
     @Mock
     private CartMapper cartMapper;
 
+    @Mock
+    private CouponService couponService;
+
     private CartService cartService;
 
     @BeforeEach
     void setUp() {
         cartService = new CartService(
-                cartRepository, cartItemRepository, productRepository, userRepository, cartMapper);
+                cartRepository, cartItemRepository, productRepository, userRepository, cartMapper, couponService);
     }
 
     @Test
