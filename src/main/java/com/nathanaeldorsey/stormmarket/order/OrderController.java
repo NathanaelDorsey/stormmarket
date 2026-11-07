@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,7 +31,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderResponse> placeOrder(
             Authentication authentication,
-            @RequestBody(required = false) GuestCheckoutRequest guestRequest) {
+            @Valid @RequestBody(required = false) GuestCheckoutRequest guestRequest) {
         Long userId = null;
         if (authentication != null && authentication.isAuthenticated()) {
             userId = getUser(authentication).getId();

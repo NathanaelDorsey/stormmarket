@@ -1,18 +1,20 @@
 package com.nathanaeldorsey.stormmarket.order;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.nathanaeldorsey.stormmarket.user.User;
+import com.nathanaeldorsey.stormmarket.order.OrderResponse;
+import com.nathanaeldorsey.stormmarket.order.OrderStatus;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -47,15 +49,32 @@ class OrderControllerSecurityTest {
 
     @Test
     void unauthenticatedGetOrderDetailsReturns401() throws Exception {
-        mockMvc.perform(get("/v1/orders/1"))
+        mockMvc.perform(get("/v1/orders/100"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void unauthenticatedPostOrdersAllowsGuestCheckout() throws Exception {
+        OrderResponse response = new OrderResponse();
+        response.setId(100L);
+        response.setTotal(new java.math.BigDecimal("100.00"));
+        response.setOrderStatus(OrderStatus.PENDING);
+
+        when(orderService.placeOrder(any(), any()))
+                .thenReturn(response);
+
         mockMvc.perform(post("/v1/orders")
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content("{\"shippingAddress\":{\"street\":\"123 Main St\",\"city\":\"City\",\"state\":\"ST\",\"zipCode\":\"12345\"}}"))
+                        .content("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"john@example.com\",\"addressLine1\":\"123 Main St\",\"city\":\"City\",\"state\":\"ST\",\"postalCode\":\"12345\",\"country\":\"USA\",\"shippingMethod\":\"STANDARD\",\"paymentMethod\":\"CREDIT_CARD\"}"))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void unauthenticatedPostOrdersWithInvalidDataReturns400() throws Exception {
+        // Missing required fields - should return 400 validation error
+        mockMvc.perform(post("/v1/orders")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"\",\"lastName\":\"Doe\",\"email\":\"john@example.com\",\"addressLine1\":\"123 Main St\",\"city\":\"City\",\"state\":\"ST\",\"postalCode\":\"12345\",\"country\":\"USA\",\"shippingMethod\":\"STANDARD\",\"paymentMethod\":\"CREDIT_CARD\"}"))
+                .andExpect(status().isBadRequest());
     }
 }
