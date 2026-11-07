@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @TestPropertySource(properties = {
     "spring.datasource.url=jdbc:h2:mem:stormmarket_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false",
     "spring.datasource.driver-class-name=org.h2.Driver",
@@ -33,7 +35,7 @@ class CartControllerSecurityTest {
     private CartService cartService;
 
     @MockitoBean
-    private com.nathanaeldorsey.stormmarket.user.UserRepository userRepository;
+    private CartController cartController;
 
     @Test
     void unauthenticatedGetCartReturns401() throws Exception {
@@ -43,23 +45,23 @@ class CartControllerSecurityTest {
 
     @Test
     void unauthenticatedPostCartReturns401() throws Exception {
-        mockMvc.perform(post("/v1/cart/items")
+        mockMvc.perform(post("/v1/cart")
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content("{\"productId\":10,\"quantity\":1}"))
+                        .content("{\"productId\":1,\"quantity\":1}"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void unauthenticatedPutCartReturns401() throws Exception {
-        mockMvc.perform(put("/v1/cart/items/10")
+        mockMvc.perform(put("/v1/cart/1")
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content("{\"quantity\":1}"))
+                        .content("{\"quantity\":2}"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void unauthenticatedDeleteCartItemReturns401() throws Exception {
-        mockMvc.perform(delete("/v1/cart/items/10"))
+        mockMvc.perform(delete("/v1/cart/1"))
                 .andExpect(status().isUnauthorized());
     }
 
