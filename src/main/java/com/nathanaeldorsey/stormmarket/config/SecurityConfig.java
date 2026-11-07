@@ -67,6 +67,9 @@ public class SecurityConfig {
                         .permitAll() // permit all GET requests to categories
                         .requestMatchers(HttpMethod.GET, PRODUCTS_PATH)
                         .permitAll() // permit all GET requests to products
+                        // Guest checkout - permit anonymous POST /v1/orders
+                        .requestMatchers(HttpMethod.POST, "/v1/orders")
+                        .permitAll()
                         .requestMatchers(HttpMethod.POST, PRODUCTS_PATH, CATEGORIES_PATH)
                         .hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.PUT, PRODUCTS_PATH, CATEGORIES_PATH)

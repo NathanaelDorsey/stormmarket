@@ -50,7 +50,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Running Greptile review on PR #${{ github.event.pull_request.number }}"
-          greptile review -b main --json > greptile-report.json || true
+          if ! greptile review -b main --json > greptile-report.json; then
+            echo "Greptile review command failed" > greptile-report.txt
+            echo "GREPTILE_FAILED=true" >> $GITHUB_ENV
+          else
+            echo "GREPTILE_FAILED=false" >> $GITHUB_ENV
+          fi
           
           if [ -f greptile-report.json ]; then
             echo "Greptile review completed"
@@ -72,7 +77,21 @@ jobs:
               return;
             }
             
-            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            let report;
+            try {
+              report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            } catch (e) {
+              console.log('Failed to parse Greptile report: ' + e.message);
+              await github.rest.issues.createComment({
+                issue_number: ${{ github.event.pull_request.number }},
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '## ⚠️ Greptile AI Review
+
+Failed to parse Greptile report. The review may have encountered an error. Check workflow logs for details.'
+              });
+              return;
+            }
             
             if (!report.findings || report.findings.length === 0) {
               await github.rest.issues.createComment({
@@ -86,7 +105,7 @@ jobs:
             
             const severityOrder = { 'critical': 0, 'major': 1, 'minor': 2, 'info': 3 };
             const sortedFindings = [...report.findings].sort((a, b) => 
-              (severityOrder[a.severity] || 99) - (severityOrder[b.severity] || 99)
+              (severityOrder[a.severity] ?? 99) - (severityOrder[b.severity] ?? 99)
             );
             
             let body = '## 🤖 Greptile AI Code Review\n\n';

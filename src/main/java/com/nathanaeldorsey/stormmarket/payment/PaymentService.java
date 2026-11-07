@@ -156,8 +156,12 @@ public class PaymentService {
             throw new IllegalArgumentException("Payment not found or access denied");
         }
 
+        // Lock the order row before reading its state to prevent race conditions
+        // with concurrent shipping/cancellation
+        Order order = orderRepository.findByIdWithLock(payment.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
         // Check order state - only CAPTURED orders that are not DELIVERED/SHIPPED can be refunded
-        Order order = payment.getOrder();
         if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.SHIPPED) {
             throw new IllegalStateException("Cannot refund " + order.getStatus() + " order without return authorization");
         }
