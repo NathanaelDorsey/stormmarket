@@ -6,33 +6,42 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.nathanaeldorsey.stormmarket.auth.AuthService;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceAlreadyExistsException;
 import com.nathanaeldorsey.stormmarket.user.UserRequest;
 import com.nathanaeldorsey.stormmarket.user.UserResponse;
 import com.nathanaeldorsey.stormmarket.user.UserService;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = AuthController.class)
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc(addFilters = false)
-@TestPropertySource(properties = {
-    "spring.datasource.url=jdbc:h2:mem:stormmarket_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.flyway.enabled=false"
-})
 class AuthControllerTest {
+
+    @DynamicPropertySource
+    static void jwtProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.security.oauth2.resourceserver.jwt.public-key-location",
+                () -> "classpath:jwt/public-key.pem");
+        registry.add("spring.security.oauth2.resourceserver.jwt.private-key-location",
+                () -> "classpath:jwt/private-key.pem");
+    }
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private AuthService authService;
 
     private String validJson() {
         return """
@@ -96,7 +105,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validJson()))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.username").value("johndoe"));
     }
