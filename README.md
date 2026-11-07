@@ -94,7 +94,7 @@ The default smoke test uses an isolated H2 profile. MySQL integration tests are 
 
 | Domain | What is tested | Test class |
 |--------|---------------|------------|
-| Auth & users | Registration, login, JWT validation, inactive users, duplicate detection | `AuthControllerTest`, `AuthServiceTest`, `GlobalExceptionHandlerTest` |
+| Auth & users | Registration, login, JWT validation, inactive users, duplicate detection | `AuthServiceTest`, `GlobalExceptionHandlerTest` |
 | Categories | CRUD, unique constraints, authorization, validation errors | `CategoryControllerTest`, `CategoryServiceTest` |
 | Products | Create/update/delete, search/filter, pagination, admin endpoints, stock | `ProductControllerTest`, `ProductServiceTest` |
 | Cart | Add/remove/update items, quantity boundaries, stock checks, totals, cross-user isolation | `CartControllerTest`, `CartServiceTest`, `MySqlIntegrationTest` |

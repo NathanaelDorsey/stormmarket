@@ -142,9 +142,9 @@ Use focused tests for service logic, MVC/API behavior, security boundaries, vali
 - [x] Run `./mvnw test`.
 - [x] Run `./mvnw test -Drun.mysql.integration=true` with Docker available.
 - [x] Run `./mvnw verify`.
-- [x] Review the JaCoCo report and set a project-approved minimum line and branch coverage.
-- [x] Add Maven coverage thresholds so coverage regressions fail the build.
-- [x] Add CI execution for the default tests, MySQL integration tests, formatting, static analysis, and coverage.
+- [ ] Review the JaCoCo report and set a project-approved minimum line and branch coverage.
+- [ ] Add Maven coverage thresholds so coverage regressions fail the build.
+- [ ] Add CI execution for the default tests, MySQL integration tests, formatting, static analysis, and coverage.
 - [x] Confirm no test relies on production secrets, a remote database, test order, or a developer-specific environment.
 
 ## Completion standard
@@ -156,6 +156,6 @@ The testing stage is **fully complete**:
 3. [x] Authentication and authorization are tested for anonymous users, regular users, and admins.
 4. [x] Cart and checkout behavior is tested with transactional MySQL persistence.
 5. [x] Flyway migrations and database constraints pass against MySQL Testcontainers.
-6. [x] `./mvnw verify` passes with enforced, project-approved coverage thresholds.
-7. [x] CI runs the same required checks on every change.
+6. [ ] `./mvnw verify` passes with enforced, project-approved coverage thresholds.
+7. [ ] CI runs the same required checks on every change.
 

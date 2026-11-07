@@ -24,7 +24,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Modifying
     @Query("""
     UPDATE Product p
-    SET p.stockQuantity = p.stockQuantity - :quantity
+    SET p.stockQuantity = p.stockQuantity - :quantity,
+        p.version = p.version + 1
     WHERE p.id = :productId
       AND p.stockQuantity >= :quantity
     """)
@@ -39,7 +40,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Modifying
     @Query("""
     UPDATE Product p
-    SET p.stockQuantity = p.stockQuantity + :quantity
+    SET p.stockQuantity = p.stockQuantity + :quantity,
+        p.version = p.version + 1
     WHERE p.id = :productId
     """)
     void restoreStock(@Param("productId") Long productId, @Param("quantity") int quantity);
@@ -56,7 +58,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Modifying
     @Query("""
     UPDATE Product p
-    SET p.reservedStock = p.reservedStock + :quantity
+    SET p.reservedStock = p.reservedStock + :quantity,
+        p.version = p.version + 1
     WHERE p.id = :productId
       AND p.stockQuantity >= p.reservedStock + :quantity
     """)
@@ -72,7 +75,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Modifying
     @Query("""
     UPDATE Product p
-    SET p.reservedStock = p.reservedStock - :quantity
+    SET p.reservedStock = p.reservedStock - :quantity,
+        p.version = p.version + 1
     WHERE p.id = :productId
     """)
     void releaseReservedStock(@Param("productId") Long productId, @Param("quantity") int quantity);
@@ -89,7 +93,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("""
     UPDATE Product p
     SET p.stockQuantity = p.stockQuantity - :quantity,
-        p.reservedStock = p.reservedStock - :quantity
+        p.reservedStock = p.reservedStock - :quantity,
+        p.version = p.version + 1
     WHERE p.id = :productId
       AND p.stockQuantity >= :quantity
       AND p.reservedStock >= :quantity

@@ -241,6 +241,11 @@ public class OrderService {
         Order order = orderRepository.findByIdWithLock(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
+        // If already canceled, skip stock changes to avoid double-release of reservations
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            return orderMapper.toResponse(order);
+        }
+
         // Only allow refund for orders that are not DELIVERED or SHIPPED
         if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.SHIPPED) {
             throw new IllegalStateException("Cannot refund " + order.getStatus() + " order without return authorization");
@@ -330,8 +335,8 @@ public class OrderService {
             throw new IllegalStateException("Cannot change order status from " + currentStatus + " to " + status);
         }
         OrderStatus previousStatus = order.getStatus();
-        // If the order is canceled and stock was deducted, restore stock for each item.
-        if (status == OrderStatus.CANCELED && order.isStockDeducted()) {
+        // If the order is canceled or expired and stock was deducted, restore physical stock.
+        if ((status == OrderStatus.CANCELED || status == OrderStatus.EXPIRED) && order.isStockDeducted()) {
             for (OrderItem item : order.getItems()) {
                 productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
             }
