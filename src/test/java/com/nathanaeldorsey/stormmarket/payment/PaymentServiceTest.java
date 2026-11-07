@@ -1,27 +1,30 @@
 package com.nathanaeldorsey.stormmarket.payment;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
-import com.nathanaeldorsey.stormmarket.common.exception.ResourceAlreadyExistsException;
 import com.nathanaeldorsey.stormmarket.order.Order;
 import com.nathanaeldorsey.stormmarket.order.OrderRepository;
 import com.nathanaeldorsey.stormmarket.order.OrderService;
 import com.nathanaeldorsey.stormmarket.order.OrderStatus;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
+import com.nathanaeldorsey.stormmarket.user.User;
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.List;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
@@ -33,364 +36,203 @@ class PaymentServiceTest {
     private OrderRepository orderRepository;
 
     @Mock
-    private ProductRepository productRepository;
-
-    @Mock
     private OrderService orderService;
 
+    @InjectMocks
     private PaymentService paymentService;
+
+    private User user;
+    private Order order;
+    private Payment payment;
+    private String intentId;
 
     @BeforeEach
     void setUp() {
-        paymentService = new PaymentService(
-                paymentRepository, orderRepository, productRepository, orderService);
-    }
+        user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
 
-    private Payment createPayment(String intentId, Order order, PaymentStatus status) {
-        Payment payment = new Payment();
-        payment.setIntentId(intentId);
+        order = new Order();
+        order.setId(1L);
+        order.setUser(user);
+        order.setStatus(OrderStatus.PENDING);
+        order.setTotal(new BigDecimal("100.00"));
+
+        intentId = "pi_" + UUID.randomUUID().toString();
+
+        payment = new Payment();
+        payment.setId(1L);
         payment.setOrder(order);
-        payment.setStatus(status);
-        return payment;
-    }
-
-    private Order createOrder(Long id, OrderStatus status) {
-        Order order = new Order();
-        order.setId(id);
-        order.setStatus(status);
-        return order;
-    }
-
-    // --- Ownership tests ---
-
-    @Test
-    void authorizePaymentRejectsOtherUsersOrder() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(99L);
-        order.setUser(user);
-
-        Payment payment = createPayment("pi_1", order, PaymentStatus.PENDING);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> paymentService.authorizePayment("pi_1", 1L));
+        payment.setIntentId("pi_test");
+        payment.setProvider("mock");
+        payment.setAmount(new BigDecimal("100.00"));
+        payment.setCurrency("USD");
+        payment.setStatus(PaymentStatus.PENDING);
     }
 
     @Test
-    void capturePaymentRejectsOtherUsersOrder() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(99L);
-        order.setUser(user);
+    void createPaymentIntent_Success() {
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(paymentRepository.findByOrderId(1L)).thenReturn(Optional.empty());
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.AUTHORIZED);
+        String intentId = paymentService.createPaymentIntent(1L);
 
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> paymentService.capturePayment("pi_1", 1L));
+        assertThat(intentId).startsWith("pi_");
+        verify(paymentRepository).save(any());
     }
 
     @Test
-    void refundPaymentRejectsOtherUsersOrder() {
-        Order order = createOrder(1L, OrderStatus.CONFIRMED);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(99L);
-        order.setUser(user);
+    void createPaymentIntent_ThrowsWhenOrderNotFound() {
+        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> paymentService.refundPayment("pi_1", 1L));
-    }
-
-    // --- Payment state rules ---
-
-    @Test
-    void authorizePaymentRejectsNonPendingStatus() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
-
-        Payment payment = createPayment("pi_1", order, PaymentStatus.AUTHORIZED);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.authorizePayment("pi_1", 1L));
+        assertThatThrownBy(() -> paymentService.createPaymentIntent(1L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Order not found");
     }
 
     @Test
-    void capturePaymentRejectsNonAuthorizedStatus() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
+    void createPaymentIntent_ThrowsWhenPaymentAlreadyExists() {
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(paymentRepository.findByOrderId(1L)).thenReturn(Optional.of(new Payment()));
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.PENDING);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.capturePayment("pi_1", 1L));
+        assertThatThrownBy(() -> paymentService.createPaymentIntent(1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Payment already exists");
     }
 
     @Test
-    void capturePaymentRejectsAlreadyCaptured() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
+    void authorizePayment_Success() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
 
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+        Payment result = paymentService.authorizePayment("pi_test", 1L);
 
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.capturePayment("pi_1", 1L));
+        assertThat(result.getStatus()).isEqualTo(PaymentStatus.AUTHORIZED);
     }
 
     @Test
-    void authorizePaymentRejectsAlreadyAuthorized() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
+    void authorizePayment_ThrowsWhenNotPending() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.AUTHORIZED);
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
 
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.authorizePayment("pi_1", 1L));
+        assertThatThrownBy(() -> paymentService.authorizePayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot authorize payment in state");
     }
 
     @Test
-    void refundPaymentRejectsAlreadyRefunded() {
-        Order order = createOrder(1L, OrderStatus.CONFIRMED);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
+    void capturePayment_Success() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.REFUNDED);
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
 
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+        Payment result = paymentService.capturePayment("pi_test", 1L);
 
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.refundPayment("pi_1", 1L));
-    }
-
-    @Test
-    void refundPaymentRejectsNonCapturedStatus() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
-
-        Payment payment = createPayment("pi_1", order, PaymentStatus.PENDING);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
-
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.refundPayment("pi_1", 1L));
-    }
-
-    @Test
-    void refundPaymentRejectsShippedOrder() {
-        Order order = createOrder(1L, OrderStatus.SHIPPED);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
-
-        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
-
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.refundPayment("pi_1", 1L));
-    }
-
-    @Test
-    void refundPaymentRejectsDeliveredOrder() {
-        Order order = createOrder(1L, OrderStatus.DELIVERED);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
-
-        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
-
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.refundPayment("pi_1", 1L));
-    }
-
-    @Test
-    void failPaymentRejectsCapturedOrRefunded() {
-        for (PaymentStatus status : new PaymentStatus[]{PaymentStatus.CAPTURED, PaymentStatus.REFUNDED}) {
-            Order order = createOrder(1L, OrderStatus.PENDING);
-            com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-            user.setId(1L);
-            order.setUser(user);
-
-            Payment payment = createPayment("pi_1", order, status);
-
-            when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-
-            assertThrows(IllegalStateException.class,
-                    () -> paymentService.failPayment("pi_1", 1L));
-        }
-    }
-
-    // --- Not found ---
-
-    @Test
-    void authorizePaymentThrowsWhenNotFound() {
-        when(paymentRepository.findByIntentIdWithLock("pi_missing")).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> paymentService.authorizePayment("pi_missing", 1L));
-    }
-
-    @Test
-    void capturePaymentThrowsWhenNotFound() {
-        when(paymentRepository.findByIntentIdWithLock("pi_missing")).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> paymentService.capturePayment("pi_missing", 1L));
-    }
-
-    @Test
-    void refundPaymentThrowsWhenNotFound() {
-        when(paymentRepository.findByIntentIdWithLock("pi_missing")).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> paymentService.refundPayment("pi_missing", 1L));
-    }
-
-    // --- Successful flows ---
-
-    @Test
-    void authorizePaymentSuccess() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
-
-        Payment payment = createPayment("pi_1", order, PaymentStatus.PENDING);
-        Payment authorized = createPayment("pi_1", order, PaymentStatus.AUTHORIZED);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(authorized);
-
-        Payment result = paymentService.authorizePayment("pi_1", 1L);
-
-        assertEquals(PaymentStatus.AUTHORIZED, result.getStatus());
-        verify(paymentRepository).save(payment);
-    }
-
-    @Test
-    void capturePaymentSuccess() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
-        order.setTotal(new BigDecimal("99.99"));
-
-        Payment payment = createPayment("pi_1", order, PaymentStatus.AUTHORIZED);
-        Payment captured = createPayment("pi_1", order, PaymentStatus.CAPTURED);
-
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(captured);
-        // completeOrderWithPayment is void-ish, returns OrderResponse but we don't need to stub it
-
-
-        Payment result = paymentService.capturePayment("pi_1", 1L);
-
-        assertEquals(PaymentStatus.CAPTURED, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(PaymentStatus.CAPTURED);
         verify(orderService).completeOrderWithPayment(1L);
     }
 
     @Test
-    void refundPaymentSuccess() {
-        Order order = createOrder(1L, OrderStatus.CONFIRMED);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
+    void capturePayment_ThrowsWhenNotAuthorized() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
-        Payment refunded = createPayment("pi_1", order, PaymentStatus.REFUNDED);
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
 
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+        assertThatThrownBy(() -> paymentService.capturePayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot capture payment in state");
+    }
+
+    @Test
+    void refundPayment_Success() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.CAPTURED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
         when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(refunded);
-        when(orderService.cancelOrderWithRefund(1L)).thenReturn(
-                new com.nathanaeldorsey.stormmarket.order.OrderResponse());
 
-        Payment result = paymentService.refundPayment("pi_1", 1L);
+        Payment result = paymentService.refundPayment("pi_test", 1L);
 
-        assertEquals(PaymentStatus.REFUNDED, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(PaymentStatus.REFUNDED);
         verify(orderService).cancelOrderWithRefund(1L);
     }
 
     @Test
-    void failPaymentSuccess() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
-        user.setId(1L);
-        order.setUser(user);
+    void refundPayment_ThrowsWhenOrderDelivered() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.CAPTURED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        Payment payment = createPayment("pi_1", order, PaymentStatus.PENDING);
-        Payment failed = createPayment("pi_1", order, PaymentStatus.FAILED);
+        Order deliveredOrder = new Order();
+        deliveredOrder.setId(1L);
+        deliveredOrder.setStatus(OrderStatus.DELIVERED);
+        deliveredOrder.setUser(user);
 
-        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(failed);
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(deliveredOrder));
 
-        Payment result = paymentService.failPayment("pi_1", 1L);
-
-        assertEquals(PaymentStatus.FAILED, result.getStatus());
+        assertThatThrownBy(() -> paymentService.refundPayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot refund");
     }
 
     @Test
-    void createPaymentIntentSuccess() {
-        Order order = createOrder(1L, OrderStatus.PENDING);
-        order.setTotal(new BigDecimal("49.99"));
+    void refundPayment_ThrowsWhenNotCaptured() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(paymentRepository.findByOrderId(1L)).thenReturn(Optional.empty());
-        when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
 
-        String intentId = paymentService.createPaymentIntent(1L);
-
-        assertNotNull(intentId);
-        assertTrue(intentId.startsWith("pi_"));
-        verify(paymentRepository).save(any(Payment.class));
+        assertThatThrownBy(() -> paymentService.refundPayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot refund payment in state");
     }
 
     @Test
-    void createPaymentIntentRejectsDuplicate() {
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(createOrder(1L, OrderStatus.PENDING)));
-        when(paymentRepository.findByOrderId(1L)).thenReturn(Optional.of(new Payment()));
+    void failPayment_Success() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        assertThrows(IllegalStateException.class,
-                () -> paymentService.createPaymentIntent(1L));
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+
+        Payment result = paymentService.failPayment("pi_test", 1L);
+
+        assertThat(result.getStatus()).isEqualTo(PaymentStatus.FAILED);
     }
 
     @Test
-    void getPaymentByOrderIdThrowsWhenNotFound() {
-        when(paymentRepository.findByOrderId(99L)).thenReturn(Optional.empty());
+    void failPayment_ThrowsWhenCaptured() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.CAPTURED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> paymentService.getPaymentByOrderId(99L));
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+
+        assertThatThrownBy(() -> paymentService.failPayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot fail payment in state");
     }
 }

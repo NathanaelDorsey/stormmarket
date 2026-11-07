@@ -13,12 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @TestPropertySource(properties = {
     "spring.datasource.url=jdbc:h2:mem:stormmarket_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false",
     "spring.datasource.driver-class-name=org.h2.Driver",
@@ -45,17 +47,15 @@ class OrderControllerSecurityTest {
 
     @Test
     void unauthenticatedGetOrderDetailsReturns401() throws Exception {
-        mockMvc.perform(get("/v1/orders/100"))
+        mockMvc.perform(get("/v1/orders/1"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void unauthenticatedPostOrdersReturnsNot401() throws Exception {
-        // Guest checkout is permitAll, so it should NOT return 401
-        var result = mockMvc.perform(post("/v1/orders")
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
-                .andReturn();
-        org.junit.jupiter.api.Assertions.assertNotEquals(401, result.getResponse().getStatus(),
-                "POST /v1/orders should be permitAll for guests, not return 401");
+    void unauthenticatedPostOrdersAllowsGuestCheckout() throws Exception {
+        mockMvc.perform(post("/v1/orders")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"shippingAddress\":{\"street\":\"123 Main St\",\"city\":\"City\",\"state\":\"ST\",\"zipCode\":\"12345\"}}"))
+                .andExpect(status().isCreated());
     }
 }
