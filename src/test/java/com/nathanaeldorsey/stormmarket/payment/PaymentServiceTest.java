@@ -103,6 +103,7 @@ class PaymentServiceTest {
         Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
 
         when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
 
         assertThrows(IllegalArgumentException.class,
                 () -> paymentService.refundPayment("pi_1", 1L));
@@ -148,6 +149,38 @@ class PaymentServiceTest {
         order.setUser(user);
 
         Payment payment = createPayment("pi_1", order, PaymentStatus.PENDING);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalStateException.class,
+                () -> paymentService.refundPayment("pi_1", 1L));
+    }
+
+    @Test
+    void refundPaymentRejectsShippedOrder() {
+        Order order = createOrder(1L, OrderStatus.SHIPPED);
+        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
+        user.setId(1L);
+        order.setUser(user);
+
+        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalStateException.class,
+                () -> paymentService.refundPayment("pi_1", 1L));
+    }
+
+    @Test
+    void refundPaymentRejectsDeliveredOrder() {
+        Order order = createOrder(1L, OrderStatus.DELIVERED);
+        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
+        user.setId(1L);
+        order.setUser(user);
+
+        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
 
         when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
         when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
