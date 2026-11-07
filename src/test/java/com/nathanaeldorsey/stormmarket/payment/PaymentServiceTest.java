@@ -391,4 +391,98 @@ class PaymentServiceTest {
                 .hasMessage("Payment not found");
     }
 
+
+
+    @Test
+    void authorizePayment_ThrowsWhenAlreadyAuthorized() {
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+
+        assertThatThrownBy(() -> paymentService.authorizePayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot authorize payment in state");
+    }
+
+    @Test
+    void failPayment_SucceedsWhenAlreadyFailed() {
+        // failPayment does not throw for already failed payments (idempotent)
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.FAILED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+
+        Payment result = paymentService.failPayment("pi_test", 1L);
+
+        assertThat(result.getStatus()).isEqualTo(PaymentStatus.FAILED);
+    }
+
+    @Test
+    void capturePayment_ThrowsWhenOrderCancelled() {
+        Order cancelledOrder = new Order();
+        cancelledOrder.setId(1L);
+        cancelledOrder.setUser(user);
+        cancelledOrder.setStatus(OrderStatus.CANCELED);
+        cancelledOrder.setTotal(new BigDecimal("100.00"));
+
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(cancelledOrder);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(cancelledOrder));
+
+        assertThatThrownBy(() -> paymentService.capturePayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot capture payment for order in status");
+    }
+
+    @Test
+    void refundPayment_SucceedsWhenOrderCancelled() {
+        // Current implementation allows refund for CANCELLED orders
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.CAPTURED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(order);
+
+        Order cancelledOrder = new Order();
+        cancelledOrder.setId(1L);
+        cancelledOrder.setStatus(OrderStatus.CANCELED);
+        cancelledOrder.setUser(user);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(cancelledOrder));
+
+        Payment result = paymentService.refundPayment("pi_test", 1L);
+
+        assertThat(result.getStatus()).isEqualTo(PaymentStatus.REFUNDED);
+    }
+
+    @Test
+    void capturePayment_ThrowsWhenOrderExpired() {
+        Order expiredOrder = new Order();
+        expiredOrder.setId(1L);
+        expiredOrder.setUser(user);
+        expiredOrder.setStatus(OrderStatus.EXPIRED);
+        expiredOrder.setTotal(new BigDecimal("100.00"));
+
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.AUTHORIZED);
+        payment.setIntentId("pi_test");
+        payment.setOrder(expiredOrder);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_test")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(expiredOrder));
+
+        assertThatThrownBy(() -> paymentService.capturePayment("pi_test", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot capture payment for order in status");
+    }
+
 }
