@@ -88,7 +88,22 @@ This balances speed and realism:
 - MySQL-only is slower and frustrating for daily iteration
 - Docker/Testcontainers provide realism without forcing every local run to use MySQL
 
-The default smoke test uses an isolated H2 profile. MySQL integration tests are explicitly gated behind `-Drun.mysql.integration=true` and require Docker.
+The default smoke test uses an isolated H2 profile. MySQL integration tests are explicitly gated behind `-Drun.mysql.integration=true` and require Docker or Podman.
+
+### Container runtime: Docker or Podman
+
+Testcontainers works with either Docker or Podman. On Bazzite/Kinoite, Podman is the default container engine:
+
+```bash
+# Docker (if installed)
+./mvnw test -Drun.mysql.integration=true
+
+# Podman (Bazzite default — DOCKER_HOST points to the Podman socket)
+export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+./mvnw test -Drun.mysql.integration=true
+```
+
+Testcontainers detects `DOCKER_HOST` and will talk to the Podman socket automatically. No Docker CLI is required.
 
 ### Test coverage by domain
 
@@ -109,7 +124,7 @@ The default smoke test uses an isolated H2 profile. MySQL integration tests are 
 # Run the default H2 smoke suite (no Docker required)
 ./mvnw test
 
-# Run the MySQL/Testcontainers integration suite (requires Docker)
+# Run the MySQL/Testcontainers integration suite (requires Docker or Podman)
 ./mvnw test -Drun.mysql.integration=true
 
 # Full verification: tests, static analysis, formatting, coverage
@@ -146,7 +161,7 @@ stormmarket/
 
 - Java 25
 - Maven
-- Docker for MySQL/Testcontainers validation
+- Docker or Podman for MySQL/Testcontainers validation
 
 ### Run the application
 
@@ -166,7 +181,7 @@ stormmarket/
 ./mvnw test -Drun.mysql.integration=true
 ```
 
-This requires Docker because the MySQL integration tests start a disposable MySQL container via Testcontainers.
+This requires Docker or Podman because the MySQL integration tests start a disposable MySQL container via Testcontainers. Set DOCKER_HOST to point to your container engine socket if using Podman.
 
 ## What I built
 
