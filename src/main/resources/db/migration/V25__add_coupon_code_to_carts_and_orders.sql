@@ -1,0 +1,8 @@
+ALTER TABLE carts
+ADD COLUMN coupon_code VARCHAR(50);
+
+ALTER TABLE orders
+ADD COLUMN coupon_code VARCHAR(50);
+
+ALTER TABLE orders
+ADD COLUMN discount_amount DECIMAL(12, 2) NOT NULL DEFAULT 0;

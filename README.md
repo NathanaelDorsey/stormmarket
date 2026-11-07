@@ -7,6 +7,7 @@ This project models a marketplace API with JWT-based auth, role-aware admin acti
 ## Why this project exists
 
 This application is meant to showcase the kinds of decisions real backend teams make:
+
 - separate controller, service, repository, and domain responsibilities
 - secure API design with JWT bearer authentication
 - migration-based schema evolution with Flyway
@@ -56,6 +57,7 @@ This keeps the codebase easier to test, reason about, and extend.
 ## Security and API behavior
 
 The system is built around secure API practices:
+
 - public auth endpoints are allowed for sign-in and registration flows
 - public GET access is intentionally allowed for products and categories
 - admin-only workflows require ADMIN authority
@@ -69,6 +71,7 @@ The project uses a layered testing strategy designed for real delivery teams. Te
 ### Default path: H2 smoke tests
 
 The default local and CI path runs against an in-memory H2 database:
+
 - fast feedback during development
 - minimal setup cost
 - validates application wiring, security rules, and core service behavior
@@ -77,6 +80,7 @@ The default local and CI path runs against an in-memory H2 database:
 ### Opt-in path: MySQL + Testcontainers
 
 When persistence correctness matters, the project runs MySQL in disposable containers:
+
 - validates JPA behavior against MySQL semantics
 - verifies Flyway migrations and schema compatibility
 - catches MySQL-specific behavior that H2 would miss
@@ -84,6 +88,7 @@ When persistence correctness matters, the project runs MySQL in disposable conta
 ### Why this approach
 
 This balances speed and realism:
+
 - H2-only is too optimistic and misses MySQL-specific migration and SQL issues
 - MySQL-only is slower and frustrating for daily iteration
 - Docker/Testcontainers provide realism without forcing every local run to use MySQL
@@ -98,7 +103,7 @@ Testcontainers works with either Docker or Podman. On Bazzite/Kinoite, Podman is
 # Docker (if installed)
 ./mvnw test -Drun.mysql.integration=true
 
-# Podman (Bazzite default — DOCKER_HOST points to the Podman socket)
+# Podman (DOCKER_HOST points to the Podman socket)
 export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
 ./mvnw test -Drun.mysql.integration=true
 ```
@@ -107,16 +112,16 @@ Testcontainers detects `DOCKER_HOST` and will talk to the Podman socket automati
 
 ### Test coverage by domain
 
-| Domain | What is tested | Test class |
-|--------|---------------|------------|
-| Auth & users | Registration, login, JWT validation, inactive users, duplicate detection | `AuthServiceTest`, `GlobalExceptionHandlerTest` |
-| Categories | CRUD, unique constraints, authorization, validation errors | `CategoryControllerTest`, `CategoryServiceTest` |
-| Products | Create/update/delete, search/filter, pagination, admin endpoints, stock | `ProductControllerTest`, `ProductServiceTest` |
-| Cart | Add/remove/update items, quantity boundaries, stock checks, totals, cross-user isolation | `CartControllerTest`, `CartServiceTest`, `MySqlIntegrationTest` |
-| Orders | Checkout, stock reduction, cart clearing, snapshots, transactional rollback, history | `OrderControllerTest`, `OrderServiceTest`, `MySqlIntegrationTest` | Admin | User CRUD, role changes, activate/deactivate, authorization | `AdminControllerTest`, `AdminServiceTest` |
-| Errors & validation | Malformed JSON, missing fields, invalid types, consistent error schema | `GlobalExceptionHandlerTest` |
-| Database | Flyway migrations, constraints, FKs, indexes, transaction rollback, H2 vs MySQL differences | `MySqlIntegrationTest` |
-| Application wiring | Full-context startup composition | `StormmarketApplicationSmokeTest`, `StormmarketApplicationTests` |
+| Domain              | What is tested                                                                              | Test class                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Auth & users        | Registration, login, JWT validation, inactive users, duplicate detection                    | `AuthServiceTest`, `GlobalExceptionHandlerTest`                   |
+| Categories          | CRUD, unique constraints, authorization, validation errors                                  | `CategoryControllerTest`, `CategoryServiceTest`                   |
+| Products            | Create/update/delete, search/filter, pagination, admin endpoints, stock                     | `ProductControllerTest`, `ProductServiceTest`                     |
+| Cart                | Add/remove/update items, quantity boundaries, stock checks, totals, cross-user isolation    | `CartControllerTest`, `CartServiceTest`, `MySqlIntegrationTest`   |
+| Orders              | Checkout, stock reduction, cart clearing, snapshots, transactional rollback, history        | `OrderControllerTest`, `OrderServiceTest`, `MySqlIntegrationTest` |
+| Errors & validation | Malformed JSON, missing fields, invalid types, consistent error schema                      | `GlobalExceptionHandlerTest`                                      |
+| Database            | Flyway migrations, constraints, FKs, indexes, transaction rollback, H2 vs MySQL differences | `MySqlIntegrationTest`                                            |
+| Application wiring  | Full-context startup composition                                                            | `StormmarketApplicationSmokeTest`, `StormmarketApplicationTests`  |
 
 ### Quality gates
 
@@ -186,6 +191,7 @@ This requires Docker or Podman because the MySQL integration tests start a dispo
 ## What I built
 
 This is a marketplace backend with a realistic, production-aware structure. It includes:
+
 - JWT-based authentication and authorization
 - role-protected admin operations
 - catalog and product management
