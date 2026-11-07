@@ -97,7 +97,7 @@ The default smoke test uses an isolated H2 profile. MySQL integration tests are 
 
 ### Container runtime: Docker or Podman
 
-Testcontainers works with either Docker or Podman. On Bazzite/Kinoite, Podman is the default container engine:
+Testcontainers works with either Docker or Podman.
 
 ```bash
 # Docker (if installed)
