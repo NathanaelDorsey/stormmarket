@@ -20,7 +20,7 @@ This application is meant to showcase the kinds of decisions real backend teams 
 - role-based access control for admin-only workflows
 - product and category management
 - public product and category catalog reads
-- cart, order, shipping, and transaction foundations
+- cart, order, shipping, coupon discounts, and transaction foundations
 - application boot verification with a lightweight smoke suite
 
 ## Tech stack
@@ -194,7 +194,7 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 
 - JWT-based authentication and authorization
 - role-protected admin operations
-- catalog and product management
+- catalog and product management with coupon discount support
 - migration-based persistence conventions
 - layered services and repository-based domain logic
 - a multi-layered test suite for trust and maintainability
@@ -206,6 +206,7 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 - fixed service and JPA issues surfaced by tests
 - hardened startup behavior so local tests do not depend on external secrets or DB setup
 - created a fast default smoke suite while keeping MySQL parity checks available
+- wired coupon discounts into cart and checkout flow (apply/remove coupon on cart, snapshot discount on order)
 - validated migration and persistence behavior with Testcontainers
 
 ## What I learned
