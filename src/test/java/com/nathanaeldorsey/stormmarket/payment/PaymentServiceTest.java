@@ -142,6 +142,52 @@ class PaymentServiceTest {
     }
 
     @Test
+    void capturePaymentRejectsAlreadyCaptured() {
+        Order order = createOrder(1L, OrderStatus.PENDING);
+        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
+        user.setId(1L);
+        order.setUser(user);
+
+        Payment payment = createPayment("pi_1", order, PaymentStatus.CAPTURED);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+
+        assertThrows(IllegalStateException.class,
+                () -> paymentService.capturePayment("pi_1", 1L));
+    }
+
+    @Test
+    void authorizePaymentRejectsAlreadyAuthorized() {
+        Order order = createOrder(1L, OrderStatus.PENDING);
+        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
+        user.setId(1L);
+        order.setUser(user);
+
+        Payment payment = createPayment("pi_1", order, PaymentStatus.AUTHORIZED);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+
+        assertThrows(IllegalStateException.class,
+                () -> paymentService.authorizePayment("pi_1", 1L));
+    }
+
+    @Test
+    void refundPaymentRejectsAlreadyRefunded() {
+        Order order = createOrder(1L, OrderStatus.CONFIRMED);
+        com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();
+        user.setId(1L);
+        order.setUser(user);
+
+        Payment payment = createPayment("pi_1", order, PaymentStatus.REFUNDED);
+
+        when(paymentRepository.findByIntentIdWithLock("pi_1")).thenReturn(Optional.of(payment));
+        when(orderRepository.findByIdWithLock(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalStateException.class,
+                () -> paymentService.refundPayment("pi_1", 1L));
+    }
+
+    @Test
     void refundPaymentRejectsNonCapturedStatus() {
         Order order = createOrder(1L, OrderStatus.PENDING);
         com.nathanaeldorsey.stormmarket.user.User user = new com.nathanaeldorsey.stormmarket.user.User();

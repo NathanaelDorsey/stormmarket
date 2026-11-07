@@ -45,14 +45,6 @@ When asked to run Greptile or as part of pre-push review:
 4. After fixes to Greptile-sensitive areas, optional verification pass (2nd run max)
 5. Track run count (max 2 per change set)
 
-## CI Integration
-
-The project includes a GitHub Actions workflow (`.github/workflows/greptile-review.yml`) that:
-- Triggers on PR opened/synchronize/reopened
-- Runs `greptile review -b main --json`
-- Posts findings as a PR comment with severity badges
-- Requires `GREPTILE_API_KEY` secret in GitHub repository settings
-
 ## Local Setup
 
 ```bash
