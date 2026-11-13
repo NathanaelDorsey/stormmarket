@@ -123,6 +123,56 @@ fabric.properties
 !.idea/codeStyles
 !.idea/runConfigurations
 
+# M2_REPO - Local Maven repository, usually not version controlled
+# ~/.m2/repository
+
+# Maven wrapper persistence
+.mvn/
+
+# jqwik test database
+.jqwik-database
+
+# MSBuild
+.project
+.sln
+
+# OSX
+.DS_Store
+
+# Gradle
+.gradle
+/build/
+
+# Vim
+.*.swp
+*.swo
+*~
+
+# Tmux
+.tmuxifier/
+
+# Oh My Zsh
+.oh-my-zsh/
+
+# pyenv
+.python-version
+
+# rvm & rbenv
+.rvmrc
+.ruby-version
+
+# nvm
+.nvmrc
+
+# Editor backup files
+*.log
+
+# CruiseControl
+cruise-reports/
+
+# maven target directories (already covered but keeping for clarity)
+target/
+
 ### Maven ###
 pom.xml.tag
 pom.xml.releaseBackup
