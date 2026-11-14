@@ -89,7 +89,7 @@ The project includes a complete CI/CD pipeline via GitHub Actions and local boot
 
 | Component | Status | Description |
 |-----------|--------|-------------|
-| Postman API Tests | ✅ Complete | 21 requests, 201 assertions, 0 failures |
+| Postman API Tests | ✅ Complete | 21 requests, ~48 assertions executed per run (201 declared in collection), 0 failures |
 | Maven Verify | ✅ Complete | 186 tests, 0 SpotBugs, 0 FindSecBugs, JaCoCo (56% instruction / 40% branch / 58% line) |
 | Code Formatting | ✅ Complete | Spotless (Palantir Java Format) |
 | CodeRabbit AI Review | ✅ Complete | Automated PR review |
@@ -116,7 +116,7 @@ This script:
 3. Updates admin role to ADMIN via H2 Shell
 5. Gets JWT tokens (RS256)
 5. Creates test data (categories, products) via admin API
-6. Runs Postman collection (21 requests, 67 assertions)
+6. Runs Postman collection (21 requests, ~48 assertions executed per run)
 6. Cleans up H2 database on exit
 
 ## Testing strategy
@@ -212,7 +212,7 @@ open target/site/jacoco/index.html
 ### Test status
 
 All 186 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
-Postman collection: 21 requests, 201 assertions, 0 failures.
+Postman collection: 21 requests, ~48 assertions executed per run (201 declared across all response branches), 0 failures.
 
 ### Result<T,E> Pattern (NEW)
 
