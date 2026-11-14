@@ -82,25 +82,15 @@ jobs:
 
           echo "Tokens generated successfully"
 
-      - name: Install Postman CLI
-        run: |
-          npm install -g postman-cli
-
       - name: Run Postman Collection (Admin)
-        run: |
-          postman collection run "postman/collections/Storm Market API" \
-            --global-var "baseUrl=http://localhost:8080" \
-            --global-var "authToken=${ADMIN_TOKEN}" \
-            --bail=false \
-            --output app-admin-results.json
+        uses: postmanlabs/postman-cli-action@v1
+        with:
+          command: 'collection run "postman/collections/Storm Market API" --global-var "baseUrl=http://localhost:8080" --global-var "authToken=${ADMIN_TOKEN}" --bail=false --output app-admin-results.json'
 
       - name: Run Postman Collection (User)
-        run: |
-          postman collection run "postman/collections/Storm Market API" \
-            --global-var "baseUrl=http://localhost:8080" \
-            --global-var "authToken=${USER_TOKEN}" \
-            --bail=false \
-            --output app-user-results.json
+        uses: postmanlabs/postman-cli-action@v1
+        with:
+          command: 'collection run "postman/collections/Storm Market API" --global-var "baseUrl=http://localhost:8080" --global-var "authToken=${USER_TOKEN}" --bail=false --output app-user-results.json'
         continue-on-error: false
 
       - name: Upload Test Results

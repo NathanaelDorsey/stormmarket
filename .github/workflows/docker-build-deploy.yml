@@ -20,6 +20,9 @@ jobs:
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
+    permissions:
+      packages: write
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -223,25 +226,15 @@ jobs:
             -d '{"username":"docker_user","password":"DockerUserPass123!"}')
           echo "USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
-      - name: Install Postman CLI
-        run: |
-          npm install -g postman-cli
-
       - name: Run Postman Collection (Admin) - Docker
-        run: |
-          postman collection run "postman/collections/Storm Market API" \
-            --global-var "baseUrl=http://localhost:8081" \
-            --global-var "authToken=${ADMIN_TOKEN}" \
-            --bail=false \
-            --output docker-admin-results.json
+        uses: postmanlabs/postman-cli-action@v1
+        with:
+          command: 'collection run "postman/collections/Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${ADMIN_TOKEN}" --bail=false --output docker-admin-results.json'
 
       - name: Run Postman Collection (User) - Docker
-        run: |
-          postman collection run "postman/collections/Storm Market API" \
-            --global-var "baseUrl=http://localhost:8081" \
-            --global-var "authToken=${USER_TOKEN}" \
-            --bail=false \
-            --output docker-user-results.json
+        uses: postmanlabs/postman-cli-action@v1
+        with:
+          command: 'collection run "postman/collections/Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${USER_TOKEN}" --bail=false --output docker-user-results.json'
 
       - name: Upload Docker test results
         if: always()
