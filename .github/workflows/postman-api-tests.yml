@@ -136,6 +136,7 @@ jobs:
         shell: bash
 
       # 12. Stop Application
+      - name: Stop Application
         if: always()
         run: |
           if [ -f app.pid ]; then
@@ -144,6 +145,7 @@ jobs:
         shell: bash
 
       # 13. Upload logs on failure
+      - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:

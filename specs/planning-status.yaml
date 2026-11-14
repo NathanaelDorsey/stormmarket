@@ -6,10 +6,10 @@ discover-phase:
   next_skill: "slice-tasks"
 
 slice-tasks:
-  started: false
-  completed: 0
-  total: 0
-  next: "e01s01 - Product Catalog Browse (vertical slice)"
+  started: true
+  completed: 14
+  total: 14
+  next: "e01s01 - DomainError base class and StockError"
 
 plan-work:
   started: false

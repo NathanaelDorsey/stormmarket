@@ -1,6 +1,5 @@
 $kind: http-request
 id: b9d617e7479ffae6ad38819a
-name: Update User Role (Admin)
 method: PUT
 url: "{{baseUrl}}/v1/admin/users/2/role"
 description: Admin endpoint to update user role. Requires ADMIN role.

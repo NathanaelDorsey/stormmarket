@@ -1,6 +1,5 @@
 $kind: http-request
 id: 86d51c52fb36c2a64a16761a
-name: List Categories
 method: GET
 url: "{{baseUrl}}/v1/categories"
 description: Public category browsing with hierarchical display.

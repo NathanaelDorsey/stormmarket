@@ -1,6 +1,5 @@
 $kind: http-request
 id: new-id-to-assign
-name: Get Category Detail
 method: GET
 url: "{{baseUrl}}/v1/categories/1"
 description: Public category detail retrieval by ID. Tests API contract for all possible responses.

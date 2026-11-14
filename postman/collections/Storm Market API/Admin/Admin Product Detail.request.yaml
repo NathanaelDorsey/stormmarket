@@ -1,6 +1,5 @@
 $kind: http-request
 id: 8eab3c88e9169bebe173576a
-name: Admin Product Detail
 method: GET
 url: "{{baseUrl}}/v1/products/admin/1"
 description: Admin endpoint to get product detail by ID (including inactive). Requires ADMIN role.

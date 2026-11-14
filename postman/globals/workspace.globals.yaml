@@ -8,7 +8,7 @@ values:
     value: ""
     type: readonly
     enabled: false
-- key: serverPort
-  value: "8080"
-  type: default
-  enabled: true
+  - key: serverPort
+    value: "8080"
+    type: default
+    enabled: true

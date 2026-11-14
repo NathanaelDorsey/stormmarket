@@ -1,6 +1,5 @@
 $kind: http-request
 id: 714d79c05c917eaaa87e6c7f
-name: Get All Users (Admin)
 method: GET
 url: "{{baseUrl}}/v1/admin/users"
 description: Admin endpoint to list all users. Requires ADMIN role.

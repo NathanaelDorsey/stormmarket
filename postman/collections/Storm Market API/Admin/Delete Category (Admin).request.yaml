@@ -1,6 +1,5 @@
 $kind: http-request
 id: 8ce74ef48a2ed217a9dfd469
-name: Delete Category (Admin)
 method: DELETE
 url: "{{baseUrl}}/v1/categories/1"
 description: Admin endpoint to delete a category. Requires ADMIN role.

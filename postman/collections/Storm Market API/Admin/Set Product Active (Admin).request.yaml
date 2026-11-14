@@ -1,6 +1,5 @@
 $kind: http-request
 id: adb792786383cb56d1f5bab6
-name: Set Product Active (Admin)
 method: PATCH
 url: "{{baseUrl}}/v1/products/admin/1/active"
 description: Admin endpoint to activate/deactivate a product. Requires ADMIN role.

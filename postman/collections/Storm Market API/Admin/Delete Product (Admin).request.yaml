@@ -1,6 +1,5 @@
 $kind: http-request
 id: c64bfd746ad4eb15555ddd35
-name: Delete Product (Admin)
 method: DELETE
 url: "{{baseUrl}}/v1/products/1"
 description: Admin endpoint to delete a product. Requires ADMIN role.

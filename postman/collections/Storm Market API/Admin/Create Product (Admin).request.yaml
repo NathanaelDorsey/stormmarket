@@ -1,6 +1,5 @@
 $kind: http-request
 id: 0536707b2f7a472a1b3393bd
-name: Create Product (Admin)
 method: POST
 url: "{{baseUrl}}/v1/products"
 description: Admin endpoint to create a new product. Requires ADMIN role.

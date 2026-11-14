@@ -1,6 +1,5 @@
 $kind: http-request
 id: 934be0685b281458d558c5c4
-name: Set User Active (Admin)
 method: PATCH
 url: "{{baseUrl}}/v1/admin/users/2/active"
 description: Admin endpoint to activate/deactivate a user. Requires ADMIN role.

@@ -1,6 +1,5 @@
 $kind: http-request
 id: e76f9dbe38c057977dd4450e
-name: Get Order Details
 method: GET
 url: "{{baseUrl}}/v1/orders/1"
 description: Get order details by order ID. Requires authentication. Returns full order information including items, status, and total.

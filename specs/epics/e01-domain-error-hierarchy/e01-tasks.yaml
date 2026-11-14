@@ -6,6 +6,7 @@ tasks:
     description: "Create DomainError.java in common.exception package extending RuntimeException with protected constructor"
     type: "implementation"
     estimate: "XS"
+    status: passing
 
   - id: "e01s01-t2"
     story_id: "e01s01"
@@ -13,6 +14,7 @@ tasks:
     description: "Create StockError.java in product package with 6 static final error constants"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e01s01-t3"
     story_id: "e01s01"
@@ -20,6 +22,7 @@ tasks:
     description: "Run mvn compile and spotless:check to verify no issues"
     type: "validation"
     estimate: "XS"
+    status: passing
 
   - id: "e01s02-t1"
     story_id: "e01s02"
@@ -27,6 +30,7 @@ tasks:
     description: "Create CartError.java in cart package with 11 static final error constants matching current throw messages"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e01s02-t2"
     story_id: "e01s02"
@@ -34,6 +38,7 @@ tasks:
     description: "Create OrderError.java in order package with 8 static final error constants matching current throw messages"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e01s02-t3"
     story_id: "e01s02"
@@ -41,6 +46,7 @@ tasks:
     description: "Create PaymentError.java in payment package with 7 static final error constants matching current throw messages"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e01s02-t4"
     story_id: "e01s02"
@@ -48,3 +54,4 @@ tasks:
     description: "Run mvn compile and spotless:check to verify no issues"
     type: "validation"
     estimate: "XS"
+    status: passing

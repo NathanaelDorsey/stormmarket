@@ -1,6 +1,5 @@
 $kind: http-request
 id: 2335ecac88b632261878db7e
-name: Login User
 method: POST
 url: "{{baseUrl}}/v1/auth/login"
 description: User login endpoint. Authenticates credentials and returns JWT RS256 token for subsequent authenticated requests.

@@ -1,6 +1,5 @@
 $kind: http-request
 id: 526d2b75d64c56a7a82c2fb9
-name: Admin Product Search
 method: GET
 url: "{{baseUrl}}/v1/products/admin/search"
 description: Admin endpoint to search all products (including inactive). Requires ADMIN role.

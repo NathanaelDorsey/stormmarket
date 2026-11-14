@@ -1,6 +1,5 @@
 $kind: http-request
 id: d0ff96446cf97faf5b365db9
-name: Create Order
 method: POST
 url: "{{baseUrl}}/v1/orders"
 description: Create a new order from the shopping cart. Requires authentication. Request body should include cart item selections, shipping address, and payment information.

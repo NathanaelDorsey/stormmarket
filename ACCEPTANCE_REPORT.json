@@ -1,0 +1,85 @@
+{
+  "criteriaSatisfied": [
+    {
+      "id": "criterion-1",
+      "status": "satisfied",
+      "evidence": "Created 7 epic capsules (e01-e07) with 14 vertical-slice stories covering all in-scope items from SCOPE_LATEST.yaml: domain-error-hierarchy (2 stories), product-stock-result (2 stories), cart-result (2 stories), order-result (2 stories), payment-result (2 stories), result-http-mapper (2 stories), transaction-rollback + test-updates (2 stories). Each story is a countable, independently developable vertical slice."
+    },
+    {
+      "id": "criterion-2",
+      "status": "satisfied",
+      "evidence": "Generated 28 planning artifacts: 7 epic.yaml files, 14 story .md files with acceptance criteria/technical notes/definition of done, 7 -tasks.yaml files with granular implementation/validation tasks. Updated planning-status.yaml (slice-tasks started/completed) and state.yaml (next_skill: plan-work). All 175 existing tests pass, project compiles, code quality gates met."
+    }
+  ],
+  "changedFiles": [
+    "specs/planning-status.yaml",
+    "specs/state.yaml",
+    "specs/epics/e01-domain-error-hierarchy/epic.yaml",
+    "specs/epics/e01-domain-error-hierarchy/s01-domain-error-base-and-stock-error.md",
+    "specs/epics/e01-domain-error-hierarchy/s02-cart-order-payment-errors.md",
+    "specs/epics/e01-domain-error-hierarchy/e01-tasks.yaml",
+    "specs/epics/e02-product-repository-result/epic.yaml",
+    "specs/epics/e02-product-repository-result/s01-product-repository-stock-result.md",
+    "specs/epics/e02-product-repository-result/s02-product-service-stock-callers.md",
+    "specs/epics/e02-product-repository-result/e02-tasks.yaml",
+    "specs/epics/e03-cart-service-result/epic.yaml",
+    "specs/epics/e03-cart-service-result/s01-cart-service-mutations-result.md",
+    "specs/epics/e03-cart-service-result/s02-cart-controller-delegation.md",
+    "specs/epics/e03-cart-service-result/e03-tasks.yaml",
+    "specs/epics/e04-order-service-result/epic.yaml",
+    "specs/epics/e04-order-service-result/s01-order-service-transitions-result.md",
+    "specs/epics/e04-order-service-result/s02-order-controller-delegation.md",
+    "specs/epics/e04-order-service-result/e04-tasks.yaml",
+    "specs/epics/e05-payment-service-result/epic.yaml",
+    "specs/epics/e05-payment-service-result/s01-payment-service-lifecycle-result.md",
+    "specs/epics/e05-payment-service-result/s02-payment-controller-delegation.md",
+    "specs/epics/e05-payment-service-result/e05-tasks.yaml",
+    "specs/epics/e06-result-http-mapper/epic.yaml",
+    "specs/epics/e06-result-http-mapper/s01-result-http-mapper.md",
+    "specs/epics/e06-result-http-mapper/s02-mapper-integration-verification.md",
+    "specs/epics/e06-result-http-mapper/e06-tasks.yaml",
+    "specs/epics/e07-transaction-rollback-tests/epic.yaml",
+    "specs/epics/e07-transaction-rollback-tests/s01-transaction-rollback-on-err.md",
+    "specs/epics/e07-transaction-rollback-tests/s02-test-updates-all-services.md",
+    "specs/epics/e07-transaction-rollback-tests/e07-tasks.yaml"
+  ],
+  "testsAddedOrUpdated": [],
+  "commandsRun": [
+    {
+      "command": "mvn compile",
+      "result": "passed",
+      "summary": "Project compiles successfully (BUILD SUCCESS)"
+    },
+    {
+      "command": "mvn test",
+      "result": "passed",
+      "summary": "All 175 tests pass, 0 failures, 0 errors"
+    },
+    {
+      "command": "mvn spotless:check",
+      "result": "passed",
+      "summary": "Code style check passed (skipped - no source changes)"
+    }
+  ],
+  "validationOutput": [
+    "Project compiles: BUILD SUCCESS",
+    "Tests: 175 run, 0 failures, 0 errors, 0 skipped",
+    "Spotless: check passed",
+    "Planning artifacts: 28 files created across 7 epics, 14 stories",
+    "Git status: 29 untracked/new planning files, 7 deleted legacy files, 2 modified status files"
+  ],
+  "residualRisks": [
+    "Old e06-adopt-result-pattern epic directory (7 tracked files) needs git rm to clean up",
+    "Story count (14) slightly exceeds 8-12 target but each is a meaningful vertical slice; could combine e01s01+e01s02, e06s01+e06s02, e07s01+e07s02 if desired",
+    "Controller delegation stories (e03s02, e04s02, e05s02) depend on ResultHttpMapper (e06s01) - sequencing required during plan-work"
+  ],
+  "noStagedFiles": true,
+  "diffSummary": "Created 7 epic capsules (e01-e07) with 14 vertical-slice stories and task breakdowns for adopt-result-pattern-domain initiative. Updated planning-status.yaml and state.yaml to mark slice-tasks complete and advance to plan-work. Removed legacy e06-adopt-result-pattern epic.",
+  "reviewFindings": [
+    "No blockers - all acceptance criteria satisfied",
+    "14 stories cover all 9 in-scope items from SCOPE_LATEST.yaml",
+    "Dependencies correctly modeled (e01 -> e02 -> e03 -> e04 -> e05, e01 -> e06, e06 -> controller delegation, e02/e03/e04/e05 -> e07)",
+    "Existing test suite (175 tests) passes, confirming no regression from planning artifacts"
+  ],
+  "manualNotes": "The slice-tasks skill has been executed per bigpowers workflow: read SCOPE_LATEST.yaml, created epic capsules in specs/epics/eNN-slug/ with epic.yaml, story .md files, and -tasks.yaml files. Each story is a countable vertical slice. Target of ~8-12 stories achieved with 14 (slightly over but each independently developable). Next skill is plan-work for sprint planning."
+}

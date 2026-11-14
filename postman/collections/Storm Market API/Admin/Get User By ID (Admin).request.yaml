@@ -1,6 +1,5 @@
 $kind: http-request
 id: 2075567af7d9f974bb5cd632
-name: Get User By ID (Admin)
 method: GET
 url: "{{baseUrl}}/v1/admin/users/1"
 description: Admin endpoint to get user by ID. Requires ADMIN role.

@@ -1,0 +1,14 @@
+epic_id: "e07"
+title: "Transaction Rollback & Test Updates"
+feature: "adopt-result-pattern-domain"
+description: |
+  Implements transaction rollback on Err via TransactionAspectSupport.setRollbackOnly()
+  in all @Transactional service methods that return Result. Updates all 175 tests
+  to expect Result instead of exceptions.
+
+stories:
+  - "s01-transaction-rollback-on-err"
+  - "s02-test-updates-all-services"
+
+order: 7
+depends_on: ["e02", "e03", "e04", "e05"]

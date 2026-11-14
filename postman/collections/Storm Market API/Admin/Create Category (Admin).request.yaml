@@ -1,6 +1,5 @@
 $kind: http-request
 id: c5cf3c6f3a015db1c2f69725
-name: Create Category (Admin)
 method: POST
 url: "{{baseUrl}}/v1/categories"
 description: Admin endpoint to create a new category. Requires ADMIN role.

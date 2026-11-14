@@ -1,6 +1,5 @@
 $kind: http-request
 id: 865abd72299bdbd84a682f3b
-name: Get Product Catalog
 method: GET
 url: "{{baseUrl}}/v1/products"
 description: Public product catalog listing with pagination, sorting, and filtering.

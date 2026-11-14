@@ -1,6 +1,5 @@
 $kind: http-request
 id: 86f0cba9057f54c13f592929
-name: Update Product (Admin)
 method: PUT
 url: "{{baseUrl}}/v1/products/1"
 description: Admin endpoint to update a product. Requires ADMIN role.
