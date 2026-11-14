@@ -322,7 +322,7 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 - fixed service and JPA issues surfaced by tests
 - hardened startup behavior so local tests do not depend on external secrets or DB setup
 - created a fast default smoke suite while keeping MySQL parity checks available
-- wired coupon discounts into cart and checkout flow (apply/remove coupon on cart, snapshot discount on order)
+- wired coupon discounts into cart and checkout flow (apply/remove coupon on cart, snapshot discount on order, usage count incremented on payment capture)
 - validated migration and persistence behavior with Testcontainers
 - built local CI bootstrap for full pipeline validation without CI server
 
