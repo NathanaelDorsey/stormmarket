@@ -160,8 +160,8 @@ jobs:
             --network-alias mysql \
             -e MYSQL_DATABASE=stormmarket \
             -e MYSQL_USER=stormmarket \
-            -e MYSQL_PASSWORD=StormMarketPass! \
-            -e MYSQL_ROOT_PASSWORD=StormMarketRootPass! \
+            -e MYSQL_PASSWORD=${{ secrets.TEST_MYSQL_PASSWORD }} \
+            -e MYSQL_ROOT_PASSWORD=${{ secrets.TEST_MYSQL_ROOT_PASSWORD }} \
             -e MYSQL_TCP_PORT=3306 \
             mysql:8.0 \
             --character-set-server=utf8mb4 \
@@ -172,7 +172,7 @@ jobs:
         run: |
           echo "Waiting for MySQL to be ready..."
           for i in {1..60}; do
-            if docker exec mysql-test mysqladmin ping -h 127.0.0.1 -u stormmarket -pStormMarketPass! > /dev/null 2>&1; then
+            if docker exec mysql-test mysqladmin ping -h 127.0.0.1 -u stormmarket -p"${{ secrets.TEST_MYSQL_PASSWORD }}" > /dev/null 2>&1; then
               echo "MySQL is ready!"
               exit 0
             fi
@@ -199,7 +199,7 @@ jobs:
             -e SPRING_PROFILES_ACTIVE=production \
             -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/stormmarket \
             -e SPRING_DATASOURCE_USERNAME=stormmarket \
-            -e SPRING_DATASOURCE_PASSWORD=StormMarketPass! \
+            -e SPRING_DATASOURCE_PASSWORD=${{ secrets.TEST_MYSQL_PASSWORD }} \
             -e SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC-KEY-LOCATION=/tmp/jwt/public-key.pem \
             -e STORMMARKET_JWT_PRIVATE_KEY_LOCATION=/tmp/jwt/private-key.pem \
             $IMAGE_TAG
