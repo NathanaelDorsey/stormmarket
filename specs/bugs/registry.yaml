@@ -26,3 +26,19 @@ bugs:
     affectedscope:
       - CI code quality gate
     status_details: "logged; technical debt tracked separately"
+  - id: "BUG-2025-11-14T192000"
+    title: "Postman Collection Run Fails - Request URL Empty"
+    status: "investigated"
+    severity: "low"
+    reported_by: "investigate-bug"
+    date: "2025-11-14"
+    description: |
+      Postman collection Storm_Market_API.json has hardcoded localhost URLs instead of
+      {{baseUrl}} variable templates. All 22 requests fail with "runtime: request url is empty".
+      Missing baseUrl variable definition in collection variables.
+      Root cause: JSON compilation replaced variable templates with hardcoded values.
+    affectedscope:
+      - Postman collection testing
+      - CI/CD API test pipeline
+    status_details: "root cause identified; fix plan created"
+    file: "specs/bugs/BUG-2025-11-14T192000.md"

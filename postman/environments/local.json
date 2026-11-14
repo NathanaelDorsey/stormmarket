@@ -1,0 +1,19 @@
+{
+  "id": "local",
+  "name": "Local Development",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "enabled": true,
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "enabled": true,
+      "type": "string"
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
