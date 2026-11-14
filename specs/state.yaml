@@ -1,7 +1,7 @@
 session:
   active_flow: "build_epic"
   active_epic: "e06-adopt-result-pattern"
-  active_story: "e06s07"
+  active_story: "complete"
   handoff:
     next_skill: "verify-work"
   vcs:
@@ -19,3 +19,4 @@ session:
     e05_complete: "2026-11-14T09:30:00Z"
     e06_complete: "2026-11-14T09:37:00Z"
     e07_complete: "2026-11-14T09:39:00Z"
+    epic_complete: "2026-11-14T09:42:00Z"
