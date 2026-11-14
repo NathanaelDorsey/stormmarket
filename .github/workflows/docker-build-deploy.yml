@@ -40,6 +40,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Copy test JWT keys to main resources
+        run: |
+          mkdir -p src/main/resources/jwt
+          cp src/test/resources/jwt/* src/main/resources/jwt/
+
       - name: Build with Maven
         run: ./mvnw clean package -DskipTests -B
 
@@ -74,7 +79,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
-            type=raw,value=latest,enable=${{is_default_branch}}
+            type=raw,value=latest,enable=${{ github.repository_default_branch == github.ref_name }}
 
       - name: Build and push Docker image
         id: build
@@ -117,9 +122,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image locally
+      - name: Copy test JWT keys to main resources
         run: |
-          docker build --load -t stormmarket:test .
+          mkdir -p src/main/resources/jwt
+          cp src/test/resources/jwt/* src/main/resources/jwt/
 
       # Create a shared network for containers to communicate
       - name: Create Docker network
@@ -132,8 +138,8 @@ jobs:
             --network-alias mysql \
             -e MYSQL_DATABASE=stormmarket \
             -e MYSQL_USER=stormmarket \
-            -e MYSQL_PASSWORD=stormmarket \
-            -e MYSQL_ROOT_PASSWORD=rootpassword \
+            -e MYSQL_PASSWORD=StormMarketPass! \
+            -e MYSQL_ROOT_PASSWORD=RootPass! \
             -e MYSQL_TCP_PORT=3306 \
             mysql:8.0 \
             --character-set-server=utf8mb4 \
@@ -144,7 +150,7 @@ jobs:
         run: |
           echo "Waiting for MySQL to be ready..."
           for i in {1..60}; do
-            if docker exec mysql-test mysqladmin ping -h 127.0.0.1 -u stormmarket -pstormmarket > /dev/null 2>&1; then
+            if docker exec mysql-test mysqladmin ping -h 127.0.0.1 -u stormmarket -pStormMarketPass! > /dev/null 2>&1; then
               echo "MySQL is ready!"
               exit 0
             fi
@@ -169,62 +175,59 @@ jobs:
             -e SPRING_PROFILES_ACTIVE=production \
             -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/stormmarket \
             -e SPRING_DATASOURCE_USERNAME=stormmarket \
-            -e SPRING_DATASOURCE_PASSWORD=stormmarket \
-            -e SPRING_FLYWAY_ENABLED=true \
+            -e SPRING_DATASOURCE_PASSWORD=StormMarketPass! \
+            -e SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC-KEY-LOCATION=/tmp/jwt/public-key.pem \
             -e STORMMARKET_JWT_PRIVATE_KEY_LOCATION=/tmp/jwt/private-key.pem \
-            -e STORMMARKET_JWT_PUBLIC_KEY_LOCATION=/tmp/jwt/public-key.pem \
-            -e SERVER_PORT=8080 \
-            -v /tmp/jwt:/tmp/jwt:ro \
             stormmarket:test
 
       - name: Wait for Storm Market to be ready
         run: |
-          echo "Waiting for Storm Market to be ready..."
-          for i in {1..90}; do
+          echo "Waiting for Storm Market to start..."
+          for i in {1..60}; do
             if curl -s http://localhost:8081/v1/products > /dev/null 2>&1; then
               echo "Storm Market is ready!"
               exit 0
             fi
-            echo "Waiting for Storm Market... ($i/90)"
-            sleep 3
+            echo "Waiting for app... ($i/60)"
+            sleep 2
           done
-          echo "Storm Market failed to start"
+          echo "Application failed to start"
           docker logs stormmarket-test
           exit 1
 
-      - name: Install Postman CLI
-        run: |
-          npm install -g @postman/postman-cli
-
-      - name: Register test users
+      - name: Create test admin user
         run: |
           ADMIN_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
             -H "Content-Type: application/json" \
             -d '{"username":"docker_admin","email":"docker_admin@test.com","password":"DockerAdminPass123!","firstName":"Docker","lastName":"Admin"}')
           echo "Admin register: $ADMIN_RESPONSE"
 
+      - name: Create test user
+        run: |
           USER_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
             -H "Content-Type: application/json" \
             -d '{"username":"docker_user","email":"docker_user@test.com","password":"DockerUserPass123!","firstName":"Docker","lastName":"User"}')
           echo "User register: $USER_RESPONSE"
 
+      - name: Login as admin and extract token
+        run: |
           ADMIN_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"docker_admin","password":"DockerAdminPass123!"}')
-          ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')
-          echo "ADMIN_TOKEN=${ADMIN_TOKEN}" >> $GITHUB_ENV
+          echo "ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
+      - name: Login as user and extract token
+        run: |
           USER_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"docker_user","password":"DockerUserPass123!"}')
-          USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')
-          echo "USER_TOKEN=${USER_TOKEN}" >> $GITHUB_ENV
+          echo "USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
       - name: Run Postman Collection (Admin) - Docker
         run: |
           postman collection run "postman/collections/Storm Market API" \
             --global-var "baseUrl=http://localhost:8081" \
-            --global-var "authToken=${{ env.ADMIN_TOKEN }}" \
+            --global-var "authToken=${ADMIN_TOKEN}" \
             --bail=false \
             --output docker-admin-results.json
 
@@ -232,7 +235,7 @@ jobs:
         run: |
           postman collection run "postman/collections/Storm Market API" \
             --global-var "baseUrl=http://localhost:8081" \
-            --global-var "authToken=${{ env.USER_TOKEN }}" \
+            --global-var "authToken=${USER_TOKEN}" \
             --bail=false \
             --output docker-user-results.json
 

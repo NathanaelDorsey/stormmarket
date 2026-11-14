@@ -16,11 +16,9 @@ jobs:
       STORMMARKET_JWT_PUBLIC_KEY_LOCATION: classpath:jwt/public-key.pem
 
     steps:
-      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Set up Java 25
       - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
@@ -28,7 +26,6 @@ jobs:
           java-version: '25'
           cache: 'maven'
 
-      # 3. Cache Maven packages
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -37,27 +34,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 3.5. Copy test JWT keys to main resources for test profile
       - name: Copy test JWT keys
         run: |
           mkdir -p src/main/resources/jwt
           cp src/test/resources/jwt/* src/main/resources/jwt/
 
-      # 4. Start application with test profile (H2 in-memory)
       - name: Start Spring Boot App
         run: |
           chmod +x ./mvnw
-          ./mvnw spring-boot:run -Dspring.profiles.active=test \
-            -Dspring.datasource.url=jdbc:h2:mem:testdb \
-            -Dspring.datasource.driver-class-name=org.h2.Driver \
-            -Dspring.datasource.username=sa \
-            -Dspring.datasource.password= \
-            -Dspring.jpa.hibernate.ddl-auto=create-drop \
-            -Dspring.flyway.enabled=false \
+          ./mvnw spring-boot:run \
+            -Dspring-boot.run.profiles=test \
+            -Dspring-boot.run.jvmArguments="-Dspring.datasource.url=jdbc:h2:mem:testdb -Dspring.datasource.driver-class-name=org.h2.Driver -Dspring.datasource.username=sa -Dspring.datasource.password= -Dspring.jpa.hibernate.ddl-auto=create-drop -Dspring.flyway.enabled=false" \
             > app.log 2>&1 &
           echo $! > app.pid
 
-      # 5. Wait for application to be ready
       - name: Wait for App Startup
         run: |
           for i in {1..60}; do
@@ -72,82 +62,68 @@ jobs:
           cat app.log
           exit 1
 
-      # 6. Register test users
       - name: Register Test Users
         run: |
-          # Register admin user
           ADMIN_RESPONSE=$(curl -s -X POST http://localhost:8080/v1/auth/register \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_admin","email":"ci_admin@test.com","password":"CiAdminPass123!","firstName":"CI","lastName":"Admin"}')
           echo "Admin register: $ADMIN_RESPONSE"
 
-          # Register regular user
           USER_RESPONSE=$(curl -s -X POST http://localhost:8080/v1/auth/register \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_user","email":"ci_user@test.com","password":"CiUserPass123!","firstName":"CI","lastName":"User"}')
           echo "User register: $USER_RESPONSE"
 
-          # Login as admin to get token
           ADMIN_LOGIN=$(curl -s -X POST http://localhost:8080/v1/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_admin","password":"CiAdminPass123!"}')
-          ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')
-          echo "ADMIN_TOKEN=${ADMIN_TOKEN}" >> $GITHUB_ENV
+          echo "ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
-          # Login as user to get token
           USER_LOGIN=$(curl -s -X POST http://localhost:8080/v1/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_user","password":"CiUserPass123!"}')
-          USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')
-          echo "USER_TOKEN=${USER_TOKEN}" >> $GITHUB_ENV
+          echo "USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
           echo "Tokens generated successfully"
 
-      # 7. Install Postman CLI
       - name: Install Postman CLI
         run: |
           npm install -g @postman/postman-cli
 
-      # 8. Run Postman Collection (Admin)
       - name: Run Postman Collection (Admin)
         run: |
           postman collection run "postman/collections/Storm Market API" \
             --global-var "baseUrl=http://localhost:8080" \
-            --global-var "authToken=${{ env.ADMIN_TOKEN }}" \
+            --global-var "authToken=${ADMIN_TOKEN}" \
             --bail=false \
             --output app-admin-results.json
 
-      # 9. Run Postman Collection (User)
       - name: Run Postman Collection (User)
         run: |
           postman collection run "postman/collections/Storm Market API" \
             --global-var "baseUrl=http://localhost:8080" \
-            --global-var "authToken=${{ env.USER_TOKEN }}" \
+            --global-var "authToken=${USER_TOKEN}" \
             --bail=false \
             --output app-user-results.json
         continue-on-error: false
 
-      # 10. Run Maven Verify (SpotBugs, JaCoCo, FindSecBugs)
       - name: Run Maven Verify
         run: |
           ./mvnw verify -Dspring.profiles.active=test
 
-      # 11. Run Preflight Check (Spotless code formatting)
       - name: Run Preflight Check (Spotless)
         run: |
           ./mvnw spotless:check -Dspring.profiles.active=test
 
-      # 12. Run Postman Collection (User) - final gate
       - name: Run Postman Collection (User) - final gate
         run: |
           postman collection run "postman/collections/Storm Market API" \
             --global-var "baseUrl=http://localhost:8080" \
-            --global-var "authToken=${{ env.USER_TOKEN }}" \
+            --global-var "authToken=${USER_TOKEN}" \
             --bail=false \
             --output app-user-results-final.json
         continue-on-error: false
 
-      # 13. Upload results
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
@@ -159,7 +135,6 @@ jobs:
             app-user-results.json
             app-user-results-final.json
 
-      # 14. Stop Application
       - name: Stop Application
         if: always()
         run: |
@@ -167,7 +142,6 @@ jobs:
             kill $(cat app.pid) 2>/dev/null || true
           fi
 
-      # 15. Upload logs on failure
       - name: Upload App Logs
         if: failure()
         uses: actions/upload-artifact@v4
