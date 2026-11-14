@@ -114,29 +114,38 @@ jobs:
         run: |
           docker build --load -t stormmarket:test .
 
+      # Create a shared network for containers to communicate
+      - name: Create Docker network
+        run: docker network create stormmarket-network
+
       - name: Start MySQL container
         run: |
           docker run -d --name mysql-test \
+            --network stormmarket-network \
+            --network-alias mysql \
             -e MYSQL_DATABASE=stormmarket \
             -e MYSQL_USER=stormmarket \
             -e MYSQL_PASSWORD=stormmarket \
             -e MYSQL_ROOT_PASSWORD=rootpassword \
-            -p 3306:3306 \
+            -e MYSQL_TCP_PORT=3306 \
             mysql:8.0 \
             --character-set-server=utf8mb4 \
-            --collation-server=utf8mb4_unicode_ci
+            --collation-server=utf8mb4_unicode_ci \
+            --max-allowed-packet=64M
 
       - name: Wait for MySQL to be ready
         run: |
-          for i in {1..30}; do
-            if docker exec mysql-test mysqladmin ping -h localhost -u stormmarket -pstormmarket > /dev/null 2>&1; then
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..60}; do
+            if docker exec mysql-test mysqladmin ping -h 127.0.0.1 -u stormmarket -pstormmarket > /dev/null 2>&1; then
               echo "MySQL is ready!"
               exit 0
             fi
-            echo "Waiting for MySQL... ($i/30)"
+            echo "Waiting for MySQL... ($i/60)"
             sleep 2
           done
           echo "MySQL failed to start"
+          docker logs mysql-test
           exit 1
 
       - name: Generate test JWT keys
@@ -149,24 +158,28 @@ jobs:
         run: |
           docker run -d --name stormmarket-test \
             -p 8081:8080 \
+            --network stormmarket-network \
             -e SPRING_PROFILES_ACTIVE=production \
-            -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-test:3306/stormmarket \
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/stormmarket \
             -e SPRING_DATASOURCE_USERNAME=stormmarket \
             -e SPRING_DATASOURCE_PASSWORD=stormmarket \
+            -e SPRING_FLYWAY_ENABLED=true \
             -e STORMMARKET_JWT_PRIVATE_KEY_LOCATION=/tmp/jwt/private-key.pem \
             -e STORMMARKET_JWT_PUBLIC_KEY_LOCATION=/tmp/jwt/public-key.pem \
+            -e SERVER_PORT=8080 \
             -v /tmp/jwt:/tmp/jwt:ro \
             stormmarket:test
 
       - name: Wait for Storm Market to be ready
         run: |
-          for i in {1..60}; do
+          echo "Waiting for Storm Market to be ready..."
+          for i in {1..90}; do
             if curl -s http://localhost:8081/v1/products > /dev/null 2>&1; then
               echo "Storm Market is ready!"
               exit 0
             fi
-            echo "Waiting for Storm Market... ($i/60)"
-            sleep 5
+            echo "Waiting for Storm Market... ($i/90)"
+            sleep 3
           done
           echo "Storm Market failed to start"
           docker logs stormmarket-test
@@ -238,6 +251,7 @@ jobs:
         run: |
           docker stop stormmarket-test mysql-test 2>/dev/null || true
           docker rm stormmarket-test mysql-test 2>/dev/null || true
+          docker network rm stormmarket-network 2>/dev/null || true
 
   deploy-staging:
     name: Deploy to Staging
