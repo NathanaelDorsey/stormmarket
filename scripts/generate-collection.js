@@ -95,8 +95,19 @@ function convertRequest(req) {
 }
 
 function buildUrlObject(url) {
-  // Use raw URL only - let Postman resolve {{baseUrl}} variable
-  return { raw: url };
+  // Parse {{baseUrl}}/v1/products -> host="{{baseUrl}}", path=["v1","products"]
+  // For variable resolution, host must be the base URL variable
+  const match = url.match(/\{\{baseUrl\}\}(.*)/);
+  if (!match) {
+    return { raw: url };
+  }
+  const pathPart = match[1].split('?')[0];
+  const pathSegments = pathPart.split('/').filter(p => p);
+  return {
+    raw: url,
+    host: ["{{baseUrl}}"],
+    path: pathSegments
+  };
 }
 
 // Generate collection

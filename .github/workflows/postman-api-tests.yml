@@ -87,8 +87,8 @@ jobs:
         with:
           command: |
             collection run ./postman/collections/Storm_Market_API.json \
-              --global-var "baseUrl=http://localhost:8080" \
-              --global-var "authToken=${ADMIN_TOKEN}" \
+              --env-var "baseUrl=http://localhost:8080" \
+              --env-var "authToken=${ADMIN_TOKEN}" \
               --bail=false \
               --output app-admin-results.json
 
@@ -97,8 +97,8 @@ jobs:
         with:
           command: |
             collection run ./postman/collections/Storm_Market_API.json \
-              --global-var "baseUrl=http://localhost:8080" \
-              --global-var "authToken=${USER_TOKEN}" \
+              --env-var "baseUrl=http://localhost:8080" \
+              --env-var "authToken=${USER_TOKEN}" \
               --bail=false \
               --output app-user-results.json
         continue-on-error: false
