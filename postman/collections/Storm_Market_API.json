@@ -36,16 +36,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/products/admin/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products",
-                "admin",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/products/admin/1"
             },
             "auth": {
               "type": "bearer",
@@ -134,16 +125,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/products/admin/search",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products",
-                "admin",
-                "search"
-              ]
+              "raw": "{{baseUrl}}/v1/products/admin/search"
             },
             "auth": {
               "type": "bearer",
@@ -239,14 +221,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "categories"
-              ]
+              "raw": "{{baseUrl}}/v1/categories"
             },
             "body": {
               "mode": "raw",
@@ -354,14 +329,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products"
-              ]
+              "raw": "{{baseUrl}}/v1/products"
             },
             "body": {
               "mode": "raw",
@@ -464,15 +432,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/categories/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "categories",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/categories/1"
             },
             "auth": {
               "type": "bearer",
@@ -551,15 +511,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/products/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/products/1"
             },
             "auth": {
               "type": "bearer",
@@ -638,15 +590,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/admin/users",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "admin",
-                "users"
-              ]
+              "raw": "{{baseUrl}}/v1/admin/users"
             },
             "auth": {
               "type": "bearer",
@@ -736,16 +680,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/admin/users/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "admin",
-                "users",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/admin/users/1"
             },
             "auth": {
               "type": "bearer",
@@ -839,17 +774,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/products/admin/1/active",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products",
-                "admin",
-                "1",
-                "active"
-              ]
+              "raw": "{{baseUrl}}/v1/products/admin/1/active"
             },
             "body": {
               "mode": "raw",
@@ -950,17 +875,7 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/admin/users/2/active",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "admin",
-                "users",
-                "2",
-                "active"
-              ]
+              "raw": "{{baseUrl}}/v1/admin/users/2/active"
             },
             "body": {
               "mode": "raw",
@@ -1054,15 +969,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/categories/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "categories",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/categories/1"
             },
             "body": {
               "mode": "raw",
@@ -1170,15 +1077,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/products/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/products/1"
             },
             "body": {
               "mode": "raw",
@@ -1287,17 +1186,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/admin/users/2/role",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "admin",
-                "users",
-                "2",
-                "role"
-              ]
+              "raw": "{{baseUrl}}/v1/admin/users/2/role"
             },
             "body": {
               "mode": "raw",
@@ -1396,15 +1285,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "auth",
-                "login"
-              ]
+              "raw": "{{baseUrl}}/v1/auth/login"
             },
             "body": {
               "mode": "raw",
@@ -1514,14 +1395,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/orders",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "orders"
-              ]
+              "raw": "{{baseUrl}}/v1/orders"
             },
             "body": {
               "mode": "raw",
@@ -1624,15 +1498,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/orders/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "orders",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/orders/1"
             },
             "auth": {
               "type": "bearer",
@@ -1727,14 +1593,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/cart",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "cart"
-              ]
+              "raw": "{{baseUrl}}/v1/cart"
             },
             "body": {
               "mode": "raw",
@@ -1841,15 +1700,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/categories/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "categories",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/categories/1"
             }
           },
           "event": [
@@ -1913,14 +1764,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products"
-              ]
+              "raw": "{{baseUrl}}/v1/products"
             }
           },
           "event": [
@@ -1986,15 +1830,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/products/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "products",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/v1/products/1"
             }
           },
           "event": [
@@ -2067,14 +1903,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "categories"
-              ]
+              "raw": "{{baseUrl}}/v1/categories"
             }
           },
           "event": [

@@ -14,7 +14,6 @@ const OUTPUT_FILE = path.join(__dirname, '../postman/collections/Storm_Market_AP
 
 function parseYamlFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  // Remove the $kind line and parse as YAML
   const lines = content.split('\n');
   if (lines[0].startsWith('$kind:')) {
     lines.shift();
@@ -54,8 +53,8 @@ function convertRequest(req) {
       header: [],
       url: {
         raw: req.url,
-        host: ["{{baseUrl}}"],
-        path: extractPath(req.url)
+        // Use variable in raw URL only - let Postman resolve it
+        // Don't set host/path separately when using variables
       }
     }
   };
@@ -74,9 +73,7 @@ function convertRequest(req) {
         mode: 'raw',
         raw: req.body.content,
         options: {
-          raw: {
-            language: 'json'
-          }
+          raw: { language: 'json' }
         }
       };
     }
@@ -106,16 +103,6 @@ function convertRequest(req) {
   return item;
 }
 
-function extractPath(url) {
-  // Extract path from {{baseUrl}}/v1/products -> ["v1", "products"]
-  const match = url.match(/\{\{baseUrl\}\}(.*)/);
-  if (match) {
-    const pathPart = match[1].split('?')[0];
-    return pathPart.split('/').filter(p => p);
-  }
-  return [];
-}
-
 // Generate collection
 const collection = {
   info: {
@@ -124,24 +111,12 @@ const collection = {
     description: "Storm Market API test collection"
   },
   variable: [
-    {
-      key: "baseUrl",
-      value: "http://localhost:8080",
-      type: "string"
-    },
-    {
-      key: "authToken",
-      value: "",
-      type: "string"
-    }
+    { key: "baseUrl", value: "http://localhost:8080", type: "string" },
+    { key: "authToken", value: "", type: "string" }
   ],
   auth: {
     type: "bearer",
-    bearer: [{
-      key: "token",
-      value: "{{authToken}}",
-      type: "string"
-    }]
+    bearer: [{ key: "token", value: "{{authToken}}", type: "string" }]
   },
   item: walkDir(COLLECTION_DIR)
 };
