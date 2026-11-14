@@ -56,6 +56,20 @@ Stack: Java 25, Spring Boot 4.1.1, Maven, MySQL, H2 test database
 ## Architecture
 Layered backend organized by feature (package-per-domain) under `com.nathanaeldorsey.stormmarket`: admin, auth, cart, category, common/exception, config, order, payment, product, user. REST controllers at `/v1` base path, Spring Data JPA repositories, MySQL production database with Flyway migrations, stateless JWT authentication.
 
+### Result<T,E> Pattern
+Domain-wide explicit error handling via `Result<T, E extends Throwable>` sealed interface (`Ok` / `Err`). Services return `Result<T, E>` for expected failures instead of throwing exceptions.
+
+| Error Type | Constants | HTTP |
+|------------|-----------|------|
+| `StockError` | 6 (INSUFFICIENT_STOCK, PRODUCT_NOT_FOUND, ...) | 404/409 |
+| `CartError` | 12 (INSUFFICIENT_STOCK, CART_FULL, INACTIVE_PRODUCT, ...) | 400/404/409 |
+| `OrderError` | 8 (INVALID_STATUS_TRANSITION, PAYMENT_NOT_CAPTURED, ...) | 400/404/409 |
+| `PaymentError` | 7 (OWNERSHIP_MISMATCH, INVALID_STATE_TRANSITION, ...) | 403/404/409 |
+
+Services: `ProductRepository`, `CartService`, `OrderService`, `PaymentService` return `Result<T, E>`.
+Controllers delegate to `ResultHttpMapper` → HTTP (200/204/400/403/404/409/500).
+Transaction rollback on `Err` via `TransactionAspectSupport.setRollbackOnly()`.
+
 ## Conventions
 - camelCase JSON request/response bodies
 - Pagination via Spring Data `Pageable` with `max-page-size: 100`

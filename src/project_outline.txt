@@ -78,11 +78,12 @@ Validation & error handling - DONE
                 Global exception handling
                 Consistent API error responses
 Testing - DONE
-                Unit tests (175 tests passing)
+                Unit tests (186 tests passing: 175 original + 11 new)
                 Repository/integration tests
                 Controller tests
                 Security tests
                 Property-based tests (jqwik: cart, order, stock, price)
+                Result<T,E> pattern tests (23 new: DomainError, StockError, CartError, OrderError, PaymentError, CartService, CartController, ProductRepository, ResultHttpMapper)
 Frontend/client — ON HOLD
                 JavaFX or web frontend
                 Consume the REST API
@@ -90,12 +91,13 @@ Frontend/client — ON HOLD
                 Product/catalog UI
                 Cart/checkout UI
 Production features — DONE
-                Actuator/health checks (9 endpoints: health, info, metrics, prometheus, loggers, threaddump, heapdump, mappings, env, configprops)
+                Actuator/health checks (10 endpoints: health, info, metrics, prometheus, loggers, threaddump, heapdump, mappings, env, configprops)
                 Structured JSON logging (logstash-logback-encoder, MDC correlation: X-Request-ID, traceparent/B3, userId, userRole)
                 Metrics (112 Micrometer metrics, 14 custom stormmarket.* business metrics)
                 Tracing (OpenTelemetry OTLP gRPC configured, ready for collector)
                 Docker multi-stage build (JWT keys packaged in BOOT-INF/classes/jwt/)
                 Environment-specific configuration (application.yaml, application-production.yaml, application-test.yaml, application-actuator-test.yaml)
+                Result<T,E> pattern (domain-wide explicit error handling: 4 error types, 32 static singletons, ResultHttpMapper, transaction rollback on Err paths)
 CI/CD — DONE
                 GitHub Actions (build, test, package, deploy)
                 Local test bootstrap script (scripts/test-bootstrap.sh)
@@ -109,6 +111,7 @@ CI/CD — DONE
                 GitHub Actions workflow for build/deploy (docker-build-deploy.yml)
                 Smoke test script (scripts/smoke-test.sh)
                 GitHub Container Registry (ghcr.io) integration
+                Result<T,E> pattern adoption (7 epics, 186 tests, full verify passes)
 
 
 Dependency	        What it gives you

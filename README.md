@@ -90,7 +90,7 @@ The project includes a complete CI/CD pipeline via GitHub Actions and local boot
 | Component | Status | Description |
 |-----------|--------|-------------|
 | Postman API Tests | ✅ Complete | 21 requests, 67 assertions, 0 failures |
-| Maven Verify | ✅ Complete | 175 tests, 0 SpotBugs, 0 FindSecBugs, JaCoCo (64% instruction / 51% branch / 51% line) |
+| Maven Verify | ✅ Complete | 186 tests, 0 SpotBugs, 0 FindSecBugs, JaCoCo (64% instruction / 51% branch / 51% line) |
 | Code Formatting | ✅ Complete | Spotless (Palantir Java Format) |
 | CodeRabbit AI Review | ✅ Complete | Automated PR review |
 | Local Bootstrap | ✅ Complete | `scripts/test-bootstrap.sh` |
@@ -101,6 +101,7 @@ The project includes a complete CI/CD pipeline via GitHub Actions and local boot
 | Build/Deploy Workflow | ✅ Complete | GitHub Actions docker-build-deploy.yml |
 | Smoke Test Script | ✅ Complete | scripts/smoke-test.sh for post-deploy validation |
 | Container Registry | ✅ Complete | GitHub Container Registry (ghcr.io) |
+| Result<T,E> Pattern | ✅ Complete | Domain-wide explicit error handling (7 epics, 186 tests) |
 
 ### Local CI Validation
 
@@ -210,8 +211,26 @@ open target/site/jacoco/index.html
 
 ### Test status
 
-All 175 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
+All 186 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
 Postman collection: 21 requests, 67 assertions, 0 failures.
+
+### Result<T,E> Pattern (NEW)
+
+Domain-wide adoption of `Result<T, E>` sealed interface for explicit error handling:
+
+| Aspect | Detail |
+|--------|--------|
+| Type | Sealed interface `Result<T, E extends Throwable>` with `Ok<T, E>` / `Err<T, E>` records |
+| Factories | `Result.ok(value)`, `Result.err(error)` |
+| Accessors | `result.isOk()`, `result.isErr()`, `result.getValue()`, `result.getError()` |
+| Error hierarchy | `DomainError extends RuntimeException` → `StockError`, `CartError`, `OrderError`, `PaymentError` |
+| Error constants | 32 static singleton error constants (e.g., `CartError.INSUFFICIENT_STOCK`) |
+| HTTP mapping | `ResultHttpMapper` component maps `Result` → HTTP (200/204/400/403/404/409/500) |
+| Services updated | `ProductRepository`, `CartService`, `OrderService`, `PaymentService` |
+| Transaction rollback | `TransactionAspectSupport.setRollbackOnly()` on `Err` paths |
+
+**Before**: Exceptions thrown for expected failures (try/catch control flow)
+**After**: `Result<T, E>` returned for expected failures (compile-time handling enforced)
 
 ### Observability metrics
 
@@ -336,8 +355,6 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 
 ## Future improvements
 
-- complete CI/CD pipeline (Docker image, deployment)
 - expand admin workflows and reporting
 - add full e2e API documentation and examples
-- improve observability with structured logging and metrics
 - optionally add a frontend client for a complete storefront experience
