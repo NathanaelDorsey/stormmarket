@@ -137,7 +137,7 @@ jobs:
         run: |
           ./mvnw spotless:check -Dspring.profiles.active=test
 
-      # 12. Run Postman Collection (User) - final gate
+      # 12. Run Postman Collection (User)
       - name: Run Postman Collection (User) - final gate
         run: |
           postman collection run "postman/collections/Storm Market API" \
@@ -167,7 +167,7 @@ jobs:
             kill $(cat app.pid) 2>/dev/null || true
           fi
 
-      # 14. Upload logs on failure
+      # 15. Upload logs on failure
       - name: Upload App Logs
         if: failure()
         uses: actions/upload-artifact@v4
