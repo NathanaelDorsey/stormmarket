@@ -1,9 +1,0 @@
----
-kind: postman-cli-collection-run-executions
-schemaVersion: 1
-runId: 77f45d47-f925-4b78-a4c4-48849824bfbb
-summaryFile: storm-market-api-2026-11-13-20-07-49.collection-run-summary.yaml
-collection:
-  id: 6bba80d8598c705d2af98d23
-  name: Storm Market API
-generatedAt: '2026-11-14T01:07:49.259Z'
