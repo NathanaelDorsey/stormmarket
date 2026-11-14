@@ -46,7 +46,6 @@ jobs:
             -Dspring.flyway.enabled=false \
             > app.log 2>&1 &
           echo $! > app.pid
-        shell: bash
 
       # 5. Wait for application to be ready
       - name: Wait for App Startup
@@ -62,7 +61,6 @@ jobs:
           echo "Application failed to start"
           cat app.log
           exit 1
-        shell: bash
 
       # 6. Create test users (admin + regular user)
       - name: Create Test Users
@@ -84,23 +82,21 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"username":"ci_admin","password":"CiAdminPass123!"}')
           ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')
-          echo "ADMIN_TOKEN=$ADMIN_TOKEN" >> $GITHUB_ENV
+          echo "ADMIN_TOKEN=${ADMIN_TOKEN}" >> $GITHUB_ENV
 
           # Login as user to get token
           USER_LOGIN=$(curl -s -X POST http://localhost:8080/v1/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_user","password":"CiUserPass123!"}')
           USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')
-          echo "USER_TOKEN=$USER_TOKEN" >> $GITHUB_ENV
+          echo "USER_TOKEN=${USER_TOKEN}" >> $GITHUB_ENV
 
           echo "Tokens generated successfully"
-        shell: bash
 
       # 7. Install Postman CLI
       - name: Install Postman CLI
         run: |
           npm install -g @postman/postman-cli
-        shell: bash
 
       # 8. Run Postman Collection with admin token
       - name: Run Postman Collection (Admin)
@@ -110,7 +106,6 @@ jobs:
             --global-var "authToken=${{ env.ADMIN_TOKEN }}" \
             --bail=false \
             --output app-admin-results.json
-        shell: bash
 
       # 9. Run Postman Collection with user token
       - name: Run Postman Collection (User)
@@ -120,7 +115,6 @@ jobs:
             --global-var "authToken=${{ env.USER_TOKEN }}" \
             --bail=false \
             --output app-user-results.json
-        shell: bash
         continue-on-error: false
 
       # 11. Upload results
@@ -133,7 +127,6 @@ jobs:
             app.log
             app-admin-results.json
             app-user-results.json
-        shell: bash
 
       # 12. Stop Application
       - name: Stop Application
@@ -142,7 +135,6 @@ jobs:
           if [ -f app.pid ]; then
             kill $(cat app.pid) 2>/dev/null || true
           fi
-        shell: bash
 
       # 13. Upload logs on failure
       - name: Upload logs on failure
@@ -151,4 +143,3 @@ jobs:
         with:
           name: app-logs
           path: app.log
-        shell: bash

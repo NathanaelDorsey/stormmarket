@@ -50,7 +50,6 @@ jobs:
             -Dspring.flyway.enabled=false \
             > app.log 2>&1 &
           echo $! > app.pid
-        shell: bash
 
       # 5. Wait for application to be ready
       - name: Wait for App Startup
@@ -66,7 +65,6 @@ jobs:
           echo "Application failed to start"
           cat app.log
           exit 1
-        shell: bash
 
       # 6. Register test users
       - name: Register Test Users
@@ -87,24 +85,22 @@ jobs:
           ADMIN_LOGIN=$(curl -s -X POST http://localhost:8080/v1/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_admin","password":"CiAdminPass123!"}')
-          ADMIN_TOKEN=****** "$ADMIN_LOGIN" | jq -r '.token')
-          echo "ADMIN_TOKEN=************* >> $GITHUB_ENV
+          ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')
+          echo "ADMIN_TOKEN=${ADMIN_TOKEN}" >> $GITHUB_ENV
 
           # Login as user to get token
           USER_LOGIN=$(curl -s -X POST http://localhost:8080/v1/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_user","password":"CiUserPass123!"}')
-          USER_TOKEN=****** "$USER_LOGIN" | jq -r '.token')
-          echo "USER_TOKEN=************ >> $GITHUB_ENV
+          USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')
+          echo "USER_TOKEN=${USER_TOKEN}" >> $GITHUB_ENV
 
           echo "Tokens generated successfully"
-        shell: bash
 
       # 7. Install Postman CLI
       - name: Install Postman CLI
         run: |
           npm install -g @postman/postman-cli
-        shell: bash
 
       # 8. Run Postman Collection (Admin)
       - name: Run Postman Collection (Admin)
@@ -114,7 +110,6 @@ jobs:
             --global-var "authToken=${{ env.ADMIN_TOKEN }}" \
             --bail=false \
             --output app-admin-results.json
-        shell: bash
 
       # 9. Run Postman Collection (User)
       - name: Run Postman Collection (User)
@@ -124,20 +119,17 @@ jobs:
             --global-var "authToken=${{ env.USER_TOKEN }}" \
             --bail=false \
             --output app-user-results.json
-        shell: bash
         continue-on-error: false
 
       # 10. Run Maven Verify (SpotBugs, JaCoCo, FindSecBugs)
       - name: Run Maven Verify
         run: |
           ./mvnw verify
-        shell: bash
 
       # 11. Run Preflight Check (Spotless code formatting)
       - name: Run Preflight Check (Spotless)
         run: |
           ./mvnw spotless:check
-        shell: bash
 
       # 12. Run Postman Collection (User)
       - name: Run Postman Collection (User) - final gate
@@ -147,7 +139,6 @@ jobs:
             --global-var "authToken=${{ env.USER_TOKEN }}" \
             --bail=false \
             --output app-user-results-final.json
-        shell: bash
         continue-on-error: false
 
       # 13. Upload results
@@ -161,22 +152,19 @@ jobs:
             app-admin-results.json
             app-user-results.json
             app-user-results-final.json
-        shell: bash
 
-      # 14. Stop Application
+      # 13. Stop Application
       - name: Stop Application
         if: always()
         run: |
           if [ -f app.pid ]; then
             kill $(cat app.pid) 2>/dev/null || true
           fi
-        shell: bash
 
-      # 15. Upload logs on failure
+      # 13. Upload logs on failure
       - name: Upload App Logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: app-logs
           path: app.log
-        shell: bash
