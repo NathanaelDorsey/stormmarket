@@ -195,6 +195,7 @@ jobs:
           docker run -d --name stormmarket-test \
             -p 8081:8080 \
             --network stormmarket-network \
+            -v /tmp/jwt:/tmp/jwt \
             -e SPRING_PROFILES_ACTIVE=production \
             -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/stormmarket \
             -e SPRING_DATASOURCE_USERNAME=stormmarket \
