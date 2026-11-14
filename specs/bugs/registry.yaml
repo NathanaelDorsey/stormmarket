@@ -1,44 +1,8 @@
 bugs:
-  - id: "BUG-001"
-    title: "H2 vs MySQL SQL dialect differences"
-    status: "logged"
-    severity: "medium"
-    reported_by: "seed-conventions"
-    date: "2025-01-00"
-    description: |
-      H2 in-memory database may accept SQL syntax that MySQL rejects, or vice versa.
-      Tests passing on H2 do not guarantee production compatibility.
-      Mitigation: opt-in Testcontainers MySQL integration (`-Drun.mysql.integration=true`).
-    affectedscope:
-      - persistence tests
-      - Flyway migration validation
-    status_details: "logged; no active fix unless integration tests required"
-  - id: "BUG-002"
-    title: "Spotless skipped in CI"
-    status: "logged"
-    severity: "low"
-    reported_by: "seed-conventions"
-    date: "2025-01-00"
-    description: |
-      Palantir Java Format 2.102.0 is configured with `<skip>true</skip>` in CI.
-      Code formatting is not enforced on PRs.
-      Mitigation: unskip `<spotless.check>` to enforce formatting.
-    affectedscope:
-      - CI code quality gate
-    status_details: "logged; technical debt tracked separately"
-  - id: "BUG-2025-11-14T192000"
-    title: "Postman Collection Run Fails - Request URL Empty"
-    status: "investigated"
-    severity: "low"
-    reported_by: "investigate-bug"
+  - bug_id: "2025-11-14T152500"
     date: "2025-11-14"
-    description: |
-      Postman collection Storm_Market_API.json has hardcoded localhost URLs instead of
-      {{baseUrl}} variable templates. All 22 requests fail with "runtime: request url is empty".
-      Missing baseUrl variable definition in collection variables.
-      Root cause: JSON compilation replaced variable templates with hardcoded values.
-    affectedscope:
-      - Postman collection testing
-      - CI/CD API test pipeline
-    status_details: "root cause identified; fix plan created"
-    file: "specs/bugs/BUG-2025-11-14T192000.md"
+    severity: "HIGH"
+    priority: "HIGH"
+    scope: "ci/cd"
+    summary: "Postman CLI --env-var not applied in GitHub Action due to multi-line command handling"
+    file: "specs/bugs/BUG-2025-11-14T152500-postman-cli-env-var-not-applied.md"
