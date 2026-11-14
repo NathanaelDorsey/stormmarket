@@ -161,7 +161,7 @@ jobs:
             -e MYSQL_DATABASE=stormmarket \
             -e MYSQL_USER=stormmarket \
             -e MYSQL_PASSWORD=StormMarketPass! \
-            -e MYSQL_ROOT_PASSWORD=StormMarketRootPass! ass! \
+            -e MYSQL_ROOT_PASSWORD=StormMarketRootPass! \
             -e MYSQL_TCP_PORT=3306 \
             mysql:8.0 \
             --character-set-server=utf8mb4 \
