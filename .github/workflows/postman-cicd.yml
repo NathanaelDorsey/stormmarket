@@ -89,12 +89,22 @@ jobs:
       - name: Run Postman Collection (Admin)
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: 'collection run "Storm Market API" --global-var "baseUrl=http://localhost:8080" --global-var "authToken=${ADMIN_TOKEN}" --bail=false --output app-admin-results.json'
+          command: |
+            collection run ./postman/collections/Storm_Market_API.json \
+              --global-var "baseUrl=http://localhost:8080" \
+              --global-var "authToken=${ADMIN_TOKEN}" \
+              --bail=false \
+              --output app-admin-results.json
 
       - name: Run Postman Collection (User)
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: 'collection run "Storm Market API" --global-var "baseUrl=http://localhost:8080" --global-var "authToken=${USER_TOKEN}" --bail=false --output app-user-results.json'
+          command: |
+            collection run ./postman/collections/Storm_Market_API.json \
+              --global-var "baseUrl=http://localhost:8080" \
+              --global-var "authToken=${USER_TOKEN}" \
+              --bail=false \
+              --output app-user-results.json
         continue-on-error: false
 
       - name: Run Maven Verify
@@ -108,7 +118,12 @@ jobs:
       - name: Run Postman Collection (User) - final gate
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: 'collection run "Storm Market API" --global-var "baseUrl=http://localhost:8080" --global-var "authToken=${USER_TOKEN}" --bail=false --output app-user-results-final.json'
+          command: |
+            collection run ./postman/collections/Storm_Market_API.json \
+              --global-var "baseUrl=http://localhost:8080" \
+              --global-var "authToken=${USER_TOKEN}" \
+              --bail=false \
+              --output app-user-results-final.json
         continue-on-error: false
 
       - name: Upload Test Results

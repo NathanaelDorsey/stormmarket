@@ -231,12 +231,22 @@ jobs:
       - name: Run Postman Collection (Admin) - Docker
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: 'collection run "Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${ADMIN_TOKEN}" --bail=false --output docker-admin-results.json'
+          command: |
+            collection run ./postman/collections/Storm_Market_API.json \
+              --global-var "baseUrl=http://localhost:8081" \
+              --global-var "authToken=${ADMIN_TOKEN}" \
+              --bail=false \
+              --output docker-admin-results.json
 
       - name: Run Postman Collection (User) - Docker
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: 'collection run "Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${USER_TOKEN}" --bail=false --output docker-user-results.json'
+          command: |
+            collection run ./postman/collections/Storm_Market_API.json \
+              --global-var "baseUrl=http://localhost:8081" \
+              --global-var "authToken=${USER_TOKEN}" \
+              --bail=false \
+              --output docker-user-results.json
 
       - name: Upload Docker test results
         if: always()
