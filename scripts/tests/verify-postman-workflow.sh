@@ -1,8 +1,7 @@
 #!/bin/bash
 # Test: Verify Postman CLI workflow command format
 # This test ensures the postmanlabs/postman-cli-action@v1 command is properly formatted
-# as a single line without quotes around env-var values, so that --env-var arguments
-# are correctly applied when the action executes `postman $POSTMAN_COMMAND` without eval.
+# as a folded scalar (>) without quotes around env-var values, using ${{ env.TOKEN }} syntax.
 
 set -euo pipefail
 
@@ -10,27 +9,15 @@ WORKFLOW=".github/workflows/docker-build-deploy.yml"
 
 echo "=== Verifying Postman CLI workflow command format ==="
 
-# Extract commands
-ADMIN_CMD=$(grep -A 4 'Run Postman Collection (Admin) - Docker' "$WORKFLOW" | grep 'command:' | sed 's/.*command: *//')
-USER_CMD=$(grep -A 4 'Run Postman Collection (User) - Docker' "$WORKFLOW" | grep 'command:' | sed 's/.*command: *//')
+# Extract commands (folded scalar format: command: >- ...)
+# Get lines between "command: >-" and the next step (indented - name:)
+ADMIN_CMD=$(sed -n '/Run Postman Collection (Admin) - Docker/,/^[[:space:]]*- name:/p' "$WORKFLOW" | sed -n '/command: >-/,/^[[:space:]]*- name:/p' | head -n -1 | tail -n +2 | sed 's/^[[:space:]]*//' | tr '\n' ' ' | sed 's/ *$//')
+USER_CMD=$(sed -n '/Run Postman Collection (User) - Docker/,/^[[:space:]]*- name:/p' "$WORKFLOW" | sed -n '/command: >-/,/^[[:space:]]*- name:/p' | head -n -1 | tail -n +2 | sed 's/^[[:space:]]*//' | tr '\n' ' ' | sed 's/ *$//')
 
 echo "Admin command: $ADMIN_CMD"
 echo "User command: $USER_CMD"
 
-# Test 1: Commands are single-line (no line continuations)
-if echo "$ADMIN_CMD" | grep -q '\\$'; then
-    echo "❌ FAIL: Admin command contains line continuations (backslash-newline)"
-    exit 1
-fi
-echo "✓ PASS: Admin command is single-line"
-
-if echo "$USER_CMD" | grep -q '\\$'; then
-    echo "❌ FAIL: User command contains line continuations (backslash-newline)"
-    exit 1
-fi
-echo "✓ PASS: User command is single-line"
-
-# Test 2: Commands contain correct baseUrl
+# Test 1: Commands contain correct baseUrl
 if echo "$ADMIN_CMD" | grep -q 'baseUrl=http://localhost:8081'; then
     echo "✓ PASS: Admin command contains baseUrl=http://localhost:8081"
 else
@@ -45,7 +32,22 @@ else
     exit 1
 fi
 
-# Test 3: No quotes around env-var values (quotes cause the value to include literal quotes)
+# Test 2: Uses ${{ env.ADMIN_TOKEN }} syntax (not shell variable)
+if echo "$ADMIN_CMD" | grep -q '\${{ env.ADMIN_TOKEN }}'; then
+    echo "✓ PASS: Admin command uses \${{ env.ADMIN_TOKEN }} syntax"
+else
+    echo "❌ FAIL: Admin command missing \${{ env.ADMIN_TOKEN }} syntax"
+    exit 1
+fi
+
+if echo "$USER_CMD" | grep -q '\${{ env.USER_TOKEN }}'; then
+    echo "✓ PASS: User command uses \${{ env.USER_TOKEN }} syntax"
+else
+    echo "❌ FAIL: User command missing \${{ env.USER_TOKEN }} syntax"
+    exit 1
+fi
+
+# Test 3: No quotes around env-var values
 if echo "$ADMIN_CMD" | grep -q 'env-var "baseUrl'; then
     echo "❌ FAIL: Admin command has quotes around env-var value"
     exit 1

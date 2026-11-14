@@ -201,7 +201,7 @@ jobs:
             -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/stormmarket \
             -e SPRING_DATASOURCE_USERNAME=stormmarket \
             -e SPRING_DATASOURCE_PASSWORD=${{ secrets.TEST_MYSQL_PASSWORD }} \
-            -e SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC-KEY-LOCATION=/tmp/jwt/public-key.pem \
+            -e SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC_KEY_LOCATION=/tmp/jwt/public-key.pem \
             -e STORMMARKET_JWT_PRIVATE_KEY_LOCATION=/tmp/jwt/private-key.pem \
             $IMAGE_TAG
 
@@ -236,27 +236,45 @@ jobs:
 
       - name: Login as admin and extract token
         run: |
-          ADMIN_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
-            -H "Content-Type: application/json" \
-            -d '{"username":"dockeradmin","password":"DockerAdminPass123!"}')
-          echo "ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r .token)" >> $GITHUB_ENV
+          ADMIN_TOKEN=$(
+            curl --fail-with-body -sS -X POST http://localhost:8081/v1/auth/login \
+              -H "Content-Type: application/json" \
+              -d '{"username":"dockeradmin","password":"DockerAdminPass123!"}' |
+            jq -er '.token'
+          )
+          echo "::add-mask::$ADMIN_TOKEN"
+          printf 'ADMIN_TOKEN=%s\n' "$ADMIN_TOKEN" >> "$GITHUB_ENV"
 
       - name: Login as user and extract token
         run: |
-          USER_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
-            -H "Content-Type: application/json" \
-            -d '{"username":"dockeruser","password":"DockerUserPass123!"}')
-          echo "USER_TOKEN=$(echo "$USER_LOGIN" | jq -r .token)" >> $GITHUB_ENV
+          USER_TOKEN=$(
+            curl --fail-with-body -sS -X POST http://localhost:8081/v1/auth/login \
+              -H "Content-Type: application/json" \
+              -d '{"username":"dockeruser","password":"DockerUserPass123!"}' |
+            jq -er '.token'
+          )
+          echo "::add-mask::$USER_TOKEN"
+          printf 'USER_TOKEN=%s\n' "$USER_TOKEN" >> "$GITHUB_ENV"
 
       - name: Run Postman Collection (Admin) - Docker
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: collection run ./postman/collections/Storm_Market_API.json --env-var baseUrl=http://localhost:8081 --env-var authToken=${ADMIN_TOKEN} --bail=false --output docker-admin-results.json
+          command: >-
+            collection run ./postman/collections/Storm_Market_API.json
+            --env-var baseUrl=http://localhost:8081
+            --env-var authToken=${{ env.ADMIN_TOKEN }}
+            --bail=false
+            --output docker-admin-results.json
 
       - name: Run Postman Collection (User) - Docker
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: collection run ./postman/collections/Storm_Market_API.json --env-var baseUrl=http://localhost:8081 --env-var authToken=${USER_TOKEN} --bail=false --output docker-user-results.json
+          command: >-
+            collection run ./postman/collections/Storm_Market_API.json
+            --env-var baseUrl=http://localhost:8081
+            --env-var authToken=${{ env.USER_TOKEN }}
+            --bail=false
+            --output docker-user-results.json
 
       - name: Upload Docker test results
         if: always()
@@ -267,13 +285,16 @@ jobs:
             docker-admin-results.json
             docker-user-results.json
 
+      - name: Save container logs on failure
+        if: failure()
+        run: docker logs stormmarket-test > stormmarket-test.log 2>&1
+
       - name: Upload container logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: docker-test-logs
-          path: |
-            docker logs stormmarket-test
+          path: stormmarket-test.log
 
       - name: Cleanup containers
         if: always()
