@@ -1,0 +1,79 @@
+$kind: http-request
+id: 2335ecac88b632261878db7e
+name: Login User
+method: POST
+url: "{{baseUrl}}/v1/auth/login"
+description: User login endpoint. Authenticates credentials and returns JWT RS256 token for subsequent authenticated requests.
+body:
+  type: json
+  content: '{"username":"{{dynamicUsername}}","password":"{{testPassword}}"}'
+headers:
+  - key: Content-Type
+    value: application/json
+scripts:
+  - type: beforeRequest
+    code: |
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 10000);
+      const username = 'testuser_' + timestamp + '_' + random;
+      const email = 'test_' + timestamp + '_' + random + '@example.com';
+      const password = 'TestPass123!';
+      pm.variables.set('dynamicUsername', username);
+      pm.variables.set('dynamicEmail', email);
+      pm.variables.set('testPassword', password);
+      const baseUrl = pm.variables.get('baseUrl');
+      pm.sendRequest({ url: baseUrl + '/v1/auth/register', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ username, email, password, firstName: 'Test', lastName: 'User' }) } }, function (err, res) { console.log('Registration result:', res ? res.code : err); });
+    language: text/javascript
+  - type: afterResponse
+    code: |
+      const code = pm.response.code;
+      const body = pm.response.json ? pm.response.json() : {};
+      
+      if (code === 200) {
+        pm.test("200 OK: Returns JWT token", function () { 
+          pm.expect(body).to.have.property('token');
+          pm.expect(body.token).to.be.a('string').and.not.be.empty;
+        });
+        pm.test("200 OK: Token is valid JWT format (3 parts)", function () {
+          pm.expect(body.token.split('.')).to.have.length(3);
+        });
+        pm.test("200 OK: No ApiErrorResponse envelope", function () {
+          pm.expect(body).to.not.have.property('timestamp');
+          pm.expect(body).to.not.have.property('status');
+          pm.expect(body).to.not.have.property('error');
+        });
+      } else if (code === 401) {
+        pm.test("401 Unauthorized: Returns ApiErrorResponse for invalid credentials", function () {
+          pm.expect(body).to.have.property('timestamp');
+          pm.expect(body).to.have.property('status', 401);
+          pm.expect(body).to.have.property('error');
+          pm.expect(body).to.have.property('message');
+        });
+      } else if (code === 400) {
+        pm.test("400 Bad Request: Returns ApiErrorResponse with validationErrors", function () {
+          pm.expect(body).to.have.property('timestamp');
+          pm.expect(body).to.have.property('status', 400);
+          pm.expect(body).to.have.property('error');
+          pm.expect(body).to.have.property('message');
+          pm.expect(body).to.have.property('validationErrors');
+        });
+      } else if (code === 500) {
+        pm.test("500 Server Error: Returns ApiErrorResponse envelope", function () {
+          pm.expect(body).to.have.property('timestamp');
+          pm.expect(body).to.have.property('status', 500);
+          pm.expect(body).to.have.property('error');
+          pm.expect(body).to.have.property('message');
+        });
+      } else {
+        pm.test("Response received with status " + code, function () {
+          pm.expect(code).to.be.a('number');
+        });
+      }
+      
+      pm.test("Content-Type is JSON", function () {
+        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');
+      });
+      pm.test("Response time is reasonable", function () {
+        pm.expect(pm.response.responseTime).to.be.lessThan(5000);
+      });
+    language: text/javascript

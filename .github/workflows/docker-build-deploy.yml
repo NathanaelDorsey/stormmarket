@@ -1,0 +1,297 @@
+name: Build and Deploy Docker Image
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: ./mvnw clean package -DskipTests -B
+
+      - name: Run Tests
+        run: ./mvnw test
+
+      - name: Run Verify (SpotBugs, JaCoCo, FindSecBugs)
+        run: ./mvnw verify
+
+      - name: Run Spotless Check
+        run: ./mvnw spotless:check
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            VERSION=${{ github.ref_name }}
+
+      - name: Upload Docker image digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-digest
+          path: |
+            /tmp/digest.txt
+
+  # Test the built Docker image by running container and executing Postman tests
+  test-docker-image:
+    name: Test Docker Image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image locally
+        run: |
+          docker build --load -t stormmarket:test .
+
+      - name: Start MySQL container
+        run: |
+          docker run -d --name mysql-test \
+            -e MYSQL_DATABASE=stormmarket \
+            -e MYSQL_USER=stormmarket \
+            -e MYSQL_PASSWORD=stormmarket \
+            -e MYSQL_ROOT_PASSWORD=rootpassword \
+            -p 3306:3306 \
+            mysql:8.0 \
+            --character-set-server=utf8mb4 \
+            --collation-server=utf8mb4_unicode_ci
+
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            if docker exec mysql-test mysqladmin ping -h localhost -u stormmarket -pstormmarket > /dev/null 2>&1; then
+              echo "MySQL is ready!"
+              exit 0
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+          echo "MySQL failed to start"
+          exit 1
+
+      - name: Generate test JWT keys
+        run: |
+          mkdir -p /tmp/jwt
+          openssl genrsa -out /tmp/jwt/private-key.pem 2048
+          openssl rsa -in /tmp/jwt/private-key.pem -pubout -out /tmp/jwt/public-key.pem
+
+      - name: Start Storm Market container
+        run: |
+          docker run -d --name stormmarket-test \
+            -p 8081:8080 \
+            -e SPRING_PROFILES_ACTIVE=production \
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/stormmarket \
+            -e SPRING_DATASOURCE_USERNAME=stormmarket \
+            -e SPRING_DATASOURCE_PASSWORD=stormmarket \
+            -e SPRING_JPA_HIBERNATE_DDL_AUTO=validate \
+            -e SPRING_FLYWAY_ENABLED=true \
+            -e STORMMARKET_JWT_PRIVATE_KEY_LOCATION=file:/app/secrets/private-key.pem \
+            -e STORMMARKET_JWT_PUBLIC_KEY_LOCATION=file:/app/secrets/public-key.pem \
+            -e STORMMARKET_FILE_STORAGE_TYPE=local \
+            -e STORMMARKET_UPLOAD_DIR=/app/uploads/products \
+            -e SERVER_PORT=8080 \
+            -v /tmp/jwt:/app/secrets:ro \
+            stormmarket:test
+
+      - name: Wait for application to be ready
+        run: |
+          for i in {1..60}; do
+            if curl -s http://localhost:8081/actuator/health > /dev/null 2>&1; then
+              echo "Application is ready on port 8081!"
+              exit 0
+            fi
+            echo "Waiting for app... ($i/60)"
+            sleep 5
+          done
+          echo "Application failed to start"
+          docker logs stormmarket-test
+          exit 1
+
+      - name: Install Postman CLI
+        run: npm install -g @postman/postman-cli
+
+      - name: Register test users
+        run: |
+          ADMIN_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"username":"docker_admin","email":"docker_admin@test.com","password":"DockerAdminPass123!","firstName":"Docker","lastName":"Admin"}')
+          echo "Admin register: $ADMIN_RESPONSE"
+
+          USER_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"username":"docker_user","email":"docker_user@test.com","password":"DockerUserPass123!","firstName":"Docker","lastName":"User"}')
+          echo "User register: $USER_RESPONSE"
+
+          ADMIN_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"docker_admin","password":"DockerAdminPass123!"}')
+          ADMIN_TOKEN=****** "$ADMIN_LOGIN" | jq -r '.token')
+          echo "ADMIN_TOKEN=************* >> $GITHUB_ENV
+
+          USER_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"docker_user","password":"DockerUserPass123!"}')
+          USER_TOKEN=****** "$USER_LOGIN" | jq -r '.token')
+          echo "USER_TOKEN=************ >> $GITHUB_ENV
+
+      - name: Run Postman Collection (Admin) - Docker
+        run: |
+          postman collection run "postman/collections/Storm Market API" \
+            --global-var "baseUrl=http://localhost:8081" \
+            --global-var "authToken=${{ env.ADMIN_TOKEN }}" \
+            --bail=false \
+            --output docker-admin-results.json
+        shell: bash
+
+      - name: Run Postman Collection (User) - Docker
+        run: |
+          postman collection run "postman/collections/Storm Market API" \
+            --global-var "baseUrl=http://localhost:8081" \
+            --global-var "authToken=${{ env.USER_TOKEN }}" \
+            --bail=false \
+            --output docker-user-results.json
+        shell: bash
+
+      - name: Upload Docker test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-postman-results
+          path: |
+            docker-admin-results.json
+            docker-user-results.json
+
+      - name: Upload container logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-test-logs
+          path: |
+            docker logs stormmarket-test
+
+      - name: Cleanup containers
+        if: always()
+        run: |
+          docker stop stormmarket-test mysql-test 2>/dev/null || true
+          docker rm stormmarket-test mysql-test 2>/dev/null || true
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+
+    steps:
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging environment..."
+          echo "Image: ${{ needs.build-and-test.outputs.image-tag }}"
+          echo "Digest: ${{ needs.build-and-test.outputs.image-digest }}"
+          # Add your staging deployment commands here
+          # Example: kubectl set image deployment/stormmarket stormmarket=${{ needs.build-and-test.outputs.image-tag }}
+
+      - name: Run smoke tests against staging
+        run: |
+          echo "Running smoke tests against staging..."
+          # Add staging smoke tests here
+
+  deploy-production:
+    name: Deploy to Production
+    needs: build-and-test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+
+    steps:
+      - name: Deploy to Production
+        run: |
+          echo "Deploying to production environment..."
+          echo "Image: ${{ needs.build-and-test.outputs.image-tag }}"
+          echo "Digest: ${{ needs.build-and-test.outputs.image-digest }}"
+          # Add your production deployment commands here
+          # Example: kubectl set image deployment/stormmarket stormmarket=${{ needs.build-and-test.outputs.image-tag }}
+
+      - name: Run smoke tests against production
+        run: |
+          echo "Running smoke tests against production..."
+          # Add production smoke tests here
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          draft: false
+          prerelease: false

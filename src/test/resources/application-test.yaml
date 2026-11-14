@@ -19,9 +19,16 @@ spring:
           public-key-location: classpath:jwt/public-key.pem
   sql:
     init:
-      mode: never
+      mode: always
 
 stormmarket:
   jwt:
     private-key-location: classpath:jwt/private-key.pem
     public-key-location: classpath:jwt/public-key.pem
+
+h2:
+  console:
+    enabled: true
+    path: /h2-console
+    settings:
+      web-allow-others: true

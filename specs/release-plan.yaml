@@ -1,0 +1,28 @@
+release: "0.1.0"
+wsjf:
+  user_story_priority: 5
+  business_value: 8
+  time_criticality: 3
+  risk_reduction: 2
+  final_score: "71.4"  # calculated as (user_story_priority * business_value) / (time_criticality + 1)
+epics:
+  - id: "e01"
+    name: "Product Catalog"
+    status: "planned"
+    story_count: 5
+  - id: "e02"
+    name: "Authentication & Authorization"
+    status: "planned"
+    story_count: 3
+  - id: "e03"
+    name: "Shopping Cart"
+    status: "planned"
+    story_count: 3
+  - id: "e04"
+    name: "Order Management"
+    status: "planned"
+    story_count: 4
+  - id: "e05"
+    name: "User Account Management"
+    status: "planned"
+    story_count: 3

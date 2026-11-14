@@ -1,0 +1,90 @@
+# Git and version control
+.git
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Build outputs
+target/
+*.jar
+*.war
+*.ear
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Test outputs
+test-results/
+surefire-reports/
+jacoco.exec
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local development files
+.env
+.env.local
+*.local
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Test artifacts
+postman-results.json/
+app.log
+app.pid
+
+# Secrets and certificates
+secrets/
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Nginx SSL (generated separately)
+nginx/ssl/
+
+# Database
+*.sql
+*.dump
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Node modules (if any)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

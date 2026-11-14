@@ -1,0 +1,669 @@
+openapi: 3.0.3
+info:
+  title: Storm Market API
+  description: Java/Spring Boot e-commerce backend platform for online marketplace transactions
+  version: 0.0.1-SNAPSHOT
+  contact:
+    name: Nathanael Dorsey
+servers:
+  - url: http://localhost:8080/v1
+    description: Local development server
+paths:
+  /v1/products:
+    get:
+      summary: Public product catalog listing with pagination, sorting, and filtering
+      operationId: getProductCatalog
+      tags:
+        - Product
+      description: |
+        Retrieve a paginated list of products.
+        **Authentication**: Public (no token required)
+        **Parameters**:
+          - **page**: Integer, default 1, minimum 1
+          - **size**: Integer, default 20, maximum 100
+          - **sort**: String, sort field (e.g., "name", "price", "createdAt")
+        **Responses**:
+          200:
+            description: Successful response with paginated product array
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Product'
+          400:
+            description: Bad request - invalid query parameters
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ApiErrorResponse'
+          404:
+            description: Not found
+          500:
+            description: Internal server error
+      security: []
+  /v1/products/{productId}:
+    get:
+      summary: Public product detail retrieval by ID
+      operationId: getProductDetail
+      tags:
+        - Product
+      description: Retrieve a single product by its ID
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: The product's unique identifier
+          schema:
+            type: integer
+      **Authentication**: Public (no token required)
+      **Responses**:
+        200:
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        500:
+          description: Internal server error
+      security: []
+  /v1/categories:
+    get:
+      summary: Public category browsing with hierarchical display
+      operationId: listCategories
+      tags:
+        - Category
+      description: Retrieve a list of all categories
+      **Authentication**: Public (no token required)
+      **Responses**:
+        200:
+          description: Successful response with category array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          404:
+            description: Categories not found
+      security: []
+  /v1/categories/{categoryId}:
+    get:
+      summary: Public category detail retrieval by ID
+      operationId: getCategoryDetail
+      tags:
+        - Category
+      description: Retrieve a single category by its ID
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          description: The category's unique identifier
+          schema:
+            type: integer
+      **Authentication**: Public (no token required)
+      **Responses**:
+        200:
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        404:
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security: []
+  /v1/auth/login:
+    post:
+      summary: User login endpoint. Authenticates credentials and returns JWT RS256 token
+      operationId: loginUser
+      tags:
+        - Auth
+      description: |
+        Authenticate user credentials and obtain JWT token.
+        **Request Body**:
+          - **username**: String, required
+          - **password**: String, required
+        **Responses**:
+          200:
+            description: Successful authentication - JWT token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: RS256 JWT token
+        401:
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security: []
+  /v1/auth/register:
+    post:
+      summary: User registration endpoint
+      operationId: registerUser
+      tags:
+        - Auth
+      description: Register a new user account
+      **Request Body**:
+        - **username**: String, required
+        - **email**: String, required, valid format
+        - **password**: String, required
+        - **firstName**: String, optional
+        - **lastName**: String, optional
+      **Responses**:
+        201:
+          description: User created successfully
+        400:
+          description: Validation failed - duplicate username/email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security: []
+  /v1/cart:
+    post:
+      summary: Shopping cart management - add items, update quantities, or remove items
+      operationId: manageCart
+      tags:
+        - Cart
+      description: |
+        Manage shopping cart items.
+        **Authentication**: Required (USER role)
+        **Request Body**:
+          - **action**: String (add/remove/update), required
+          - **productId**: Integer, required
+          - **quantity**: Integer, required, minimum 1
+        **Responses**:
+          200:
+            description: Cart updated successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Cart'
+          400:
+            description: Invalid action or parameters
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ApiErrorResponse'
+          401:
+            description: Unauthorized - invalid/missing token
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ApiErrorResponse'
+          404:
+            description: Product not found in catalog
+      security:
+        - bearerAuth: []
+  /v1/orders:
+    post:
+      summary: Create a new order from the shopping cart
+      operationId: createOrder
+      tags:
+        - Order
+      description: |
+        Create a new order from the shopping cart.
+        **Authentication**: Required (USER or ADMIN role)
+        **Request Body**:
+          - **shippingAddress**: Object with street, city, zipCode, country, required
+          - **paymentMethod**: String (credit_card, paypal, etc.), required
+        **Responses**:
+          201:
+            description: Order created successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Order'
+          400:
+            description: Bad request - missing required fields or invalid data
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ApiErrorResponse'
+          401:
+            description: Unauthorized - invalid/missing token
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ApiErrorResponse'
+          403:
+            description: Forbidden - insufficient role
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ApiErrorResponse'
+      security:
+        - bearerAuth: []
+  /v1/orders/{orderId}:
+    get:
+      summary: Get order details by order ID
+      operationId: getOrderDetails
+      tags:
+        - Order
+      description: Retrieve full order information including items, status, and total
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: The order's unique identifier
+          schema:
+            type: integer
+      **Authentication**: Required (USER or ADMIN role)
+      **Responses**:
+        200:
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        403:
+          description: Forbidden - insufficient role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        404:
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security:
+        - bearerAuth: []
+  /v1/admin/users:
+    get:
+      summary: Admin endpoint to list all users
+      operationId: listAdminUsers
+      tags:
+        - Admin
+      description: List all users in the system
+      **Authentication**: Required (ADMIN role)
+      **Responses**:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        401:
+          description: Unauthorized - invalid/missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        403:
+          description: Forbidden - not ADMIN role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security:
+        - bearerAuth: []
+  /v1/admin/users/{userId}:
+    get:
+      summary: Admin endpoint to get user by ID
+      operationId: getAdminUser
+      tags:
+        - Admin
+      description: Retrieve user details by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The user's unique identifier
+          schema:
+            type: integer
+      **Authentication**: Required (ADMIN role)
+      **Responses**:
+        200:
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        403:
+          description: Forbidden - not ADMIN role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security:
+        - bearerAuth: []
+  /v1/categories:
+    post:
+      summary: Admin endpoint to create a new category
+      operationId: createAdminCategory
+      tags:
+        - Admin
+      description: Create a new category (ADMIN only)
+      **Authentication**: Required (ADMIN role)
+      **Request Body**:
+        - **name**: String, required
+        - **description**: String, optional
+      **Responses**:
+        201:
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        400:
+          description: Invalid category data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        403:
+          description: Forbidden - not ADMIN role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security:
+        - bearerAuth: []
+  /v1/products:
+    post:
+      summary: Admin endpoint to create a new product
+      operationId: createAdminProduct
+      tags:
+        - Admin
+      description: Create a new product (ADMIN only)
+      **Authentication**: Required (ADMIN role)
+      **Request Body**:
+        - **name**: String, required
+        - **description**: String, optional
+        - **price**: Number (format: float), required, minimum 0.01
+        - **categoryId**: Integer, required
+        - **stock**: Integer, required, minimum 0
+      **Responses**:
+        201:
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Invalid product data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        403:
+          description: Forbidden - not ADMIN role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    Product:
+      type: object
+      description: Product entity
+      properties:
+        id:
+          type: integer
+          description: Product's unique identifier
+        name:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        price:
+          type: number
+          format: float
+          description: Product price
+        stock:
+          type: integer
+          description: Product stock quantity
+        active:
+          type: boolean
+          description: Whether product is active
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Category:
+      type: object
+      description: Category entity
+      properties:
+        id:
+          type: integer
+          description: Category's unique identifier
+        name:
+          type: string
+          description: Category name
+        description:
+          type: string
+          description: Category description
+        active:
+          type: boolean
+          description: Whether category is active
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    User:
+      type: object
+      description: User entity
+      properties:
+        id:
+          type: integer
+          description: User's unique identifier
+        username:
+          type: string
+          description: User's chosen username
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          description: Hashed password (Argon2)
+        active:
+          type: boolean
+          description: Whether user is active
+        role:
+          type: string
+          description: User role (ROLE_USER, ROLE_ADMIN)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ApiErrorResponse:
+      type: object
+      description: Standardized error envelope
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Time when the error occurred
+        status:
+          type: integer
+          description: HTTP status code
+        error:
+          type: string
+          description: Error name (e.g., "Bad Request", "Unauthorized")
+        message:
+          type: string
+          description: Human-readable error message
+        path:
+          type: string
+          description: Request URL path that generated the error
+        validationErrors:
+          type: object
+          description: Field-level validation errors (optional)
+          properties:
+            fieldName:
+              type: string
+              description: Name of the field with validation error
+              example: "price"
+              value: ["Must be greater than 0"]
+    Cart:
+      type: object
+      description: Cart entity
+      properties:
+        id:
+          type: integer
+          description: Cart's unique identifier
+        userId:
+          type: integer
+          description: User's unique identifier
+        items:
+          type: array
+          description: Cart items
+          items:
+            $ref: '#/components/schemas/CartItem'
+    CartItem:
+      type: object
+      description: Cart item
+      properties:
+        id:
+          type: integer
+          description: Cart item's unique identifier
+        productId:
+          type: integer
+          description: Product's unique identifier
+        quantity:
+          type: integer
+          description: Item quantity
+        price:
+          type: number
+          description: Product price at time of addition
+    Order:
+      type: object
+      description: Order entity
+      properties:
+        id:
+          type: integer
+          description: Order's unique identifier
+        userId:
+          type: integer
+          description: User's unique identifier
+        items:
+          type: array
+          description: Order items
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        total:
+          type: number
+          format: float
+          description: Total order amount
+        status:
+          type: string
+          description: Order status (PENDING, CONFIRMED, SHIPPED, COMPLETED, CANCELLED)
+        createdAt:
+          type: string
+          format: date-time
+    OrderItem:
+      type: object
+      description: Order item
+      properties:
+        productId:
+          type: integer
+          description: Product's unique identifier
+        quantity:
+          type: integer
+          description: Item quantity
+        price:
+          type: number
+          description: Product price at time of order
+    ApiErrorResponse:
+      type: object
+      description: Standardized error envelope returned for all 4xx/5xx responses
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          description: HTTP status code
+        error:
+          type: string
+          description: Short error summary
+        message:
+          type: string
+          description: Detailed error message
+        path:
+          type: string
+          description: Request URL path
+        validationErrors:
+          type: object
+          description: Field-level validation errors (may be null)
+          additionalProperties:
+            type: string
+            description: Validation error message per field
+servers:
+  - url: http://localhost:8080/v1
+    description: Local development server
+security:
+  - bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+```
+
+Now let me try to generate documentation from this OpenAPI spec.</think>
+<tool_call>
+<function=bash>
+<parameter=command>
+postman spec lint /var/home/viper/IdeaProjects/stormmarket/openapi-storm-market.yaml --fail-severity info 2>&1

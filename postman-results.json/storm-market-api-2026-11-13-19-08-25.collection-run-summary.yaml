@@ -1,0 +1,67 @@
+kind: postman-cli-collection-run-summary
+schemaVersion: 1
+runId: e97a7bcc-2667-4643-b731-af03f0622064
+state: completed
+generatedAt: '2026-11-14T00:08:26.021Z'
+files:
+  summary: storm-market-api-2026-11-13-19-08-25.collection-run-summary.yaml
+  executions: storm-market-api-2026-11-13-19-08-25.collection-run-executions.yaml
+meta:
+  collection:
+    id: 63f8c6a41b556ebd85a2395d
+    name: Storm Market API
+    description: null
+  environment:
+    id: 64454282-823f-407e-932e-dc8e31b3752d
+    name: null
+  started: '2026-11-14T00:08:25.361Z'
+  completed: '2026-11-14T00:08:26.021Z'
+  durationMs: 660
+environment:
+  cli:
+    version: 1.89.0
+    userAgent: Postman CLI/1.89.0
+    agent: pi
+  system:
+    os:
+      type: Linux
+      platform: linux
+      arch: x64
+      release: 7.2.15-ogc1.1.fc45.x86_64
+    hardware:
+      cpus: 16
+      totalMemory: 32772595712
+  isCI: false
+  ci: null
+  git:
+    branch: main
+    commit: e5073a14564d29f55202b8fac83c44e46854937a
+    commitShort: e5073a1
+    remoteUrl: git@github.com:NathanaelDorsey/stormmarket.git
+    dirty: true
+stats:
+  iterations:
+    executed: 1
+    errors: 0
+  executedRequests:
+    executed: 21
+    errors: 0
+  prerequestScripts:
+    executed: 1
+    errors: 0
+  postresponseScripts:
+    executed: 21
+    errors: 0
+  tests:
+    executed: 67
+    failed: 0
+  timeStats:
+    responseAverage: 9.269395857142843
+    responseMin: 4.8192169999999805
+    responseMax: 30.72746600000005
+    responseStandardDeviation: 5.666704975121285
+transfers:
+  responseTotal: 1645
+failures: []
+executionsRecorded: 21
+simulation: null

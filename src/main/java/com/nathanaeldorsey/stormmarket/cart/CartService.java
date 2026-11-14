@@ -146,7 +146,7 @@ public class CartService {
      */
     @Transactional
     public CartResponse applyCoupon(Long userId, String code) {
-        Coupon coupon = couponService.validate(code);
+        couponService.validate(code);
         Cart cart = getExistingCart(userId);
         cart.setCouponCode(code);
         cartRepository.save(cart);

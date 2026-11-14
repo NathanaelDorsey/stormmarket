@@ -1,0 +1,98 @@
+# Actuator test profile - exposes all endpoints for testing with H2
+spring:
+  datasource:
+    url: jdbc:h2:mem:actuator_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:jwt/public-key.pem
+  sql:
+    init:
+      mode: always
+
+  # Test logging: simpler format, less verbose
+  logging:
+    level:
+      root: INFO
+      com.nathanaeldorsey.stormmarket: DEBUG
+      org.springframework.web: INFO
+      org.hibernate.SQL: DEBUG
+    format: console
+
+  # Test actuator: ALL endpoints exposed for testing
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,prometheus,loggers,threaddump,heapdump,mappings,env,configprops
+        base-path: /actuator
+      health:
+        show-details: always
+        show-components: always
+    endpoint:
+      health:
+        probes:
+          enabled: true
+      prometheus:
+        enabled: true
+    health:
+      defaults:
+        enabled: true
+      db:
+        enabled: true
+      diskspace:
+        enabled: true
+      ping:
+        enabled: true
+    metrics:
+      tags:
+        application: ${spring.application.name}
+        environment: actuator-test
+      export:
+        prometheus:
+          enabled: true
+          step: 30s
+      distribution:
+        percentiles-histogram:
+          http.server.requests: true
+        percentiles:
+          http.server.requests: 0.5,0.9,0.95,0.99
+        sla:
+          http.server.requests: 100ms,500ms,1s,5s
+    info:
+      env:
+        enabled: true
+      java:
+        enabled: true
+      os:
+        enabled: true
+      build:
+        enabled: true
+
+  # Disable tracing in tests for performance
+  tracing:
+    enabled: false
+
+stormmarket:
+  jwt:
+    private-key-location: classpath:jwt/private-key.pem
+    public-key-location: classpath:jwt/public-key.pem
+
+h2:
+  console:
+    enabled: true
+    path: /h2-console
+    settings:
+      web-allow-others: true

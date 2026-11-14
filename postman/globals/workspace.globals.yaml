@@ -1,0 +1,14 @@
+name: Globals
+values:
+  - key: baseUrl
+    value: "http://localhost:8080"
+    type: default
+    enabled: true
+  - key: authToken
+    value: ""
+    type: readonly
+    enabled: false
+- key: serverPort
+  value: "8080"
+  type: default
+  enabled: true

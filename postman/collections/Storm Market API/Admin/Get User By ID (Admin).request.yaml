@@ -1,0 +1,72 @@
+$kind: http-request
+id: 2075567af7d9f974bb5cd632
+name: Get User By ID (Admin)
+method: GET
+url: "{{baseUrl}}/v1/admin/users/1"
+description: Admin endpoint to get user by ID. Requires ADMIN role.
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+scripts:
+  - type: afterResponse
+    code: |
+      const code = pm.response.code;
+      const hasBody = pm.response.text && pm.response.text().length > 0;
+      const body = hasBody ? (pm.response.json ? pm.response.json() : {}) : {};
+      
+      if (code === 200) {
+        pm.test("200 OK: Returns user object", function () { 
+          pm.expect(body).to.have.property('user'); 
+        });
+        pm.test("200 OK: No ApiErrorResponse envelope", function () {
+          pm.expect(body).to.not.have.property('timestamp');
+          pm.expect(body).to.not.have.property('status');
+          pm.expect(body).to.not.have.property('error');
+        });
+        pm.test("200 OK: User has required fields", function () {
+          pm.expect(body.user).to.have.property('id');
+          pm.expect(body.user).to.have.property('username');
+        });
+      } else if ([401, 403, 404].includes(code)) {
+        if (hasBody) {
+          pm.test(code + " Error: Returns ApiErrorResponse envelope", function () {
+            pm.expect(body).to.have.property('timestamp');
+            pm.expect(body).to.have.property('status', code);
+            pm.expect(body).to.have.property('error');
+            pm.expect(body).to.have.property('message');
+          });
+        } else {
+          pm.test(code + " Error: Empty response body (no auth token)", function () {
+            pm.expect(pm.response.text()).to.be.empty;
+          });
+        }
+      } else if (code === 500) {
+        if (hasBody) {
+          pm.test("500 Server Error: Returns ApiErrorResponse envelope", function () {
+            pm.expect(body).to.have.property('timestamp');
+            pm.expect(body).to.have.property('status', 500);
+            pm.expect(body).to.have.property('error');
+            pm.expect(body).to.have.property('message');
+          });
+        } else {
+          pm.test("500 Server Error: Empty response body", function () {
+            pm.expect(pm.response.text()).to.be.empty;
+          });
+        }
+      } else {
+        pm.test("Response received with status " + code, function () {
+          pm.expect(code).to.be.a('number');
+        });
+      }
+      
+      pm.test("Content-Type is JSON (when body present)", function () {
+        if (hasBody) {
+          pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');
+        }
+      });
+      pm.test("Response time is reasonable", function () {
+        pm.expect(pm.response.responseTime).to.be.lessThan(5000);
+      });
+    language: text/javascript

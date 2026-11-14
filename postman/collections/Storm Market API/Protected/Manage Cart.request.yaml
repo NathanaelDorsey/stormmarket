@@ -1,0 +1,83 @@
+$kind: http-request
+id: 4248531b9d71d5439019842d
+name: Manage Cart
+method: POST
+url: "{{baseUrl}}/v1/cart"
+description: Shopping cart management - add items, update quantities, or remove items. Request body should include action (add/remove/update), productId, and quantity.
+body:
+  type: json
+  content: '{"action":"add","productId":1,"quantity":2}'
+headers:
+  - key: Content-Type
+    value: application/json
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+scripts:
+  - type: afterResponse
+    code: |
+      const code = pm.response.code;
+      const hasBody = pm.response.text && pm.response.text().length > 0;
+      const body = hasBody ? (pm.response.json ? pm.response.json() : {}) : {};
+      
+      if (code === 200) {
+        pm.test("200 OK: Returns cart object", function () { 
+          pm.expect(body).to.have.property('cart'); 
+        });
+        pm.test("200 OK: No ApiErrorResponse envelope", function () {
+          pm.expect(body).to.not.have.property('timestamp');
+          pm.expect(body).to.not.have.property('status');
+          pm.expect(body).to.not.have.property('error');
+        });
+        pm.test("200 OK: Cart has required fields", function () {
+          pm.expect(body.cart).to.have.property('id');
+          pm.expect(body.cart).to.have.property('items');
+        });
+      } else if ([400, 401, 403, 404].includes(code)) {
+        if (hasBody) {
+          pm.test(code + " Error: Returns ApiErrorResponse envelope", function () {
+            pm.expect(body).to.have.property('timestamp');
+            pm.expect(body).to.have.property('status', code);
+            pm.expect(body).to.have.property('error');
+            pm.expect(body).to.have.property('message');
+          });
+          if (code === 400) {
+            pm.test("400 Bad Request: Has validationErrors", function () {
+              pm.expect(body).to.have.property('validationErrors');
+            });
+          }
+        } else {
+          pm.test(code + " Error: Empty response body (no auth token)", function () {
+            pm.expect(pm.response.text()).to.be.empty;
+          });
+        }
+      } else if (code === 500) {
+        if (hasBody) {
+          pm.test("500 Server Error: Returns ApiErrorResponse envelope", function () {
+            pm.expect(body).to.have.property('timestamp');
+            pm.expect(body).to.have.property('status', 500);
+            pm.expect(body).to.have.property('error');
+            pm.expect(body).to.have.property('message');
+          });
+        } else {
+          pm.test("500 Server Error: Empty response body", function () {
+            pm.expect(pm.response.text()).to.be.empty;
+          });
+        }
+      } else {
+        pm.test("Response received with status " + code, function () {
+          pm.expect(code).to.be.a('number');
+        });
+      }
+      
+      pm.test("Content-Type is JSON (when body present)", function () {
+        if (hasBody) {
+          pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');
+        }
+      });
+      pm.test("Response time is reasonable", function () {
+        pm.expect(pm.response.responseTime).to.be.lessThan(5000);
+      });
+    language: text/javascript

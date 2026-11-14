@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.product;
 
+import com.nathanaeldorsey.stormmarket.config.ObservabilityConfig;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
+    private final ObservabilityConfig.StormMarketMetrics metrics;
 
     /* CREATE */
     @PostMapping
@@ -30,7 +32,9 @@ public class ProductController {
      * @return the created product response
      */
     public ProductResponse createProduct(@Valid @RequestBody ProductRequest request) {
-        return productService.createProduct(request);
+        ProductResponse response = productService.createProduct(request);
+        metrics.incrementProductsCreated();
+        return response;
     }
 
     /* READ */
@@ -74,7 +78,9 @@ public class ProductController {
     /* UPDATE */
     @PutMapping("/{id:\\d+}")
     public ProductResponse updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-        return productService.updateProduct(id, request);
+        ProductResponse response = productService.updateProduct(id, request);
+        metrics.incrementProductsUpdated();
+        return response;
     }
 
     @PatchMapping("/admin/{id:\\d+}/active")

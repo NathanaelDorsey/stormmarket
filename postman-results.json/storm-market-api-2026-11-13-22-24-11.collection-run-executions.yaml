@@ -1,0 +1,1853 @@
+---
+kind: postman-cli-collection-run-executions
+schemaVersion: 1
+runId: 70082fc7-33b7-429d-be47-618f2511e9a4
+summaryFile: storm-market-api-2026-11-13-22-24-11.collection-run-summary.yaml
+collection:
+  id: b357b070496348faade93867
+  name: Storm Market API
+generatedAt: '2026-11-14T03:24:12.043Z'
+---
+iteration: 0
+cursorRef: 38387cc7-a8b8-46a5-af18-bed50f6be273
+protocol: http
+item:
+  id: 8eab3c88e9169bebe173576a
+  name: Admin Product Detail
+  folders:
+    - Admin
+  fullName: Admin / Admin Product Detail
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: GET
+  url: http://localhost:8080/v1/products/admin/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: c36004eb-9635-4691-b686-e9e4dca062da
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 8.392106000000013
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 527341de-4370-4929-bdeb-9df42ba79354
+protocol: http
+item:
+  id: 526d2b75d64c56a7a82c2fb9
+  name: Admin Product Search
+  folders:
+    - Admin
+  fullName: Admin / Admin Product Search
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: GET
+  url: http://localhost:8080/v1/products/admin/search
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 0ba35eed-4809-41e1-a0d7-e50d044f8797
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 5.102088000000094
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: c159cbac-8533-4518-b9c9-8e202bfc219d
+protocol: http
+item:
+  id: c5cf3c6f3a015db1c2f69725
+  name: Create Category (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Create Category (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: POST
+  url: http://localhost:8080/v1/categories
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 1b7f398f-e1bb-4727-8f3f-f1f2912d0483
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '57'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"name":"Electronics","description":"Electronic devices"}'
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 4.790256999999883
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: e0cde019-c022-49cb-8eb8-29b12fa34731
+protocol: http
+item:
+  id: 0536707b2f7a472a1b3393bd
+  name: Create Product (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Create Product (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: POST
+  url: http://localhost:8080/v1/products
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: b415df92-f4b2-4254-a4e4-ff5f5a3ff84b
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '95'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"name":"Test Product","description":"A test product","price":99.99,"categoryId":1,"stock":100}'
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 5.042425000000094
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 71208741-7ea0-4448-a1d9-008a721ea66d
+protocol: http
+item:
+  id: 8ce74ef48a2ed217a9dfd469
+  name: Delete Category (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Delete Category (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: DELETE
+  url: http://localhost:8080/v1/categories/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: ac30705e-d394-4242-8e78-06e706550652
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 5.619577999999819
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: f83bfb42-d572-4f14-b192-02f77bc33107
+protocol: http
+item:
+  id: c64bfd746ad4eb15555ddd35
+  name: Delete Product (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Delete Product (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: DELETE
+  url: http://localhost:8080/v1/products/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: a5885468-c812-46e9-808f-f4edbaa82ed2
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 5.416153000000122
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: b393ecb6-909f-4ad8-ae77-0a9c4f245e45
+protocol: http
+item:
+  id: 714d79c05c917eaaa87e6c7f
+  name: Get All Users (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Get All Users (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: GET
+  url: http://localhost:8080/v1/admin/users
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: d744ee46-5b88-49c4-bb98-ef728fa0adf7
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 29.576728000000003
+  responseSize: 153
+  headers:
+    - key: X-Request-ID
+      value: 93de8c37f403433d
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '{"timestamp":"2026-11-14T03:24:12.419608751","status":403,"error":"Forbidden","message":"Access denied","path":"/v1/admin/users","validationErrors":null}'
+tests:
+  - name: '403 Error: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 135e279c-0c88-41f1-ae90-54d1b7cbeffa
+protocol: http
+item:
+  id: 2075567af7d9f974bb5cd632
+  name: Get User By ID (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Get User By ID (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: GET
+  url: http://localhost:8080/v1/admin/users/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: c92254c0-f937-4e00-b2ba-ecb25022a01c
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 9.097630999999865
+  responseSize: 155
+  headers:
+    - key: X-Request-ID
+      value: 1975ee68ef214368
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '{"timestamp":"2026-11-14T03:24:12.441263893","status":403,"error":"Forbidden","message":"Access denied","path":"/v1/admin/users/1","validationErrors":null}'
+tests:
+  - name: '403 Error: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 4b513698-2153-4a58-adb0-abd72aa09e70
+protocol: http
+item:
+  id: adb792786383cb56d1f5bab6
+  name: Set Product Active (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Set Product Active (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: PATCH
+  url: http://localhost:8080/v1/products/admin/1/active
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: fd096964-61d0-4684-b9dd-d49cdb949b7f
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '15'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"active":true}'
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 4.97228199999995
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 15b4e314-c668-4e24-a4b1-66d472c95e5d
+protocol: http
+item:
+  id: 934be0685b281458d558c5c4
+  name: Set User Active (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Set User Active (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: PATCH
+  url: http://localhost:8080/v1/admin/users/2/active
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: b2602ad9-1c70-4608-a468-35bce5878430
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '16'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"active":false}'
+response:
+  id: null
+  code: 500
+  status: null
+  responseTime: 9.479855999999927
+  responseSize: 189
+  headers:
+    - key: X-Request-ID
+      value: 26e43ad116f74634
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Connection
+      value: close
+  body: '{"timestamp":"2026-11-14T03:24:12.477232861","status":500,"error":"Internal Server Error","message":"An unexpected error occurred","path":"/v1/admin/users/2/active","validationErrors":null}'
+tests:
+  - name: '500 Server Error: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: b30f6948-edb3-4979-8e79-d4ed19d5f28c
+protocol: http
+item:
+  id: 3f78ac785fd5a606ea141a59
+  name: Update Category (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Update Category (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: PUT
+  url: http://localhost:8080/v1/categories/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 3967ca6c-e392-448c-a67c-c5a4bf7701b1
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '66'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"name":"Electronics Updated","description":"Updated description"}'
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 6.292400999999927
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 63bba1ce-efba-48c8-972c-ef18d83cb0f8
+protocol: http
+item:
+  id: 86f0cba9057f54c13f592929
+  name: Update Product (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Update Product (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: PUT
+  url: http://localhost:8080/v1/products/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: e58ae94a-cac8-4dc5-8d75-1da4084108d8
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '103'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"name":"Updated Product","description":"Updated description","price":149.99,"categoryId":1,"stock":50}'
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 5.374002999999902
+  responseSize: null
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer error="insufficient_scope", error_description="The request requires higher privileges than provided by the access token.", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Length
+      value: '0'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: ''
+tests:
+  - name: '403 Error: Empty response body (no auth token)'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 587b9eec-b9bd-4ebf-bb39-e270fe6d23f3
+protocol: http
+item:
+  id: b9d617e7479ffae6ad38819a
+  name: Update User Role (Admin)
+  folders:
+    - Admin
+  fullName: Admin / Update User Role (Admin)
+  parent:
+    id: ba53d788b8c66653a0905dbe
+    name: Admin
+    folders:
+      - Admin
+request:
+  method: PUT
+  url: http://localhost:8080/v1/admin/users/2/role
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: ae40ae2a-d6ef-4b64-8314-eeacbd356a09
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '16'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"role":"ADMIN"}'
+response:
+  id: null
+  code: 403
+  status: null
+  responseTime: 13.710454000000027
+  responseSize: 160
+  headers:
+    - key: X-Request-ID
+      value: aac810d3429b4122
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '{"timestamp":"2026-11-14T03:24:12.533567853","status":403,"error":"Forbidden","message":"Access denied","path":"/v1/admin/users/2/role","validationErrors":null}'
+tests:
+  - name: '403 Error: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 92ac8972-9be0-4d98-ba80-2406a194df16
+protocol: http
+item:
+  id: 2335ecac88b632261878db7e
+  name: Login User
+  folders:
+    - Auth
+  fullName: Auth / Login User
+  parent:
+    id: 187c77798837224e1a01c570
+    name: Auth
+    folders:
+      - Auth
+request:
+  method: POST
+  url: http://localhost:8080/v1/auth/login
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: ad196daa-c2b7-4d4b-a298-bda4ce9db448
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '68'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - description:
+        type: text/plain
+      key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: '{"username":"testuser_1794626652544_2453","password":"TestPass123!"}'
+response:
+  id: null
+  code: 401
+  status: null
+  responseTime: 7.986748999999918
+  responseSize: 161
+  headers:
+    - key: X-Request-ID
+      value: 97fb1eb66b2f4f9e
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '{"timestamp":"2026-11-14T03:24:12.574428922","status":401,"error":"Unauthorized","message":"Invalid credentials","path":"/v1/auth/login","validationErrors":null}'
+tests:
+  - name: '401 Unauthorized: Returns ApiErrorResponse for invalid credentials'
+    status: passed
+  - name: Content-Type is JSON
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: bc86c737-31c0-4873-aec7-314d4992320d
+protocol: http
+item:
+  id: d0ff96446cf97faf5b365db9
+  name: Create Order
+  folders:
+    - Protected
+  fullName: Protected / Create Order
+  parent:
+    id: 719534492c2f8b2f33c2f34f
+    name: Protected
+    folders:
+      - Protected
+request:
+  method: POST
+  url: http://localhost:8080/v1/orders
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 9864c49b-9463-48a6-872e-9afc211bc042
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '127'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"shippingAddress":{"street":"123 Test St","city":"Testville","zipCode":"12345","country":"USA"},"paymentMethod":"credit_card"}'
+response:
+  id: null
+  code: 400
+  status: null
+  responseTime: 9.657401000000164
+  responseSize: 185
+  headers:
+    - key: X-Request-ID
+      value: b2c132fe18994261
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Connection
+      value: close
+  body: '{"timestamp":"2026-11-14T03:24:12.596200425","status":400,"error":"Bad Request","message":"Request body is missing or contains invalid JSON","path":"/v1/orders","validationErrors":null}'
+tests:
+  - name: '400 Error: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: '400 Bad Request: Has validationErrors'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: d769e754-ac69-4d01-bb33-72d792f59edf
+protocol: http
+item:
+  id: e76f9dbe38c057977dd4450e
+  name: Get Order Details
+  folders:
+    - Protected
+  fullName: Protected / Get Order Details
+  parent:
+    id: 719534492c2f8b2f33c2f34f
+    name: Protected
+    folders:
+      - Protected
+request:
+  method: GET
+  url: http://localhost:8080/v1/orders/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 4669b1b6-42df-479e-a75b-00aa0a104545
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 404
+  status: null
+  responseTime: 18.750945
+  responseSize: 152
+  headers:
+    - key: X-Request-ID
+      value: 023d40925228400d
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '{"timestamp":"2026-11-14T03:24:12.625501461","status":404,"error":"Not Found","message":"Order not found","path":"/v1/orders/1","validationErrors":null}'
+tests:
+  - name: '404 Error: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 9eef2941-7386-4307-bbdd-f294ace0ca40
+protocol: http
+item:
+  id: 4248531b9d71d5439019842d
+  name: Manage Cart
+  folders:
+    - Protected
+  fullName: Protected / Manage Cart
+  parent:
+    id: 719534492c2f8b2f33c2f34f
+    name: Protected
+    folders:
+      - Protected
+request:
+  method: POST
+  url: http://localhost:8080/v1/cart
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 3253f2ce-0c6a-4500-87eb-f89c49cf1a9d
+      system: true
+    - key: Content-Type
+      value: application/json
+      system: true
+    - key: Content-Length
+      value: '43'
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer eyJraWQiOiJNSkdYQV93UTR6eFQtWVdOdUtTZHJ2THRkUGFXSGkyMVNHWF91N3N2eWljIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjaWFkbWluIiwicm9sZSI6IlVTRVIiLCJleHAiOjE3OTQ2MzAyNTAsImlhdCI6MTc5NDYyNjY1MH0.sNkTSzp3tFADuEhY2GQWaRJoY6ykuhzmiGhcExQHreilxO5jXMDIoZmOR-vZpxmz7QsHe_DnavLzmbzPd6Ke0V0CTBctjqJU_ZSt_b1DXOsxUrvFrP6vKM7-bY7V5q5Z8exsL0DLFXX2uyArxxZQdFny1yApCA6Oe3LJes1rQghLKRoSP13qudpRGjb8VxJMgUOOrLDodebIT25ohmKlfPdFbMdcTCqYFc63N373-UrSwFnAwBCrnwQh6LVCXF2mERnEv87O90mXboU-RkEUu9wTSW-1m_YvP8I5fhHBwiI2AkfY5YGmSBamiqJHZhvbvSbbfiSjb3dvb0O-Me3pBg
+      system: true
+  body:
+    type: json
+    content: '{"action":"add","productId":1,"quantity":2}'
+response:
+  id: null
+  code: 500
+  status: null
+  responseTime: 8.743832000000111
+  responseSize: 173
+  headers:
+    - key: X-Request-ID
+      value: 36e0eb9847f24a02
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Connection
+      value: close
+  body: '{"timestamp":"2026-11-14T03:24:12.644010809","status":500,"error":"Internal Server Error","message":"An unexpected error occurred","path":"/v1/cart","validationErrors":null}'
+tests:
+  - name: '500 Server Error: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: Content-Type is JSON (when body present)
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 9ee119aa-ccfd-47a1-9a01-729a237fb951
+protocol: http
+item:
+  id: new-id-to-assign
+  name: Get Category Detail
+  folders:
+    - Public
+  fullName: Public / Get Category Detail
+  parent:
+    id: 32943091e3a2b6c60dbaff0b
+    name: Public
+    folders:
+      - Public
+request:
+  method: GET
+  url: http://localhost:8080/v1/categories/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 74e6dc11-655d-4660-9fff-29118c863250
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 404
+  status: null
+  responseTime: 6.752793000000111
+  responseSize: 159
+  headers:
+    - key: X-Request-ID
+      value: 0a58e2276daf49ef
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '{"timestamp":"2026-11-14T03:24:12.660338877","status":404,"error":"Not Found","message":"Category not found","path":"/v1/categories/1","validationErrors":null}'
+tests:
+  - name: '404 Not Found: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: Content-Type is JSON
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 37b03d48-4ea6-4f7b-83bb-46ec87e965fc
+protocol: http
+item:
+  id: 865abd72299bdbd84a682f3b
+  name: Get Product Catalog
+  folders:
+    - Public
+  fullName: Public / Get Product Catalog
+  parent:
+    id: 32943091e3a2b6c60dbaff0b
+    name: Public
+    folders:
+      - Public
+request:
+  method: GET
+  url: http://localhost:8080/v1/products
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 0a57221e-76ce-47e1-aa1e-749b92b50b50
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 200
+  status: null
+  responseTime: 5.15891600000009
+  responseSize: 2
+  headers:
+    - key: X-Request-ID
+      value: c5a41af851af48a3
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Content-Length
+      value: '2'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '[]'
+tests:
+  - name: '200 OK: Returns product array'
+    status: passed
+  - name: '200 OK: No ApiErrorResponse envelope on success'
+    status: passed
+  - name: Content-Type is JSON
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: 43a6f62c-5dcd-4af9-b109-51af8ced3521
+protocol: http
+item:
+  id: 3cf950d619a7aee819a52da3
+  name: Get Product Detail
+  folders:
+    - Public
+  fullName: Public / Get Product Detail
+  parent:
+    id: 32943091e3a2b6c60dbaff0b
+    name: Public
+    folders:
+      - Public
+request:
+  method: GET
+  url: http://localhost:8080/v1/products/1
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 6264ec37-2ebd-4946-9966-05b4eec11811
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 404
+  status: null
+  responseTime: 6.257584999999835
+  responseSize: 156
+  headers:
+    - key: X-Request-ID
+      value: e22268783fc84bf9
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '{"timestamp":"2026-11-14T03:24:12.694979501","status":404,"error":"Not Found","message":"Product not found","path":"/v1/products/1","validationErrors":null}'
+tests:
+  - name: '404 Not Found: Returns ApiErrorResponse envelope'
+    status: passed
+  - name: '404: Message describes the missing resource'
+    status: passed
+  - name: Content-Type is JSON
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []
+---
+iteration: 0
+cursorRef: d2998bed-cfd8-4a16-84f2-9fd2290dc98c
+protocol: http
+item:
+  id: 86d51c52fb36c2a64a16761a
+  name: List Categories
+  folders:
+    - Public
+  fullName: Public / List Categories
+  parent:
+    id: 32943091e3a2b6c60dbaff0b
+    name: Public
+    folders:
+      - Public
+request:
+  method: GET
+  url: http://localhost:8080/v1/categories
+  headers:
+    - key: Cache-Control
+      value: no-cache
+      system: true
+    - key: Postman-Token
+      value: 77deda5d-2af2-40da-be10-788567cf94ef
+      system: true
+    - key: Host
+      value: localhost:8080
+      system: true
+    - key: User-Agent
+      value: PostmanRuntime/2.13.0
+      system: true
+    - key: Accept
+      value: '*/*'
+      system: true
+    - key: Accept-Encoding
+      value: gzip, deflate, br
+      system: true
+    - key: Connection
+      value: keep-alive
+      system: true
+  body:
+    type: none
+response:
+  id: null
+  code: 200
+  status: null
+  responseTime: 7.096462999999858
+  responseSize: 2
+  headers:
+    - key: X-Request-ID
+      value: c9d1aab2665e42f2
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-XSS-Protection
+      value: '0'
+    - key: Cache-Control
+      value: no-cache, no-store, max-age=0, must-revalidate
+    - key: Pragma
+      value: no-cache
+    - key: Expires
+      value: '0'
+    - key: X-Frame-Options
+      value: DENY
+    - key: Content-Type
+      value: application/json
+    - key: Content-Length
+      value: '2'
+    - key: Date
+      value: Sat, 14 Nov 2026 03:24:12 GMT
+    - key: Keep-Alive
+      value: timeout=60
+    - key: Connection
+      value: keep-alive
+  body: '[]'
+tests:
+  - name: '200 OK: Returns category array'
+    status: passed
+  - name: '200 OK: No ApiErrorResponse envelope on success'
+    status: passed
+  - name: Content-Type is JSON
+    status: passed
+  - name: Response time is reasonable
+    status: passed
+errors: []

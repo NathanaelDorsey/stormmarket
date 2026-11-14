@@ -1,0 +1,10 @@
+session:
+  active_flow: "plan"
+  handoff:
+    next_skill: "slice-tasks"
+  vcs:
+    kind: "git"
+    branch: "main"
+    commit: "e5073a1"
+  metrics:
+    story_start: "2025-11-13T08:35:00Z"

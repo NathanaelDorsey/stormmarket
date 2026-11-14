@@ -1,0 +1,26 @@
+name: Coderabbit AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: ["main", "develop"]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Run Coderabbit Code Review
+      - name: Run Coderabbit Code Review
+        env:
+          CODERABBIT_TOKEN: ${{ secrets.CODERABBIT_TOKEN }}
+        run: |
+          echo "Coderabbit review triggered for PR #${{ github.event.pull_request.number }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Token configured: ${{ secrets.CODERABBIT_TOKEN != '' }}"
+        shell: bash

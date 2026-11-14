@@ -1,0 +1,49 @@
+# Production-specific configuration
+# Activated with SPRING_PROFILES_ACTIVE=production
+
+spring:
+  config:
+    import: optional:application.yaml
+  logging:
+    level:
+      root: INFO
+      com.nathanaeldorsey.stormmarket: INFO
+      org.springframework.web: WARN
+      org.hibernate.SQL: WARN
+    format: json
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,prometheus,loggers
+        base-path: /actuator
+      health:
+        show-details: when-authorized
+    endpoint:
+      health:
+        probes:
+          enabled: true
+    metrics:
+      tags:
+        application: ${spring.application.name}
+        environment: production
+
+  tracing:
+    enabled: true
+    sampling:
+      probability: 0.1
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://otel-collector:4317}
+
+# Production security hardening
+server:
+  forward-headers-strategy: native
+  tomcat:
+    remote-ip-header: x-forwarded-for
+    protocol-header: x-forwarded-proto
+
+# Disable H2 console in production
+h2:
+  console:
+    enabled: false

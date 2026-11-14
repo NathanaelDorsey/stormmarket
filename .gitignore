@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 /src/main/**/*.pem
+/src/test/**/*.pem
 /.log.txt
 
 

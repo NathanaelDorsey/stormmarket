@@ -1,8 +1,10 @@
 package com.nathanaeldorsey.stormmarket.order;
 
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.config.ObservabilityConfig;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
+import io.micrometer.core.instrument.Timer;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,17 +29,27 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     private final OrderService orderService;
     private final UserRepository userRepository;
+    private final ObservabilityConfig.StormMarketMetrics metrics;
 
     @PostMapping
     public ResponseEntity<OrderResponse> placeOrder(
             Authentication authentication,
             @Valid @RequestBody(required = false) GuestCheckoutRequest guestRequest) {
+        Timer.Sample timer = metrics.startOrderProcessingTimer();
         Long userId = null;
         if (authentication != null && authentication.isAuthenticated()) {
             userId = getUser(authentication).getId();
         }
-        OrderResponse response = orderService.placeOrder(userId, guestRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            OrderResponse response = orderService.placeOrder(userId, guestRequest);
+            metrics.incrementOrdersCreated();
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            metrics.incrementOrdersFailed();
+            throw e;
+        } finally {
+            metrics.recordOrderProcessingTime(timer);
+        }
     }
 
     @GetMapping

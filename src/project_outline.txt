@@ -78,28 +78,37 @@ Validation & error handling - DONE
                 Global exception handling
                 Consistent API error responses
 Testing - DONE
-                Unit tests
+                Unit tests (175 tests passing)
                 Repository/integration tests
                 Controller tests
                 Security tests
-Frontend/client
+                Property-based tests (jqwik: cart, order, stock, price)
+Frontend/client — ON HOLD
                 JavaFX or web frontend
                 Consume the REST API
                 Authentication
                 Product/catalog UI
                 Cart/checkout UI
-Production features
-                Actuator/health checks
-                Logging
-                Metrics
-                Docker
-                Environment-specific configuration
-CI/CD
-                GitHub Actions
-                Build
-                Test
-                Package
-                Deployment
+Production features — DONE
+                Actuator/health checks (9 endpoints: health, info, metrics, prometheus, loggers, threaddump, heapdump, mappings, env, configprops)
+                Structured JSON logging (logstash-logback-encoder, MDC correlation: X-Request-ID, traceparent/B3, userId, userRole)
+                Metrics (112 Micrometer metrics, 14 custom stormmarket.* business metrics)
+                Tracing (OpenTelemetry OTLP gRPC configured, ready for collector)
+                Docker multi-stage build (JWT keys packaged in BOOT-INF/classes/jwt/)
+                Environment-specific configuration (application.yaml, application-production.yaml, application-test.yaml, application-actuator-test.yaml)
+CI/CD — DONE
+                GitHub Actions (build, test, package, deploy)
+                Local test bootstrap script (scripts/test-bootstrap.sh)
+                CodeRabbit AI code review
+                SpotBugs: 0 bugs, 0 errors / FindSecBugs: 0 issues / JaCoCo: 64% instruction / 51% branch / 51% line / 62% method / 85% class
+                Spotless code formatting (Palantir Java Format)
+                Postman API test automation (21 requests, 67 assertions, 0 failures)
+                Docker multi-stage build (Dockerfile)
+                docker-compose.yml for local dev/production
+                Nginx reverse proxy with SSL termination, rate limiting, security headers
+                GitHub Actions workflow for build/deploy (docker-build-deploy.yml)
+                Smoke test script (scripts/smoke-test.sh)
+                GitHub Container Registry (ghcr.io) integration
 
 
 Dependency	        What it gives you

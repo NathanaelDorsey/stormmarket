@@ -4,6 +4,14 @@ StormMarket is a Spring Boot e-commerce backend built to demonstrate production-
 
 This project models a marketplace API with JWT-based auth, role-aware admin actions, catalog management, and persistence using MySQL in production and H2 in the default local test path.
 
+## Current Status
+
+| Component | Status |
+|-----------|--------|
+| Backend API | ✅ Complete |
+| Frontend/Client | 🔄 **ON HOLD** |
+| CI/CD Pipeline | ✅ **COMPLETE** |
+
 ## Why this project exists
 
 This application is meant to showcase the kinds of decisions real backend teams make:
@@ -39,6 +47,7 @@ This application is meant to showcase the kinds of decisions real backend teams 
 - Lombok
 - JUnit 5 + Spring Test
 - JaCoCo
+- jqwik (property-based testing)
 
 ## Architecture
 
@@ -63,6 +72,51 @@ The system is built around secure API practices:
 - admin-only workflows require ADMIN authority
 - JWT authentication is enforced for protected requests
 - invalid credentials and disabled accounts return 401-style responses
+
+## CI/CD Pipeline (Complete)
+
+The project includes a complete CI/CD pipeline via GitHub Actions and local bootstrap:
+
+```bash
+# Local CI validation (runs full pipeline locally)
+./scripts/test-bootstrap.sh [admin|user]
+
+# Full CI verification
+./mvnw verify
+```
+
+### Pipeline Components
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| Postman API Tests | ✅ Complete | 21 requests, 67 assertions, 0 failures |
+| Maven Verify | ✅ Complete | 175 tests, 0 SpotBugs, 0 FindSecBugs, JaCoCo (64% instruction / 51% branch / 51% line) |
+| Code Formatting | ✅ Complete | Spotless (Palantir Java Format) |
+| CodeRabbit AI Review | ✅ Complete | Automated PR review |
+| Local Bootstrap | ✅ Complete | `scripts/test-bootstrap.sh` |
+| H2 In-Memory DB | ✅ Complete | No Docker required for local testing |
+| Docker Multi-stage Build | ✅ Complete | Multi-stage Dockerfile for production |
+| docker-compose.yml | ✅ Complete | Local dev and production orchestration |
+| Nginx Reverse Proxy | ✅ Complete | SSL termination, rate limiting, security headers |
+| Build/Deploy Workflow | ✅ Complete | GitHub Actions docker-build-deploy.yml |
+| Smoke Test Script | ✅ Complete | scripts/smoke-test.sh for post-deploy validation |
+| Container Registry | ✅ Complete | GitHub Container Registry (ghcr.io) |
+
+### Local CI Validation
+
+```bash
+# Run full CI pipeline locally (starts H2, creates users, seeds data, runs Postman)
+./scripts/test-bootstrap.sh admin
+```
+
+This script:
+1. Starts Spring Boot with H2 in-memory database
+2. Registers test users (ci_admin, ci_user) with Argon2 passwords
+3. Updates admin role to ADMIN via H2 Shell
+5. Gets JWT tokens (RS256)
+5. Creates test data (categories, products) via admin API
+6. Runs Postman collection (21 requests, 67 assertions)
+6. Cleans up H2 database on exit
 
 ## Testing strategy
 
@@ -123,6 +177,15 @@ Testcontainers detects `DOCKER_HOST` and will talk to the Podman socket automati
 | Database            | Flyway migrations, constraints, FKs, indexes, transaction rollback, H2 vs MySQL differences | `MySqlIntegrationTest`                                            |
 | Application wiring  | Full-context startup composition                                                            | `StormmarketApplicationSmokeTest`, `StormmarketApplicationTests`  |
 
+### Property-based tests (jqwik)
+
+| Test class | Properties tested |
+|------------|-------------------|
+| `CartQuantityFuzzTest` | Valid/invalid quantity boundaries (1-100) |
+| `OrderTotalCalculationTest` | Total = sum(price×qty), discount boundaries, tax, precision |
+| `StockConsistencyTest` | Never below zero, no oversell, reservation, cumulative |
+| `PriceValidationTest` | Positive prices, discount consistency, tax boundaries, precision |
+
 ### Quality gates
 
 ```bash
@@ -134,11 +197,47 @@ Testcontainers detects `DOCKER_HOST` and will talk to the Podman socket automati
 
 # Full verification: tests, static analysis, formatting, coverage
 ./mvnw verify
+
+# Local CI bootstrap (runs full pipeline)
+./scripts/test-bootstrap.sh admin
+
+# Check formatting
+./mvnw spotless:check
+
+# View JaCoCo coverage report
+open target/site/jacoco/index.html
 ```
 
 ### Test status
 
 All 175 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
+Postman collection: 21 requests, 67 assertions, 0 failures.
+
+### Observability metrics
+
+| Metric | Value |
+|--------|-------|
+| Total Micrometer metrics | 112 |
+| Custom stormmarket.* metrics | 14 |
+| JaCoCo Instruction Coverage | 64% |
+| JaCoCo Branch Coverage | 51% |
+| JaCoCo Line Coverage | 51% |
+| JaCoCo Method Coverage | 62% |
+| JaCoCo Class Coverage | 85% |
+| SpotBugs | 0 bugs, 0 errors |
+| FindSecBugs | 0 issues |
+| Actuator endpoints exposed | 9 (health, info, metrics, prometheus, loggers, threaddump, heapdump, mappings, env, configprops) |
+
+### Custom business metrics
+
+- `stormmarket_auth_failures_total` — failed login attempts
+- `stormmarket_orders_total` — orders placed
+- `stormmarket_orders_failed_total` — failed orders
+- `stormmarket_orders_processing_time_seconds` — order latency histogram
+- `stormmarket_products_total` — products created
+- `stormmarket_products_updated_total` — products updated
+- `stormmarket_users_active` — active user gauge
+- `stormmarket_users_registered_total` — registered users
 
 ## Project structure
 
@@ -146,17 +245,28 @@ All 175 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skip
 stormmarket/
 ├── README.md
 ├── pom.xml
+├── scripts/
+│   └── test-bootstrap.sh          # Local CI bootstrap
+├── specs/
+│   ├── product/                   # SCOPE, VISION, GLOSSARY
+│   ├── tech-architecture/         # Tech plans (security, test, design, etc.)
+│   ├── epics/                     # Epic capsules
+│   └── state.yaml                 # Session state
 ├── src/
 │   ├── main/
 │   │   ├── java/
 │   │   │   └── com/nathanaeldorsey/stormmarket/
 │   │   ├── resources/
 │   │   │   ├── application.yaml
-│   │   │   └── db/migration/
+│   │   │   └── db/migration/      # 25 Flyway migrations
 │   ├── test/
 │   │   ├── java/
+│   │   │   └── com/nathanaeldorsey/stormmarket/
+│   │   │       └── fuzz/          # jqwik property tests
 │   │   └── resources/
-│   └── testing_stage_plan.md
+│   └── project_outline.txt
+├── postman/
+│   └── collections/               # Postman v3 schema
 └── target/
 ```
 
@@ -188,6 +298,12 @@ stormmarket/
 
 This requires Docker or Podman because the MySQL integration tests start a disposable MySQL container via Testcontainers. Set DOCKER_HOST to point to your container engine socket if using Podman.
 
+### Run local CI validation
+
+```bash
+./scripts/test-bootstrap.sh admin
+```
+
 ## What I built
 
 This is a marketplace backend with a realistic, production-aware structure. It includes:
@@ -202,12 +318,13 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 ## Challenges I solved
 
 - secured endpoints with Spring Security and JWT claims
-- aligned authorization rules with the app’s intended public/private contract
+- aligned authorization rules with the app's intended public/private contract
 - fixed service and JPA issues surfaced by tests
 - hardened startup behavior so local tests do not depend on external secrets or DB setup
 - created a fast default smoke suite while keeping MySQL parity checks available
 - wired coupon discounts into cart and checkout flow (apply/remove coupon on cart, snapshot discount on order)
 - validated migration and persistence behavior with Testcontainers
+- built local CI bootstrap for full pipeline validation without CI server
 
 ## What I learned
 
@@ -219,8 +336,8 @@ This is a marketplace backend with a realistic, production-aware structure. It i
 
 ## Future improvements
 
+- complete CI/CD pipeline (Docker image, deployment)
 - expand admin workflows and reporting
 - add full e2e API documentation and examples
 - improve observability with structured logging and metrics
-- add CI/CD automation for build and release validation
 - optionally add a frontend client for a complete storefront experience

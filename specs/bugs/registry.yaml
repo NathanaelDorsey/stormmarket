@@ -1,0 +1,28 @@
+bugs:
+  - id: "BUG-001"
+    title: "H2 vs MySQL SQL dialect differences"
+    status: "logged"
+    severity: "medium"
+    reported_by: "seed-conventions"
+    date: "2025-01-00"
+    description: |
+      H2 in-memory database may accept SQL syntax that MySQL rejects, or vice versa.
+      Tests passing on H2 do not guarantee production compatibility.
+      Mitigation: opt-in Testcontainers MySQL integration (`-Drun.mysql.integration=true`).
+    affectedscope:
+      - persistence tests
+      - Flyway migration validation
+    status_details: "logged; no active fix unless integration tests required"
+  - id: "BUG-002"
+    title: "Spotless skipped in CI"
+    status: "logged"
+    severity: "low"
+    reported_by: "seed-conventions"
+    date: "2025-01-00"
+    description: |
+      Palantir Java Format 2.102.0 is configured with `<skip>true</skip>` in CI.
+      Code formatting is not enforced on PRs.
+      Mitigation: unskip `<spotless.check>` to enforce formatting.
+    affectedscope:
+      - CI code quality gate
+    status_details: "logged; technical debt tracked separately"

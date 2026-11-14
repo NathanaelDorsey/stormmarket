@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.config.TestObservabilityConfig;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+@Import(TestObservabilityConfig.class)
 /**
  * Tests for ProductController HTTP endpoints.
  * Covers CRUD, search/filter, pagination, admin authorization, and stock management.

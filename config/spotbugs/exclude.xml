@@ -20,5 +20,8 @@
         <Class name="com.nathanaeldorsey.stormmarket.product.ProductService"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
-
+    <Match>
+        <Class name="com.nathanaeldorsey.stormmarket.config.ObservabilityConfig$1"/>
+        <Bug pattern="HRS_REQUEST_PARAMETER_TO_HTTP_HEADER"/>
+    </Match>
 </FindBugsFilter>

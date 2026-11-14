@@ -22,6 +22,79 @@ spring:
       max-file-size: 6MB
       max-request-size: 6MB
 
+  # Observability: Logging configuration
+  logging:
+    level:
+      root: INFO
+      com.nathanaeldorsey.stormmarket: DEBUG
+      org.springframework.web: INFO
+      org.hibernate.SQL: DEBUG
+    format: json
+
+  # Observability: Actuator endpoints
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,prometheus,loggers,threaddump,heapdump,mappings,env,configprops
+        base-path: /actuator
+      health:
+        show-details: always
+        show-components: always
+    endpoint:
+      health:
+        probes:
+          enabled: true
+      prometheus:
+        enabled: true
+    health:
+      defaults:
+        enabled: true
+      db:
+        enabled: true
+      diskspace:
+        enabled: true
+      ping:
+        enabled: true
+    metrics:
+      tags:
+        application: ${spring.application.name}
+        environment: ${spring.profiles.active:local}
+      export:
+        prometheus:
+          enabled: true
+          step: 30s
+      distribution:
+        percentiles-histogram:
+          http.server.requests: true
+        percentiles:
+          http.server.requests: 0.5,0.9,0.95,0.99
+        sla:
+          http.server.requests: 100ms,500ms,1s,5s
+    info:
+      env:
+        enabled: true
+      java:
+        enabled: true
+      os:
+        enabled: true
+      build:
+        enabled: true
+
+  # Observability: Distributed Tracing (Micrometer Tracing + OpenTelemetry)
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+    baggage:
+      correlation-fields: trace-id,span-id
+    propagation:
+      type: b3,w3c
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+      protocol: grpc
+      timeout: 10s
+
 stormmarket:
   jwt:
     private-key-location: ${STORMMARKET_JWT_PRIVATE_KEY_LOCATION:classpath:jwt/private-key.pem}
@@ -38,5 +111,17 @@ stormmarket:
         region: ${STORMMARKET_FILE_STORAGE_S3_REGION:us-east-1}
         endpoint: ${STORMMARKET_FILE_STORAGE_S3_ENDPOINT:}
         access-key: ${STORMMARKET_FILE_STORAGE_S3_ACCESS_KEY:}
-        secret-key: ${STORMMARKET_FILE_STORAGE_S3_SECRET_KEY:}
+        secret-key: ${STORMMARKET_FILE_STORAGE_S3_SECRET_KEY=****
         base-url: ${STORMMARKET_FILE_STORAGE_S3_BASE_URL:}
+
+# Application info for Actuator /info endpoint
+info:
+  app:
+    name: "@project.name@"
+    version: "@project.version@"
+    java:
+      version: "@java.version@"
+  build:
+    artifact: "@project.artifactId@"
+    group: "@project.groupId@"
+    version: "@project.version@"

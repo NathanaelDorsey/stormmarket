@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.config.TestObservabilityConfig;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -39,6 +41,7 @@ import org.springframework.test.web.servlet.MockMvc;
                     .OAuth2ResourceServerWebSecurityAutoConfiguration.class
         })
 @AutoConfigureMockMvc(addFilters = false)
+@Import(TestObservabilityConfig.class)
 /**
  * Tests for OrderController HTTP endpoints.
  * Covers order creation, history, details, and admin status updates.

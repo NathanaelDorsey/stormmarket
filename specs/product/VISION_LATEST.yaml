@@ -1,0 +1,14 @@
+vision: "Storm Market — a fully functional, secure, and scalable e-commerce backend platform enabling product catalog management, shopping cart functionality, order processing, and user administration through a clean REST API."
+summary: |
+  The vision for Storm Market is to provide a robust, feature-rich marketplace backend that
+  serves as the foundation for online commerce. Built with Java 25 and Spring Boot 4.1.1,
+  the platform will deliver reliable transaction processing, comprehensive security (stateless
+  JWT authentication, Argon2 password encoding, role-based access control), and extensible
+  architecture designed for future growth including inventory management, promotional engines,
+  and integration with frontend clients.
+success_criteria:
+  - Platform stabilizes with 100% of unit tests passing on default CI (H2-based)
+  - JWT authentication flow is fully functional with RS256 signing and role-based access
+  - MySQL datasource startup is reliable with Flyway migration validation
+  - Code quality gates (SpotBugs, FindSecBugs, JaCoCo coverage) are met or exceeded
+```

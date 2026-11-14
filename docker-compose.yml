@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Storm Market Application
+  stormmarket:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stormmarket-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/stormmarket
+      - SPRING_DATASOURCE_USERNAME=stormmarket
+      - SPRING_DATASOURCE_PASSWORD=stormmarket
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_FLYWAY_ENABLED=true
+      - STORMMARKET_JWT_PRIVATE_KEY_LOCATION=file:/app/secrets/private-key.pem
+      - STORMMARKET_JWT_PUBLIC_KEY_LOCATION=file:/app/secrets/public-key.pem
+      - STORMMARKET_FILE_STORAGE_TYPE=local
+      - STORMMARKET_UPLOAD_DIR=/app/uploads/products
+      - SERVER_PORT=8080
+    volumes:
+      - ./secrets:/app/secrets:ro
+      - stormmarket_uploads:/app/uploads/products
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - stormmarket-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: stormmarket-db
+    environment:
+      - MYSQL_DATABASE=stormmarket
+      - MYSQL_USER=stormmarket
+      - MYSQL_PASSWORD=stormmarket
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - stormmarket_db_data:/var/lib/mysql
+    networks:
+      - stormmarket-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "stormmarket", "-pstormmarket"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=200
+
+  # Optional: Nginx reverse proxy with SSL termination
+  nginx:
+    image: nginx:alpine
+    container_name: stormmarket-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - stormmarket
+    restart: unless-stopped
+    networks:
+      - stormmarket-network
+
+volumes:
+  stormmarket_db_data:
+  stormmarket_uploads:
+
+networks:
+  stormmarket-network:
+    driver: bridge

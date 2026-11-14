@@ -1,0 +1,25 @@
+status:
+  overall: "planning"
+  phase: "plan"
+  last_updated: "2025-01-00T00:00:00Z"
+  epics:
+    - id: "e01"
+      name: "Product Catalog"
+      status: "planned"
+      progress: 0
+    - id: "e02"
+      name: "Authentication & Authorization"
+      status: "planned"
+      progress: 0
+    - id: "e03"
+      name: "Shopping Cart"
+      status: "planned"
+      progress: 0
+    - id: "e04"
+      name: "Order Management"
+      status: "planned"
+      progress: 0
+    - id: "e05"
+      name: "User Account Management"
+      status: "planned"
+      progress: 0

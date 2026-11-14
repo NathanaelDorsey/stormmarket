@@ -1,0 +1,17 @@
+discover-phase:
+  scope_work: "complete"
+  scope_definition: "specs/product/SCOPE_LATEST.yaml"
+  vision_definition: "specs/product/VISION_LATEST.yaml"
+  glossary_definition: "specs/product/GLOSSARY_LATEST.yaml"
+  next_skill: "slice-tasks"
+
+slice-tasks:
+  started: false
+  completed: 0
+  total: 0
+  next: "e01s01 - Product Catalog Browse (vertical slice)"
+
+plan-work:
+  started: false
+  completed: 0
+  total: 0

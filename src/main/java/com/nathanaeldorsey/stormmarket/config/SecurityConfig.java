@@ -60,6 +60,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth // configure request permissions
                         .requestMatchers(AUTH_PATH)
                         .permitAll() // explicit permit all requests to /v1/auth
+                        // Actuator endpoints - permit for monitoring
+                        .requestMatchers("/actuator/**")
+                        .permitAll()
                         // Admin product endpoints require the ADMIN role.
                         .requestMatchers("/v1/products/admin/**")
                         .hasRole(ADMIN_ROLE)

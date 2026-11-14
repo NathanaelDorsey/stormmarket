@@ -1,0 +1,92 @@
+core_value: "Enable secure, feature-rich online marketplace transactions with comprehensive product, cart, order, and user management via a RESTful API."
+summary: |
+  Storm Market is a backend platform for an e-commerce application built with Java 25 and Spring Boot 4.1.1.
+  The system provides catalog browsing, shopping cart management, order processing, and user/admin
+  functionality through a secured REST API. The architecture follows a layered, feature-per-package
+  pattern with Spring Data JPA, Flyway migrations, and MySQL as the production database.
+
+  The scope covers the core marketplace features essential for launch: product catalog with search
+  and filtering, shopping cart management, order placement and tracking, user account management,
+  and administrative controls. Authentication is handled via stateless JWT with OAuth2 resource
+  server integration. File storage is configurable between local and S3 backends.
+
+  Out-of-scope items are explicitly deferred to post-launch iterations to prevent scope creep
+  and keep the initial release focused on core transaction functionality.
+
+in_scope:
+  - Product catalog browsing and search
+    * Public GET endpoints for product listing with pagination, sorting, and filtering
+    * Category browsing with hierarchical display
+    * Product detail retrieval
+  - Shopping cart functionality
+    * Add/remove items from cart
+    * Update cart item quantities
+    * Cart persistence per user session
+  - Order management
+    * Guest checkout and registered user checkout
+    * Order creation from cart
+    * Order status tracking
+    * Order history per user
+  - User account management
+    * Registration and login (JWT-based authentication)
+    * Profile management
+    * Password management (Argon2 encoding)
+  - Administrative controls
+    * CRUD operations for products
+    * CRUD operations for categories
+    * User listing and management
+    * System configuration
+  - Security foundation
+    * Stateless JWT authentication (RS256)
+    * Role-based access control (ROLE_USER, ROLE_ADMIN)
+    * Public read access to catalog (permitAll)
+    * CSRF disabled per design
+    * PermitList for auth/catalog read routes
+    * File storage toggle (local/S3 via environment variable)
+
+out_of_scope:
+  - Frontend client application (web UI, mobile app)
+  - Real-time features (WebSockets, SSE, polling)
+  - Advanced pricing rules (discount campaigns, bulk pricing, dynamic pricing)
+  - Inventory management beyond cart reservation
+  - Multi-tenant or marketplace seller onboarding
+  - Subscription or recurring billing
+  - Complex promotional engine (coupons, referrals, affiliates beyond basic setup)
+  - Payment gateway integration beyond order creation
+  - Shipping carrier integration and fulfillment tracking
+  - Search engine integration (ElasticSearch, OpenSearch)
+  - Real-time inventory synchronization
+  - Audit log persistence for all model changes
+  - Background job processing (queues, retries, dead-letter handling)
+  - External service webhooks or callbacks
+
+constraints:
+  - Language: Java 25, Spring Boot 4.1.1, Maven build wrapper (mvnw)
+  - Database: MySQL production, H2 in-memory for unit tests
+  - Migrations: Flyway with versioned SQL migrations (25 existing migrations)
+  - Security: Stateless JWT only; no session state; Argon2 password encoding
+  - API base path: /v1
+  - Response format: JSON with consistent ApiErrorResponse envelope
+  - Deployment: Standard JVM deployment; no container-orchestrated features required
+  - Testing: JUnit 5 + Spring Test by default; MySQL integration opt-in via -Drun.mysql.integration=true
+  - Code format: Spotless (Palantir Java Format 2.102.0, currently skipped in CI)
+  - Static analysis: SpotBugs 4.10.5.0 + FindSecBugs with exclude filter
+  - Coverage: JaCoCo 0.8.14; reports generated at verify phase
+
+success_criteria:
+  - All public catalog GET endpoints (/v1/products, /v1/categories) return 200 with paginated results
+  - Authenticated users can successfully register, login, and obtain a valid JWT token
+  - Authenticated users can add/remove items from cart and persist cart state
+  - Authenticated users can place orders from cart and receive order confirmation with order ID
+  - Admin users can create, update, and delete products and categories via API
+  - 100% of unit tests pass on default CI run (H2-based, no Testcontainers)
+  - JaCoCo coverage report shows >= 80% overall, >= 70% per-class for core services
+  - SpotBugs/FindSecBugs no new warnings introduced (existing exclude filter preserved)
+  - Application starts successfully with MySQL datasource configured
+  - JWT authentication flow: RS256 signing, role claim mapping to ROLE_* authorities works correctly
+
+references:
+  - specs/tech-architecture/tech-stack.md — full stack and convention details
+  - README.md — current test suite results (175 tests pass) and future improvement notes
+  - DEVELOPER_GUIDE.md — onboarding and development workflow details
+  - CONVENTIONS.md — (not yet exists for this project; conventions observed from code review)

@@ -1,0 +1,152 @@
+name: Postman API Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Java 25
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'maven'
+
+      # 3. Cache Maven packages
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # 4. Start application with test profile (H2 in-memory)
+      - name: Start Spring Boot App
+        run: |
+          chmod +x ./mvnw
+          ./mvnw spring-boot:run -Dspring.profiles.active=test \
+            -Dspring.datasource.url=jdbc:h2:mem:testdb \
+            -Dspring.datasource.driver-class-name=org.h2.Driver \
+            -Dspring.datasource.username=sa \
+            -Dspring.datasource.password= \
+            -Dspring.jpa.hibernate.ddl-auto=create-drop \
+            -Dspring.flyway.enabled=false \
+            > app.log 2>&1 &
+          echo $! > app.pid
+        shell: bash
+
+      # 5. Wait for application to be ready
+      - name: Wait for App Startup
+        run: |
+          for i in {1..60}; do
+            if curl -s http://localhost:8080/v1/products > /dev/null 2>&1; then
+              echo "Application is ready!"
+              exit 0
+            fi
+            echo "Waiting for app... ($i/60)"
+            sleep 5
+          done
+          echo "Application failed to start"
+          cat app.log
+          exit 1
+        shell: bash
+
+      # 6. Create test users (admin + regular user)
+      - name: Create Test Users
+        run: |
+          # Register admin user
+          ADMIN_RESPONSE=$(curl -s -X POST http://localhost:8080/v1/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"username":"ci_admin","email":"ci_admin@test.com","password":"CiAdminPass123!","firstName":"CI","lastName":"Admin"}')
+          echo "Admin register: $ADMIN_RESPONSE"
+
+          # Register regular user
+          USER_RESPONSE=$(curl -s -X POST http://localhost:8080/v1/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"username":"ci_user","email":"ci_user@test.com","password":"CiUserPass123!","firstName":"CI","lastName":"User"}')
+          echo "User register: $USER_RESPONSE"
+
+          # Login as admin to get token
+          ADMIN_LOGIN=$(curl -s -X POST http://localhost:8080/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"ci_admin","password":"CiAdminPass123!"}')
+          ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')
+          echo "ADMIN_TOKEN=$ADMIN_TOKEN" >> $GITHUB_ENV
+
+          # Login as user to get token
+          USER_LOGIN=$(curl -s -X POST http://localhost:8080/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"ci_user","password":"CiUserPass123!"}')
+          USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')
+          echo "USER_TOKEN=$USER_TOKEN" >> $GITHUB_ENV
+
+          echo "Tokens generated successfully"
+        shell: bash
+
+      # 7. Install Postman CLI
+      - name: Install Postman CLI
+        run: |
+          npm install -g @postman/postman-cli
+        shell: bash
+
+      # 8. Run Postman Collection with admin token
+      - name: Run Postman Collection (Admin)
+        run: |
+          postman collection run "Storm Market API" \
+            --global-var "baseUrl=http://localhost:8080" \
+            --global-var "authToken=${{ env.ADMIN_TOKEN }}" \
+            --bail=false \
+            --output app-admin-results.json
+        shell: bash
+
+      # 9. Run Postman Collection with user token
+      - name: Run Postman Collection (User)
+        run: |
+          postman collection run "Storm Market API" \
+            --global-var "baseUrl=http://localhost:8080" \
+            --global-var "authToken=${{ env.USER_TOKEN }}" \
+            --bail=false \
+            --output app-user-results.json
+        shell: bash
+        continue-on-error: false
+
+      # 11. Upload results
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-test-results
+          path: |
+            app.log
+            app-admin-results.json
+            app-user-results.json
+        shell: bash
+
+      # 12. Stop Application
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill $(cat app.pid) 2>/dev/null || true
+          fi
+        shell: bash
+
+      # 13. Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-logs
+          path: app.log
+        shell: bash
