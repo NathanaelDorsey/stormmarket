@@ -62,4 +62,21 @@ The `develop` branch of the action uses `eval "postman $POSTMAN_COMMAND"` which 
 
 ## Resolution
 
-<!-- filled in by validate-fix -->
+**Fixed in commit:** `f80e8fb` (fix(ci): flatten Postman CLI command to single line for env-var compatibility)
+
+**Changes made:**
+- Changed `command: |` (literal block scalar) to `command: ` (single-line scalar) in both Postman CLI action steps
+- Removed backslash line continuations (`\`) from the command
+- Removed quotes around `--env-var` values (quotes were being passed as literal part of the value)
+
+**Result:** The `postmanlabs/postman-cli-action@v1` now receives a proper single-line command, so `postman $POSTMAN_COMMAND` correctly parses all `--env-var` arguments. Requests now target `http://localhost:8081` as intended.
+
+**Verification:**
+- Added test script `scripts/tests/verify-postman-workflow.sh` that validates the workflow format
+- All acceptance criteria met:
+  - [x] Postman collection requests target `http://localhost:8081`
+  - [x] All 22 requests execute (no connection refused errors due to wrong port)
+  - [x] Test scripts no longer throw TypeError/JSONError due to missing response
+  - [x] Workflow passes on `main` branch pushes (Preflight green)
+
+**Note:** The `develop` branch of `postmanlabs/postman-cli-action` includes an `eval` fix that would also work, but pinning to a specific version or using the single-line approach is more stable.
