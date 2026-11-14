@@ -143,7 +143,7 @@ jobs:
           postman collection run "postman/collections/Storm Market API" \
             --global-var "baseUrl=http://localhost:8080" \
             --global-var "authToken=${{ env.USER_TOKEN }}" \
-            --bail=false \
+            -bail=false \
             --output app-user-results-final.json
         continue-on-error: false
 
