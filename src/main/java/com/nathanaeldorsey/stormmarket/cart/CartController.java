@@ -1,5 +1,6 @@
 package com.nathanaeldorsey.stormmarket.cart;
 
+import com.nathanaeldorsey.stormmarket.common.exception.Result;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
@@ -50,7 +51,10 @@ public class CartController {
         User user = userRepository
                 .findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
-        cartService.addProductToCart(user.getId(), request.getProductId(), request.getQuantity());
+        Result<Void, CartError> result = cartService.addProductToCart(user.getId(), request.getProductId(), request.getQuantity());
+        if (result.isErr()) {
+            throw result.getError();
+        }
         return cartService.getCart(user.getId());
     }
 
@@ -73,7 +77,10 @@ public class CartController {
                 .findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
 
-        cartService.updateProductQuantity(user.getId(), productId, request.getQuantity());
+        Result<Void, CartError> result = cartService.updateProductQuantity(user.getId(), productId, request.getQuantity());
+        if (result.isErr()) {
+            throw result.getError();
+        }
 
         return cartService.getCart(user.getId());
     }
@@ -92,7 +99,10 @@ public class CartController {
                 .findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
 
-        cartService.removeProductFromCart(user.getId(), productId);
+        Result<Void, CartError> result = cartService.removeProductFromCart(user.getId(), productId);
+        if (result.isErr()) {
+            throw result.getError();
+        }
 
         return cartService.getCart(user.getId());
     }
@@ -108,7 +118,10 @@ public class CartController {
         User user = userRepository
                 .findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
-        cartService.clearCart(user.getId());
+        Result<Void, CartError> result = cartService.clearCart(user.getId());
+        if (result.isErr()) {
+            throw result.getError();
+        }
     }
 
     /**
@@ -117,7 +130,7 @@ public class CartController {
      * @param code           the coupon code to apply
      * @param authentication the current authenticated user's security context
      * @return the updated cart response with discount applied
-     * @throws ResourceNotFoundException if the user or coupon does not exist
+     * @throws ResourceNotFoundException if the user does not exist
      * @throws IllegalStateException if the coupon is expired or usage limit reached
      */
     @PostMapping("/coupon")
@@ -127,7 +140,11 @@ public class CartController {
         User user = userRepository
                 .findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
-        return cartService.applyCoupon(user.getId(), code);
+        Result<Void, CartError> result = cartService.applyCoupon(user.getId(), code);
+        if (result.isErr()) {
+            throw result.getError();
+        }
+        return cartService.getCart(user.getId());
     }
 
     /**
@@ -142,6 +159,10 @@ public class CartController {
         User user = userRepository
                 .findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
-        return cartService.removeCoupon(user.getId());
+        Result<Void, CartError> result = cartService.removeCoupon(user.getId());
+        if (result.isErr()) {
+            throw result.getError();
+        }
+        return cartService.getCart(user.getId());
     }
 }

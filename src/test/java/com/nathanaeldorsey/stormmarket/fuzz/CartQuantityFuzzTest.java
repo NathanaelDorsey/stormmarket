@@ -8,25 +8,27 @@ package com.nathanaeldorsey.stormmarket.fuzz;
  * - org.mockito.Mockito.mock / when, org.mockito.ArgumentMatchers.any
  *   Mockito: stub CartService's repository and mapper dependencies so we test quantity
  *   validation logic in isolation without a real database.
- * - org.assertj.core.api.Assertions.assertThatThrownBy
- *   AssertJ: assert that invalid quantities throw IllegalArgumentException with expected message.
+ * - org.assertj.core.api.Assertions.assertThat
+ *   AssertJ: assert that invalid quantities return Result.Err with expected error.
  * - com.nathanaeldorsey.stormmarket.cart.* / product.* / user.*
  *   Project classes under test: CartService (validates quantities) and its domain types.
  * - java.math.BigDecimal, java.util.Optional
  *   JDK: product price construction and repository mock stubbing.
  */
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.nathanaeldorsey.stormmarket.cart.Cart;
+import com.nathanaeldorsey.stormmarket.cart.CartError;
 import com.nathanaeldorsey.stormmarket.cart.CartRepository;
 import com.nathanaeldorsey.stormmarket.cart.CartItemRepository;
 import com.nathanaeldorsey.stormmarket.cart.CartMapper;
 import com.nathanaeldorsey.stormmarket.cart.CartService;
+import com.nathanaeldorsey.stormmarket.common.exception.Result;
 import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
@@ -64,9 +66,10 @@ class CartQuantityFuzzTest {
                 .thenReturn(Optional.empty());
         when(cartRepository.save(any())).thenReturn(cart);
 
-        cartService.addProductToCart(1L, 10L, quantity);
+        Result<Void, CartError> result = cartService.addProductToCart(1L, 10L, quantity);
 
         // Assert the saved item has the correct quantity
+        assertThat(result.isOk()).isTrue();
         assertEquals(1, cart.getItems().size());
         assertEquals(Integer.valueOf(quantity), cart.getItems().get(0).getQuantity());
     }
@@ -74,17 +77,19 @@ class CartQuantityFuzzTest {
     @Property(tries = 100)
     void quantitiesAbove100AreRejected(
             @ForAll @IntRange(min = 101, max = 10000) int quantity) {
-        assertThatThrownBy(() -> cartService.updateProductQuantity(1L, 10L, quantity))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Quantity cannot exceed 100");
+        Result<Void, CartError> result = cartService.updateProductQuantity(1L, 10L, quantity);
+
+        assertThat(result.isErr()).isTrue();
+        assertThat(result.getError()).isEqualTo(CartError.INVALID_QUANTITY);
     }
 
     @Property(tries = 100)
     void quantitiesBelow1AreRejected(
             @ForAll @IntRange(min = -1000, max = 0) int quantity) {
-        assertThatThrownBy(() -> cartService.updateProductQuantity(1L, 10L, quantity))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Quantity must be positive");
+        Result<Void, CartError> result = cartService.updateProductQuantity(1L, 10L, quantity);
+
+        assertThat(result.isErr()).isTrue();
+        assertThat(result.getError()).isEqualTo(CartError.INVALID_QUANTITY);
     }
 
     private static User activeUser(Long id) {

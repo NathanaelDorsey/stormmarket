@@ -8,6 +8,7 @@ import com.nathanaeldorsey.stormmarket.common.exception.DomainError;
  */
 public class CartError extends DomainError {
 
+    public static final CartError USER_NOT_FOUND = new CartError("User not found or inactive");
     public static final CartError INACTIVE_PRODUCT = new CartError("Product is inactive");
     public static final CartError INSUFFICIENT_STOCK = new CartError("Insufficient stock");
     public static final CartError CART_FULL = new CartError("Cart is full");
