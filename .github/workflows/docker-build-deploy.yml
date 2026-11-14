@@ -223,6 +223,10 @@ jobs:
             -d '{"username":"docker_user","password":"DockerUserPass123!"}')
           echo "USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
+      - name: Install Postman CLI
+        run: |
+          npm install -g @postman/cli
+
       - name: Run Postman Collection (Admin) - Docker
         run: |
           postman collection run "postman/collections/Storm Market API" \
