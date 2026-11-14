@@ -51,11 +51,7 @@ function convertRequest(req) {
     request: {
       method: req.method,
       header: [],
-      url: {
-        raw: req.url,
-        // Use variable in raw URL only - let Postman resolve it
-        // Don't set host/path separately when using variables
-      }
+      url: buildUrlObject(req.url)
     }
   };
 
@@ -72,9 +68,7 @@ function convertRequest(req) {
       item.request.body = {
         mode: 'raw',
         raw: req.body.content,
-        options: {
-          raw: { language: 'json' }
-        }
+        options: { raw: { language: 'json' } }
       };
     }
   }
@@ -93,14 +87,27 @@ function convertRequest(req) {
   if (req.scripts) {
     item.event = req.scripts.map(s => ({
       listen: s.type === 'beforeRequest' ? 'prerequest' : 'test',
-      script: {
-        type: 'text/javascript',
-        exec: s.code.split('\n')
-      }
+      script: { type: 'text/javascript', exec: s.code.split('\n') }
     }));
   }
 
   return item;
+}
+
+function buildUrlObject(url) {
+  // Parse {{baseUrl}}/v1/products -> host="{{baseUrl}}", path=["v1","products"]
+  // For variable resolution, host must be the base URL variable
+  const match = url.match(/\{\{baseUrl\}\}(.*)/);
+  if (!match) {
+    return { raw: url };
+  }
+  const pathPart = match[1].split('?')[0];
+  const pathSegments = pathPart.split('/').filter(p => p);
+  return {
+    raw: url,
+    host: ["{{baseUrl}}"],
+    path: pathSegments
+  };
 }
 
 // Generate collection
