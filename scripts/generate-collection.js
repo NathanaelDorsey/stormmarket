@@ -95,19 +95,8 @@ function convertRequest(req) {
 }
 
 function buildUrlObject(url) {
-  // Parse {{baseUrl}}/v1/products -> host="{{baseUrl}}", path=["v1","products"]
-  // For variable resolution, host must be the base URL variable
-  const match = url.match(/\{\{baseUrl\}\}(.*)/);
-  if (!match) {
-    return { raw: url };
-  }
-  const pathPart = match[1].split('?')[0];
-  const pathSegments = pathPart.split('/').filter(p => p);
-  return {
-    raw: url,
-    host: ["{{baseUrl}}"],
-    path: pathSegments
-  };
+  // Use raw URL only - let Postman resolve {{baseUrl}} variable
+  return { raw: url };
 }
 
 // Generate collection
@@ -118,7 +107,7 @@ const collection = {
     description: "Storm Market API test collection"
   },
   variable: [
-    { key: "baseUrl", value: "http://localhost:8080", type: "string" },
+    { key: "baseUrl", value: "", type: "string" },
     { key: "authToken", value: "", type: "string" }
   ],
   auth: {
