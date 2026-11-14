@@ -22,7 +22,7 @@ jobs:
 
       # 2. Set up Java 25
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -37,7 +37,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 3.5. Copy test JWT keys
+      # 3.5. Copy test JWT keys to main resources for test profile
       - name: Copy test JWT keys
         run: |
           mkdir -p src/main/resources/jwt
@@ -137,7 +137,7 @@ jobs:
         run: |
           ./mvnw spotless:check -Dspring.profiles.active=test
 
-      # 12. Run Postman Collection (User)
+      # 12. Run Postman Collection (User) - final gate
       - name: Run Postman Collection (User) - final gate
         run: |
           postman collection run "postman/collections/Storm Market API" \
@@ -159,7 +159,7 @@ jobs:
             app-user-results.json
             app-user-results-final.json
 
-      # 13. Stop Application
+      # 14. Stop Application
       - name: Stop Application
         if: always()
         run: |
@@ -167,7 +167,7 @@ jobs:
             kill $(cat app.pid) 2>/dev/null || true
           fi
 
-      # 13. Upload logs on failure
+      # 14. Upload logs on failure
       - name: Upload App Logs
         if: failure()
         uses: actions/upload-artifact@v4

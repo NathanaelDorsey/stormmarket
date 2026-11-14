@@ -18,7 +18,7 @@ jobs:
 
       # 2. Set up Java 25
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -33,7 +33,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4. Copy test JWT keys to main resources for test profile
+      # 3.5. Copy test JWT keys to main resources for test profile
       - name: Copy test JWT keys
         run: |
           mkdir -p src/main/resources/jwt
@@ -123,7 +123,7 @@ jobs:
             --output app-user-results.json
         continue-on-error: false
 
-      # 11. Upload results
+      # 10. Upload results
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
@@ -134,7 +134,7 @@ jobs:
             app-admin-results.json
             app-user-results.json
 
-      # 12. Stop Application
+      # 10. Stop Application
       - name: Stop Application
         if: always()
         run: |
@@ -142,7 +142,7 @@ jobs:
             kill $(cat app.pid) 2>/dev/null || true
           fi
 
-      # 13. Upload logs on failure
+      # 11. Upload logs on failure
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
