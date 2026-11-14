@@ -1,0 +1,97 @@
+epic_id: "e06"
+tasks:
+  - id: "e06s01-t1"
+    story_id: "e06s01"
+    title: "Create ResultHttpMapper component class"
+    description: "Create ResultHttpMapper.java in common.exception with @Component annotation"
+    type: "implementation"
+    estimate: "XS"
+    status: passing
+
+  - id: "e06s01-t2"
+    story_id: "e06s01"
+    title: "Implement toResponse method for Ok case"
+    description: "Handle Ok with value -> 200 OK; Ok with null (void) -> 204 No Content"
+    type: "implementation"
+    estimate: "S"
+    status: passing
+
+  - id: "e06s01-t3"
+    story_id: "e06s01"
+    title: "Implement CartError mapping in toResponse Err case"
+    description: "Map all 11 CartError constants to correct HTTP status (400/404/409) with ApiErrorResponse"
+    type: "implementation"
+    estimate: "M"
+    status: passing
+
+  - id: "e06s01-t4"
+    story_id: "e06s01"
+    title: "Implement OrderError mapping in toResponse Err case"
+    description: "Map all 8 OrderError constants to correct HTTP status (400/404/409) with ApiErrorResponse"
+    type: "implementation"
+    estimate: "M"
+    status: passing
+
+  - id: "e06s01-t5"
+    story_id: "e06s01"
+    title: "Implement PaymentError mapping in toResponse Err case"
+    description: "Map all 7 PaymentError constants to correct HTTP status (403/404/409) with ApiErrorResponse"
+    type: "implementation"
+    estimate: "M"
+    status: passing
+
+  - id: "e06s01-t6"
+    story_id: "e06s01"
+    title: "Implement StockError mapping in toResponse Err case"
+    description: "Map all 6 StockError constants to correct HTTP status (404/409) with ApiErrorResponse (for internal service use)"
+    type: "implementation"
+    estimate: "S"
+    status: passing
+
+  - id: "e06s01-t7"
+    story_id: "e06s01"
+    title: "Add request path extraction via RequestContextHolder"
+    description: "Get current HttpServletRequest to extract request URI for ApiErrorResponse path field"
+    type: "implementation"
+    estimate: "S"
+    status: passing
+
+  - id: "e06s01-t8"
+    story_id: "e06s01"
+    title: "Verify compilation and code style"
+    description: "Run mvn compile and spotless:check"
+    type: "validation"
+    estimate: "XS"
+    status: passing
+
+  - id: "e06s02-t1"
+    story_id: "e06s02"
+    title: "Run full test suite"
+    description: "Execute mvn test to verify all 175 tests pass with ResultHttpMapper integration"
+    type: "validation"
+    estimate: "M"
+    status: passing
+
+  - id: "e06s02-t2"
+    story_id: "e06s02"
+    title: "Run Postman collection"
+    description: "Execute Postman collection (21 requests, 67 assertions) to verify HTTP contract"
+    type: "validation"
+    estimate: "M"
+    status: passing
+
+  - id: "e06s02-t3"
+    story_id: "e06s02"
+    title: "Run code quality gates"
+    description: "Run SpotBugs, FindSecBugs, JaCoCo to verify no regressions"
+    type: "validation"
+    estimate: "M"
+    status: passing
+
+  - id: "e06s02-t4"
+    story_id: "e06s02"
+    title: "Verify GlobalExceptionHandler unchanged for unexpected exceptions"
+    description: "Confirm 500 errors for NPE, DB down, etc. still work"
+    type: "validation"
+    estimate: "S"
+    status: passing
