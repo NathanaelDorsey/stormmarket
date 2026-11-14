@@ -6,6 +6,7 @@ tasks:
     description: "Replace throw statements with Result.err() for each validation failure; return Result.ok(null) on success"
     type: "implementation"
     estimate: "M"
+    status: passing
 
   - id: "e03s01-t2"
     story_id: "e03s01"
@@ -13,6 +14,7 @@ tasks:
     description: "Replace throw statements with Result.err(); return Result.ok(null) on success"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e03s01-t3"
     story_id: "e03s01"
@@ -20,6 +22,7 @@ tasks:
     description: "Replace throw with Result.err(CartError.ITEM_NOT_IN_CART); return Result.ok(null) on success"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e03s01-t4"
     story_id: "e03s01"
@@ -27,6 +30,7 @@ tasks:
     description: "Change return type to Result<Void, CartError>; return Result.ok(null)"
     type: "implementation"
     estimate: "XS"
+    status: passing
 
   - id: "e03s01-t5"
     story_id: "e03s01"
@@ -34,6 +38,7 @@ tasks:
     description: "Map CouponValidationError from couponService.validate() to CartError constants; return Result.ok(null) on success"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e03s01-t6"
     story_id: "e03s01"
@@ -41,6 +46,7 @@ tasks:
     description: "Change return type to Result<Void, CartError>; return Result.ok(null)"
     type: "implementation"
     estimate: "XS"
+    status: passing
 
   - id: "e03s01-t7"
     story_id: "e03s01"
@@ -48,6 +54,7 @@ tasks:
     description: "Modify validateQuantity, getExistingCart, getCartItem to return/throw appropriately for Result flow"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e03s01-t8"
     story_id: "e03s01"
@@ -55,66 +62,20 @@ tasks:
     description: "Run mvn compile and spotless:check"
     type: "validation"
     estimate: "XS"
+    status: passing
 
   - id: "e03s02-t1"
     story_id: "e03s02"
-    title: "Inject ResultHttpMapper into CartController"
-    description: "Add constructor injection for ResultHttpMapper"
+    title: "Update CartController endpoints to handle Result"
+    description: "Call service, check result.isErr(), throw result.getError() on failure, return getCart() on success"
     type: "implementation"
-    estimate: "XS"
+    estimate: "S"
+    status: passing
 
   - id: "e03s02-t2"
-    story_id: "e03s02"
-    title: "Update addProductToCart endpoint to use mapper"
-    description: "Call service, pass result to mapper.toResponse(), return ResponseEntity"
-    type: "implementation"
-    estimate: "S"
-
-  - id: "e03s02-t3"
-    story_id: "e03s02"
-    title: "Update updateProductQuantity endpoint to use mapper"
-    description: "Call service, pass result to mapper.toResponse(), return ResponseEntity"
-    type: "implementation"
-    estimate: "S"
-
-  - id: "e03s02-t4"
-    story_id: "e03s02"
-    title: "Update removeProductFromCart endpoint to use mapper"
-    description: "Call service, pass result to mapper.toResponse(), return ResponseEntity (204 on Ok)"
-    type: "implementation"
-    estimate: "S"
-
-  - id: "e03s02-t5"
-    story_id: "e03s02"
-    title: "Update clearCart endpoint to use mapper"
-    description: "Call service, pass result to mapper.toResponse(), return ResponseEntity (204 on Ok)"
-    type: "implementation"
-    estimate: "S"
-
-  - id: "e03s02-t6"
-    story_id: "e03s02"
-    title: "Update applyCoupon endpoint to use mapper"
-    description: "Call service, pass result to mapper.toResponse(), return ResponseEntity"
-    type: "implementation"
-    estimate: "S"
-
-  - id: "e03s02-t7"
-    story_id: "e03s02"
-    title: "Update removeCoupon endpoint to use mapper"
-    description: "Call service, pass result to mapper.toResponse(), return ResponseEntity"
-    type: "implementation"
-    estimate: "S"
-
-  - id: "e03s02-t8"
-    story_id: "e03s02"
-    title: "Verify getCart endpoint unchanged"
-    description: "Confirm getCart still returns CartResponse directly"
-    type: "validation"
-    estimate: "XS"
-
-  - id: "e03s02-t9"
     story_id: "e03s02"
     title: "Verify compilation, code style, and HTTP contract"
     description: "Run mvn compile, spotless:check; verify HTTP responses match current behavior"
     type: "validation"
     estimate: "XS"
+    status: passing
