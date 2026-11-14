@@ -39,4 +39,26 @@ public sealed interface Result<T, E extends Throwable> permits Ok, Err {
     static <T, E extends Throwable> Result<T, E> err(E error) {
         return new Err<>(error);
     }
+
+    /**
+     * Returns the error if this is an Err, otherwise throws IllegalStateException.
+     */
+    @SuppressWarnings("unchecked")
+    default E getError() {
+        if (this instanceof Err<?, ?> err) {
+            return (E) err.error();
+        }
+        throw new IllegalStateException("Result is not an error");
+    }
+
+    /**
+     * Returns the value if this is an Ok, otherwise throws IllegalStateException.
+     */
+    @SuppressWarnings("unchecked")
+    default T getValue() {
+        if (this instanceof Ok<?, ?> ok) {
+            return (T) ok.value();
+        }
+        throw new IllegalStateException("Result is not a success");
+    }
 }

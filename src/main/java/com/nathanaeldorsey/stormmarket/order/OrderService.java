@@ -13,6 +13,7 @@ import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.product.CouponValidationError;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
+import com.nathanaeldorsey.stormmarket.product.StockError;
 import com.nathanaeldorsey.stormmarket.user.User;
 import com.nathanaeldorsey.stormmarket.user.UserRepository;
 import java.math.BigDecimal;
@@ -163,9 +164,9 @@ public class OrderService {
                     throw new IllegalStateException("Insufficient stock for product: " + item.getProduct().getName());
                 }
                 // Reserve stock for this order atomically
-                int reserved = productRepository.reserveStock(item.getProduct().getId(), item.getQuantity());
-                if (reserved == 0) {
-                    throw new IllegalStateException("Insufficient stock for product: " + item.getProduct().getName());
+                Result<Integer, StockError> reserveResult = productRepository.reserveStock(item.getProduct().getId(), item.getQuantity());
+                if (reserveResult.isErr()) {
+                    throw reserveResult.getError();
                 }
             }
 
@@ -236,21 +237,16 @@ public class OrderService {
         if (!order.isStockDeducted()) {
             for (OrderItem item : order.getItems()) {
                 Product product = item.getProduct();
-                int rowsUpdated = productRepository.captureStock(product.getId(), item.getQuantity());
-                if (rowsUpdated == 0) {
+                Result<Integer, StockError> captureResult = productRepository.captureStock(product.getId(), item.getQuantity());
+                if (captureResult.isErr()) {
                     if (product.getReservedStock() > 0) {
-                        // Reservation-backed order but capture failed (reservation released by
-                        // concurrent cancellation or insufficient stock). Reservation failure
-                        // must be fatal for reservation-backed orders.
-                        throw new IllegalStateException("Insufficient stock for product: " + product.getName());
+                        // Reservation-backed order but capture failed
+                        throw captureResult.getError();
                     }
-                    // Legacy order without stock reservations: deduct stock directly.
-                    // Existing pending orders created before the reservation feature have
-                    // no reserved units, so captureStock returns 0 even when physical stock
-                    // is available.
-                    rowsUpdated = productRepository.deductStock(product.getId(), item.getQuantity());
-                    if (rowsUpdated == 0) {
-                        throw new IllegalStateException("Insufficient stock for product: " + product.getName());
+                    // Legacy order without stock reservations: deduct stock directly
+                    Result<Integer, StockError> deductResult = productRepository.deductStock(product.getId(), item.getQuantity());
+                    if (deductResult.isErr()) {
+                        throw deductResult.getError();
                     }
                 }
             }
@@ -287,7 +283,10 @@ public class OrderService {
         // Restore stock for each item only if stock was previously deducted.
         if (order.isStockDeducted()) {
             for (OrderItem item : order.getItems()) {
-                productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
+                Result<Void, StockError> restoreResult = productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
+                if (restoreResult.isErr()) {
+                    throw restoreResult.getError();
+                }
             }
             order.setStockDeducted(false);
         } else {
@@ -295,7 +294,10 @@ public class OrderService {
             for (OrderItem item : order.getItems()) {
                 Product product = item.getProduct();
                 if (product.getReservedStock() > 0) {
-                    productRepository.releaseReservedStock(product.getId(), item.getQuantity());
+                    Result<Void, StockError> releaseResult = productRepository.releaseReservedStock(product.getId(), item.getQuantity());
+                    if (releaseResult.isErr()) {
+                        throw releaseResult.getError();
+                    }
                 }
             }
         }
@@ -411,7 +413,10 @@ public class OrderService {
         // If the order is canceled or expired and stock was deducted, restore physical stock.
         if ((status == OrderStatus.CANCELED || status == OrderStatus.EXPIRED) && order.isStockDeducted()) {
             for (OrderItem item : order.getItems()) {
-                productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
+                Result<Void, StockError> restoreResult = productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
+                if (restoreResult.isErr()) {
+                    throw restoreResult.getError();
+                }
             }
             order.setStockDeducted(false);
         } else if (status == OrderStatus.CANCELED || status == OrderStatus.EXPIRED) {
@@ -419,7 +424,10 @@ public class OrderService {
             for (OrderItem item : order.getItems()) {
                 Product product = item.getProduct();
                 if (product.getReservedStock() > 0) {
-                    productRepository.releaseReservedStock(product.getId(), item.getQuantity());
+                    Result<Void, StockError> releaseResult = productRepository.releaseReservedStock(product.getId(), item.getQuantity());
+                    if (releaseResult.isErr()) {
+                        throw releaseResult.getError();
+                    }
                 }
             }
         }
@@ -454,14 +462,20 @@ public class OrderService {
             if (order.isStockDeducted()) {
                 // Legacy order - stock was already deducted, restore it
                 for (OrderItem item : order.getItems()) {
-                    productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
+                    Result<Void, StockError> restoreResult = productRepository.restoreStock(item.getProduct().getId(), item.getQuantity());
+                    if (restoreResult.isErr()) {
+                        throw restoreResult.getError();
+                    }
                 }
             } else {
                 // Normal order - release reserved stock only if product has reservations
                 for (OrderItem item : order.getItems()) {
                     Product product = item.getProduct();
                     if (product.getReservedStock() > 0) {
-                        productRepository.releaseReservedStock(product.getId(), item.getQuantity());
+                        Result<Void, StockError> releaseResult = productRepository.releaseReservedStock(product.getId(), item.getQuantity());
+                        if (releaseResult.isErr()) {
+                            throw releaseResult.getError();
+                        }
                     }
                 }
             }

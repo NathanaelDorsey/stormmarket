@@ -47,51 +47,66 @@ public class CartService {
      * @param userId   the id of the user whose cart receives the item
      * @param productId the id of the product to add
      * @param quantity  quantity to add; must be positive, at most 100, and within available stock
-     * @throws ResourceNotFoundException if the user or product does not exist
-     * @throws IllegalArgumentException if the product is inactive, out of stock, quantity is invalid,
-     *                                  or the cart already holds 50 distinct products
+     * @return Result.ok(null) on success, Result.err(CartError) on failure
      */
-    @Transactional // groups database changes into 1 transaction
-    public void addProductToCart(Long userId, Long productId, Integer quantity) {
-        validateQuantity(quantity);
-        User user = getUser(userId);
+    @Transactional
+    public Result<Void, CartError> addProductToCart(Long userId, Long productId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            return Result.err(CartError.INVALID_QUANTITY);
+        }
+        if (quantity > MAX_CART_ITEM_QUANTITY) {
+            return Result.err(CartError.INVALID_QUANTITY);
+        }
+
+        User user = userRepository
+                .findById(userId)
+                .filter(User::isActive)
+                .orElse(null);
+        if (user == null) {
+            return Result.err(CartError.USER_NOT_FOUND);
+        }
 
         Product product = productRepository
                 .findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+                .orElse(null);
+        if (product == null) {
+            return Result.err(CartError.PRODUCT_NOT_FOUND);
+        }
+
         if (product.getStockQuantity() <= 0) {
-            throw new IllegalArgumentException("Product is out of stock");
+            return Result.err(CartError.INSUFFICIENT_STOCK);
         }
         if (!product.isActive()) {
-            throw new IllegalArgumentException("Product is inactive");
+            return Result.err(CartError.INACTIVE_PRODUCT);
         }
+
         Cart cart = getOrCreateCart(user);
-        // check if item in cart
+
         CartItem item = cartItemRepository
                 .findByCartIdAndProductId(cart.getId(), productId)
                 .orElse(null);
+
         if (item == null && cart.getItems().size() >= MAX_DISTINCT_CART_ITEMS) {
-            throw new IllegalArgumentException(
-                    "Cart cannot contain more than " + MAX_DISTINCT_CART_ITEMS + " different products");
+            return Result.err(CartError.CART_FULL);
         }
+
         int currentQuantity = (item == null ? 0 : item.getQuantity());
-        // check if quantity added is more than stock
         if (currentQuantity + quantity > product.getStockQuantity()) {
-            throw new IllegalArgumentException("Requested quantity exceeds available stock");
+            return Result.err(CartError.INSUFFICIENT_STOCK);
         }
-        // update quantity if item is found in cart
+
         if (item != null) {
             item.setQuantity(item.getQuantity() + quantity);
         } else {
-            // else add item to cart
             item = new CartItem();
             item.setProduct(product);
             item.setCart(cart);
             item.setQuantity(quantity);
-            cart.addItem(item); // keep cart and items synchronized
+            cart.addItem(item);
         }
 
         cartRepository.save(cart);
+        return Result.ok(null);
     }
 
     /**
@@ -106,11 +121,9 @@ public class CartService {
     @Transactional
     public CartResponse getCart(Long userId) {
         User user = getUser(userId);
-        // create cart if none to view empty cart
         Cart cart = getOrCreateCart(user);
         CartResponse response = cartMapper.toResponse(cart);
 
-        // Apply coupon discount if a coupon code is present
         if (cart.getCouponCode() != null && !cart.getCouponCode().isBlank()) {
             Result<Coupon, CouponValidationError> result = couponService.validate(cart.getCouponCode());
             if (result.isOk()) {
@@ -123,7 +136,6 @@ public class CartService {
                 response.setDiscountAmount(discount);
                 response.setTotal(subtotal.subtract(discount));
             } else {
-                // Coupon is no longer valid - clear it from cart
                 cart.setCouponCode(null);
                 cartRepository.save(cart);
             }
@@ -136,13 +148,17 @@ public class CartService {
      * Removes all items from the user's cart.
      *
      * @param userId the id of the user whose cart to clear
-     * @throws ResourceNotFoundException if the user's cart does not exist
+     * @return Result.ok(null) on success, Result.err(CartError) on failure
      */
     @Transactional
-    public void clearCart(Long userId) {
-        Cart cart = getExistingCart(userId);
+    public Result<Void, CartError> clearCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+        if (cart == null) {
+            return Result.err(CartError.CART_NOT_FOUND);
+        }
 
         cart.getItems().clear();
+        return Result.ok(null);
     }
 
     /**
@@ -151,35 +167,50 @@ public class CartService {
      *
      * @param userId   the id of the user whose cart to modify
      * @param code     the coupon code to apply
-     * @return the updated cart response with discount applied
-     * @throws ResourceNotFoundException if the user's cart does not exist
-     * @throws IllegalStateException if the coupon is expired or usage limit reached
+     * @return Result.ok(null) on success, Result.err(CartError) on failure
      */
     @Transactional
-    public CartResponse applyCoupon(Long userId, String code) {
+    public Result<Void, CartError> applyCoupon(Long userId, String code) {
         Result<Coupon, CouponValidationError> result = couponService.validate(code);
         if (result.isErr()) {
-            throw (CouponValidationError) ((Err<Coupon, CouponValidationError>) result).error();
+            return Result.err(mapCouponError(result.getError()));
         }
-        Cart cart = getExistingCart(userId);
+
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+        if (cart == null) {
+            return Result.err(CartError.CART_NOT_FOUND);
+        }
+
         cart.setCouponCode(code);
         cartRepository.save(cart);
-        return getCart(userId);
+        return Result.ok(null);
+    }
+
+    private CartError mapCouponError(CouponValidationError error) {
+        if (error == CouponValidationError.NOT_FOUND) return CartError.COUPON_INVALID;
+        if (error == CouponValidationError.EXPIRED) return CartError.COUPON_EXPIRED;
+        if (error == CouponValidationError.USAGE_LIMIT_REACHED) return CartError.COUPON_USAGE_LIMIT_REACHED;
+        if (error == CouponValidationError.INACTIVE) return CartError.COUPON_INACTIVE;
+        return CartError.COUPON_INVALID;
     }
 
     /**
      * Removes the applied coupon code from the user's cart.
      *
      * @param userId the id of the user whose cart to modify
-     * @return the updated cart response without discount
-     * @throws ResourceNotFoundException if the user's cart does not exist
+     * @return Result.ok(null) on success, Result.err(CartError) on failure
      */
     @Transactional
-    public CartResponse removeCoupon(Long userId) {
-        Cart cart = getExistingCart(userId);
+    public Result<Void, CartError> removeCoupon(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+        if (cart == null) {
+            // Idempotent: no cart means no coupon to remove
+            return Result.ok(null);
+        }
+
         cart.setCouponCode(null);
         cartRepository.save(cart);
-        return getCart(userId);
+        return Result.ok(null);
     }
 
     /**
@@ -187,15 +218,24 @@ public class CartService {
      *
      * @param userId   the id of the user whose cart to modify
      * @param productId the id of the product to remove
-     * @throws ResourceNotFoundException if the user's cart or the product in the cart does not exist
+     * @return Result.ok(null) on success, Result.err(CartError) on failure
      */
     @Transactional
-    public void removeProductFromCart(Long userId, Long productId) {
-        Cart cart = getExistingCart(userId);
+    public Result<Void, CartError> removeProductFromCart(Long userId, Long productId) {
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+        if (cart == null) {
+            return Result.err(CartError.CART_NOT_FOUND);
+        }
 
-        CartItem item = getCartItem(cart, productId);
+        CartItem item = cartItemRepository
+                .findByCartIdAndProductId(cart.getId(), productId)
+                .orElse(null);
+        if (item == null) {
+            return Result.err(CartError.PRODUCT_NOT_IN_CART);
+        }
 
-        cart.getItems().remove(item); // remove item from collection and database(orphanRemoval = true)
+        cart.getItems().remove(item);
+        return Result.ok(null);
     }
 
     /**
@@ -204,24 +244,39 @@ public class CartService {
      * @param userId   the id of the user whose cart to modify
      * @param productId the id of the product to update
      * @param quantity  new quantity; must be positive, at most 100, and within available stock
-     * @throws ResourceNotFoundException if the user's cart or the product in the cart does not exist
-     * @throws IllegalArgumentException if the product is inactive, quantity is invalid, or exceeds stock
+     * @return Result.ok(null) on success, Result.err(CartError) on failure
      */
     @Transactional
-    public void updateProductQuantity(Long userId, Long productId, Integer quantity) {
-        validateQuantity(quantity);
-        Cart cart = getExistingCart(userId);
+    public Result<Void, CartError> updateProductQuantity(Long userId, Long productId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            return Result.err(CartError.INVALID_QUANTITY);
+        }
+        if (quantity > MAX_CART_ITEM_QUANTITY) {
+            return Result.err(CartError.INVALID_QUANTITY);
+        }
 
-        CartItem item = getCartItem(cart, productId);
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+        if (cart == null) {
+            return Result.err(CartError.CART_NOT_FOUND);
+        }
+
+        CartItem item = cartItemRepository
+                .findByCartIdAndProductId(cart.getId(), productId)
+                .orElse(null);
+        if (item == null) {
+            return Result.err(CartError.PRODUCT_NOT_IN_CART);
+        }
 
         Product product = item.getProduct();
         if (!product.isActive()) {
-            throw new IllegalArgumentException("Product is inactive");
+            return Result.err(CartError.INACTIVE_PRODUCT);
         }
         if (quantity > product.getStockQuantity()) {
-            throw new IllegalArgumentException("Requested quantity exceeds available stock");
+            return Result.err(CartError.INSUFFICIENT_STOCK);
         }
+
         item.setQuantity(quantity);
+        return Result.ok(null);
     }
 
     private Cart getOrCreateCart(User user) {
@@ -232,29 +287,10 @@ public class CartService {
         });
     }
 
-    private Cart getExistingCart(Long userId) {
-        return cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
-    }
-
-    private void validateQuantity(Integer quantity) {
-        if (quantity == null || quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        }
-        if (quantity > MAX_CART_ITEM_QUANTITY) {
-            throw new IllegalArgumentException("Quantity cannot exceed " + MAX_CART_ITEM_QUANTITY);
-        }
-    }
-
     private User getUser(Long userId) {
         return userRepository
                 .findById(userId)
                 .filter(User::isActive)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found or inactive"));
-    }
-
-    private CartItem getCartItem(Cart cart, Long productId) {
-        return cartItemRepository
-                .findByCartIdAndProductId(cart.getId(), productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found in cart"));
     }
 }
