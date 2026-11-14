@@ -188,6 +188,7 @@ jobs:
           mkdir -p /tmp/jwt
           openssl genrsa -out /tmp/jwt/private-key.pem 2048
           openssl rsa -in /tmp/jwt/private-key.pem -pubout -out /tmp/jwt/public-key.pem
+          chmod 644 /tmp/jwt/*.pem
 
       - name: Start Storm Market container
         run: |
