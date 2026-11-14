@@ -60,5 +60,3 @@ echo "✓ PASS: User command has no quotes around env-var values"
 
 echo ""
 echo "✅ All Postman CLI workflow format checks passed!"
-EOF
-chmod +x /var/home/viper/IdeaProjects/fix-postman-cli-env-var/scripts/tests/verify-postman-workflow.sh
