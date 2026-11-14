@@ -1,0 +1,14 @@
+epic_id: "e04"
+title: "OrderService Result Adoption"
+feature: "adopt-result-pattern-domain"
+description: |
+  Convert OrderService transition methods (placeOrder, completeOrderWithPayment,
+  cancelOrderWithRefund, updateOrderStatus) to return Result<OrderResponse, OrderError>
+  instead of throwing exceptions. expirePendingOrders (scheduled) also converted.
+
+stories:
+  - "s01-order-service-transitions-result"
+  - "s02-order-controller-delegation"
+
+order: 4
+depends_on: ["e01", "e02", "e03"]

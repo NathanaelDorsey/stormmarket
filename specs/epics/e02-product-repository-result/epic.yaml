@@ -1,0 +1,15 @@
+epic_id: "e02"
+title: "ProductRepository Result Adoption"
+feature: "adopt-result-pattern-domain"
+description: |
+  Convert ProductRepository stock methods (reserveStock, deductStock, captureStock,
+  restoreStock, releaseReservedStock) to return Result<Integer, StockError> instead
+  of int/void. This is the lowest layer with fewest callers, making it the ideal
+  starting point for gradual adoption.
+
+stories:
+  - "s01-product-repository-stock-result"
+  - "s02-product-service-stock-callers"
+
+order: 2
+depends_on: ["e01"]

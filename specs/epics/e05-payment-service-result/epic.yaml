@@ -1,0 +1,14 @@
+epic_id: "e05"
+title: "PaymentService Result Adoption"
+feature: "adopt-result-pattern-domain"
+description: |
+  Convert PaymentService lifecycle methods (createPaymentIntent, authorizePayment,
+  capturePayment, refundPayment, failPayment) to return Result<Payment, PaymentError>
+  instead of throwing exceptions. This is the last service in the adoption order.
+
+stories:
+  - "s01-payment-service-lifecycle-result"
+  - "s02-payment-controller-delegation"
+
+order: 5
+depends_on: ["e01", "e02", "e03", "e04"]

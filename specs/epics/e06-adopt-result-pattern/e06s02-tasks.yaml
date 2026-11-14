@@ -1,0 +1,37 @@
+story_id: e06s02
+title: "ResultHttpMapper component for centralized error→HTTP mapping"
+status: ready
+bcps: 5
+tasks:
+  - id: e06s02.t01
+    description: "Create ResultHttpMapper @Component with toResponse(Result<T,E>) method"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s02.t02
+    description: "Implement error→HTTP status mapping: ResourceNotFoundException→404, DomainError subtypes→409/400, fallback→500"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s02.t03
+    description: "Map ApiErrorResponse body with timestamp, status, error, message, path (consistent with GlobalExceptionHandler)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s02.t04
+    description: "Update CartController.applyCoupon/removeCoupon to delegate to mapper.toResponse(result)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s02.t05
+    description: "Update OrderController.placeOrder/getOrderDetails/updateOrderStatus to delegate to mapper"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s02.t06
+    description: "Update PaymentController.authorize/capture/refund/fail to delegate to mapper"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s02.t07
+    description: "Update ProductController.create/update/delete/bulk to delegate to mapper"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s02.t08
+    description: "Verify GlobalExceptionHandler still catches unexpected exceptions (NPE, DB down)"
+    verify: "./mvnw test -Dtest=GlobalExceptionHandlerTest -q"
+    status: pending

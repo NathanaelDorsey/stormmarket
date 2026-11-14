@@ -26,3 +26,7 @@ epics:
     name: "User Account Management"
     status: "planned"
     story_count: 3
+  - id: "e06"
+    name: "Adopt Result<T,E> Pattern Across Domain Services"
+    status: "planned"
+    story_count: 6

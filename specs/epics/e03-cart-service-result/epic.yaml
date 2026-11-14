@@ -1,0 +1,14 @@
+epic_id: "e03"
+title: "CartService Result Adoption"
+feature: "adopt-result-pattern-domain"
+description: |
+  Convert CartService mutation methods (addProduct, updateQuantity, removeProduct,
+  clearCart, applyCoupon, removeCoupon) to return Result<Void, CartError> instead
+  of throwing exceptions. Controllers will be updated in a later epic.
+
+stories:
+  - "s01-cart-service-mutations-result"
+  - "s02-cart-controller-delegation"
+
+order: 3
+depends_on: ["e01", "e02"]

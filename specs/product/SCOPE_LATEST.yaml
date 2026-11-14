@@ -1,92 +1,60 @@
-core_value: "Enable secure, feature-rich online marketplace transactions with comprehensive product, cart, order, and user management via a RESTful API."
+core_value: "Adopt Result<T,E> pattern across core domain services to make expected failures explicit at compile time, eliminating exception-based control flow for business rule violations."
+
 summary: |
-  Storm Market is a backend platform for an e-commerce application built with Java 25 and Spring Boot 4.1.1.
-  The system provides catalog browsing, shopping cart management, order processing, and user/admin
-  functionality through a secured REST API. The architecture follows a layered, feature-per-package
-  pattern with Spring Data JPA, Flyway migrations, and MySQL as the production database.
+  StormMarket currently uses inconsistent error handling: ProductRepository stock methods return int (0=failure), CartService/OrderService/PaymentService throw IllegalArgumentException/IllegalStateException for expected business rule violations (insufficient stock, invalid state transitions, ownership checks). This forces callers to use try/catch for control flow, makes error handling inconsistent across services, and prevents the compiler from enforcing handling of expected failures.
 
-  The scope covers the core marketplace features essential for launch: product catalog with search
-  and filtering, shopping cart management, order placement and tracking, user account management,
-  and administrative controls. Authentication is handled via stateless JWT with OAuth2 resource
-  server integration. File storage is configurable between local and S3 backends.
-
-  Out-of-scope items are explicitly deferred to post-launch iterations to prevent scope creep
-  and keep the initial release focused on core transaction functionality.
+  This initiative adopts the existing Result<T,E> sealed interface (Ok/Err) — already used for coupon validation — across four core services: ProductRepository (stock operations), CartService (cart mutations), OrderService (order transitions), and PaymentService (payment lifecycle). Each service gets a dedicated error type (StockError, CartError, OrderError, PaymentError) extending a common DomainError base. Controllers delegate to a new ResultHttpMapper for centralized error→HTTP mapping. Transaction rollback on Err is handled via explicit setRollbackOnly(). Error instances are static singletons for zero-allocation hot paths.
 
 in_scope:
-  - Product catalog browsing and search
-    * Public GET endpoints for product listing with pagination, sorting, and filtering
-    * Category browsing with hierarchical display
-    * Product detail retrieval
-  - Shopping cart functionality
-    * Add/remove items from cart
-    * Update cart item quantities
-    * Cart persistence per user session
-  - Order management
-    * Guest checkout and registered user checkout
-    * Order creation from cart
-    * Order status tracking
-    * Order history per user
-  - User account management
-    * Registration and login (JWT-based authentication)
-    * Profile management
-    * Password management (Argon2 encoding)
-  - Administrative controls
-    * CRUD operations for products
-    * CRUD operations for categories
-    * User listing and management
-    * System configuration
-  - Security foundation
-    * Stateless JWT authentication (RS256)
-    * Role-based access control (ROLE_USER, ROLE_ADMIN)
-    * Public read access to catalog (permitAll)
-    * CSRF disabled per design
-    * PermitList for auth/catalog read routes
-    * File storage toggle (local/S3 via environment variable)
+  - "product-stock-result: ProductRepository stock methods (reserveStock, deductStock, captureStock, restoreStock, releaseReservedStock) return Result<Integer, StockError>"
+  - "cart-result: CartService mutations (addProduct, updateQuantity, removeProduct, clearCart, applyCoupon, removeCoupon) return Result<Void, CartError>"
+  - "order-result: OrderService transitions (placeOrder, completeOrderWithPayment, cancelOrderWithRefund, updateOrderStatus) return Result<OrderResponse, OrderError>"
+  - "payment-result: PaymentService lifecycle (authorizePayment, capturePayment, refundPayment, failPayment) return Result<Payment, PaymentError>"
+  - "domain-error-hierarchy: DomainError base class + StockError, CartError, OrderError, PaymentError as static singleton error constants"
+  - "result-http-mapper: ResultHttpMapper component for centralized error→HTTP status/body mapping"
+  - "controller-delegation: Controllers updated to call mapper.toResponse(result) instead of try/catch"
+  - "transaction-rollback: @Transactional methods call setRollbackOnly() on Err to preserve rollback semantics"
+  - "test-updates: All 175 tests updated to expect Result instead of exceptions"
 
 out_of_scope:
-  - Frontend client application (web UI, mobile app)
-  - Real-time features (WebSockets, SSE, polling)
-  - Advanced pricing rules (discount campaigns, bulk pricing, dynamic pricing)
-  - Inventory management beyond cart reservation
-  - Multi-tenant or marketplace seller onboarding
-  - Subscription or recurring billing
-  - Complex promotional engine (coupons, referrals, affiliates beyond basic setup)
-  - Payment gateway integration beyond order creation
-  - Shipping carrier integration and fulfillment tracking
-  - Search engine integration (ElasticSearch, OpenSearch)
-  - Real-time inventory synchronization
-  - Audit log persistence for all model changes
-  - Background job processing (queues, retries, dead-letter handling)
-  - External service webhooks or callbacks
+  - "global-exception-handler: GlobalExceptionHandler unchanged — still catches unexpected exceptions (NPE, DB down)"
+  - "repository-finders: findById, findAll, etc. keep Optional/null returns"
+  - "migration-scripts: No schema changes required"
+  - "testcontainers-integration: MySQL integration tests behavior unchanged"
+  - "new-dependencies: Zero new dependencies added"
+  - "api-contracts: HTTP request/response bodies unchanged — only internal error handling style changes"
 
 constraints:
-  - Language: Java 25, Spring Boot 4.1.1, Maven build wrapper (mvnw)
-  - Database: MySQL production, H2 in-memory for unit tests
-  - Migrations: Flyway with versioned SQL migrations (25 existing migrations)
-  - Security: Stateless JWT only; no session state; Argon2 password encoding
-  - API base path: /v1
-  - Response format: JSON with consistent ApiErrorResponse envelope
-  - Deployment: Standard JVM deployment; no container-orchestrated features required
-  - Testing: JUnit 5 + Spring Test by default; MySQL integration opt-in via -Drun.mysql.integration=true
-  - Code format: Spotless (Palantir Java Format 2.102.0, currently skipped in CI)
-  - Static analysis: SpotBugs 4.10.5.0 + FindSecBugs with exclude filter
-  - Coverage: JaCoCo 0.8.14; reports generated at verify phase
+  - "Result<E extends Throwable> bound requires error types to extend Throwable → DomainError extends RuntimeException"
+  - "Must not break existing API contracts — controllers return identical HTTP responses"
+  - "Must preserve transaction boundaries — rollback on expected failures must still work via setRollbackOnly()"
+  - "Must maintain same test behavior — 175 tests pass with updated assertions"
+  - "No new dependencies — only existing Result, Ok, Err in common.exception"
+  - "Performance: Result allocation on hot paths (cart add, stock check) must be negligible — static error singletons"
 
 success_criteria:
-  - All public catalog GET endpoints (/v1/products, /v1/categories) return 200 with paginated results
-  - Authenticated users can successfully register, login, and obtain a valid JWT token
-  - Authenticated users can add/remove items from cart and persist cart state
-  - Authenticated users can place orders from cart and receive order confirmation with order ID
-  - Admin users can create, update, and delete products and categories via API
-  - 100% of unit tests pass on default CI run (H2-based, no Testcontainers)
-  - JaCoCo coverage report shows >= 80% overall, >= 70% per-class for core services
-  - SpotBugs/FindSecBugs no new warnings introduced (existing exclude filter preserved)
-  - Application starts successfully with MySQL datasource configured
-  - JWT authentication flow: RS256 signing, role claim mapping to ROLE_* authorities works correctly
+  - "All 175 tests pass with updated assertions for Result pattern"
+  - "SpotBugs: 0 bugs, 0 errors; FindSecBugs: 0 issues"
+  - "JaCoCo coverage maintained (64% instruction / 51% branch / 51% line / 62% method / 85% class)"
+  - "Spotless compliant (Palantir Java Format)"
+  - "Postman collection: 21 requests, 67 assertions, 0 failures"
+  - "No regression in HTTP response codes or bodies for any endpoint"
+  - "Transaction rollback verified on Err paths via integration tests"
 
 references:
-  - specs/tech-architecture/tech-stack.md — full stack and convention details
-  - README.md — current test suite results (175 tests pass) and future improvement notes
-  - DEVELOPER_GUIDE.md — onboarding and development workflow details
-  - CONVENTIONS.md — (not yet exists for this project; conventions observed from code review)
+  - "specs/planning-context.yaml"
+  - "specs/product/VISION_LATEST.yaml"
+  - "src/main/java/com/nathanaeldorsey/stormmarket/common/exception/Result.java"
+  - "src/main/java/com/nathanaeldorsey/stormmarket/product/CouponService.java (existing Result usage)"
+
+trade_off_analysis:
+  - item: "GlobalExceptionHandler for expected failures"
+    excluded_because: "Would keep exception-based control flow; ResultHttpMapper centralizes mapping once"
+  - item: "Controller-level error handling without mapper"
+    excluded_because: "Duplicates HTTP mapping logic across 8+ controllers; violates DRY"
+  - item: "Throwing exceptions on Err for automatic rollback"
+    excluded_because: "Loses explicit Result handling; setRollbackOnly() preserves declarative @Transactional"
+  - item: "Instance-per-error (new StockError() each time)"
+    excluded_because: "Unnecessary allocation on hot paths; static singletons are thread-safe and idiomatic"
+  - item: "Separate error hierarchy per service (no common base)"
+    excluded_because: "Mapper would need 4+ catch blocks; DomainError enables single exhaustive switch"

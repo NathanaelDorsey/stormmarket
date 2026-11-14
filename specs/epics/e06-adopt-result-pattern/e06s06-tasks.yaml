@@ -1,0 +1,33 @@
+story_id: e06s06
+title: "PaymentService lifecycle returns Result<Payment, PaymentError>"
+status: ready
+bcps: 7
+tasks:
+  - id: e06s06.t01
+    description: "Change authorizePayment to return Result<Payment, PaymentError> (OK with payment, ERR with OWNERSHIP_MISMATCH/INVALID_STATE_TRANSITION/PAYMENT_NOT_FOUND)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s06.t02
+    description: "Change capturePayment to return Result<Payment, PaymentError> (OK with payment, ERR with OWNERSHIP_MISMATCH/INVALID_STATE_TRANSITION/PAYMENT_NOT_FOUND/ORDER_NOT_PENDING)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s06.t03
+    description: "Change refundPayment to return Result<Payment, PaymentError> (OK with payment, ERR with OWNERSHIP_MISMATCH/INVALID_STATE_TRANSITION/PAYMENT_NOT_FOUND/CANNOT_REFUND_SHIPPED)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s06.t04
+    description: "Change failPayment to return Result<Payment, PaymentError> (OK with payment, ERR with OWNERSHIP_MISMATCH/INVALID_STATE_TRANSITION/PAYMENT_NOT_FOUND)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s06.t05
+    description: "Add TransactionAspectSupport.setRollbackOnly() on Err paths in all @Transactional methods"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s06.t06
+    description: "Update PaymentController to delegate to ResultHttpMapper"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s06.t07
+    description: "Run PaymentService and PaymentController tests"
+    verify: "./mvnw test -Dtest=PaymentServiceTest,PaymentControllerTest -q"
+    status: pending

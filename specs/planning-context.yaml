@@ -1,0 +1,33 @@
+# specs/planning-context.yaml — written by elaborate-spec; consumed by scope-work and slice-tasks
+feature_name: "adopt-result-pattern-domain"
+problem_statement: |
+  Inconsistent error handling across core domain services: ProductRepository stock methods return int (0=failure), CartService/OrderService/PaymentService throw exceptions for expected business rule violations (insufficient stock, invalid state transitions, ownership checks). This forces callers to use try/catch for control flow, makes error handling inconsistent, and the compiler cannot enforce handling of expected failures.
+
+constraints:
+  - "Result<E extends Throwable> bound requires error types to extend Throwable → use RuntimeException subclasses"
+  - "Must not break existing API contracts (controllers return same HTTP responses)"
+  - "Must not change transaction boundaries — rollback on expected failures must still work"
+  - "Must maintain same test behavior (175 tests pass)"
+  - "No new dependencies"
+  - "Performance: Result allocation on hot paths must be negligible"
+
+out_of_scope:
+  - "GlobalExceptionHandler — keep for unexpected exceptions only"
+  - "Controller layer HTTP mapping — add ResultHttpMapper component"
+  - "Repository finder methods (findById, findAll) — keep Optional/null"
+  - "Migration scripts — no schema changes"
+  - "Testcontainers/MySQL integration — no behavior change"
+
+key_decisions:
+  - decision: "Adopt Result<T,E> for expected failures in ProductRepository, CartService, OrderService, PaymentService"
+    rationale: "Makes expected failures explicit at compile time; forces caller handling; consistent pattern"
+  - decision: "Gradual adoption order: ProductRepository → CartService → OrderService → PaymentService"
+    rationale: "Lowest layer first, fewest callers; each step independently verifiable"
+  - decision: "Error types: StockError, CartError, OrderError, PaymentError all extend DomainError extends RuntimeException"
+    rationale: "Common base for catch-all in ResultHttpMapper; satisfies E extends Throwable; exhaustiveness via sealed interface optional"
+  - decision: "Transaction rollback on Err via TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()"
+    rationale: "Preserves @Transactional declarative style; explicit rollback without throwing"
+  - decision: "Controller layer delegates to ResultHttpMapper component for centralized error→HTTP mapping"
+    rationale: "Single mapping logic; controllers call mapper.toResponse(result); GlobalExceptionHandler still catches unexpected exceptions"
+  - decision: "Static singleton instances for common errors (e.g., StockError.INSUFFICIENT_STOCK)"
+    rationale: "Zero allocation on hot paths; Result.err(error) reuses instance"

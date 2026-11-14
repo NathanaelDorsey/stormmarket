@@ -1,0 +1,49 @@
+story_id: e06s05
+title: "OrderService transitions return Result<OrderResponse, OrderError>"
+status: ready
+bcps: 10
+tasks:
+  - id: e06s05.t01
+    description: "Change placeOrder to return Result<OrderResponse, OrderError> (OK with response, ERR with INSUFFICIENT_STOCK/PRODUCT_INACTIVE/CART_EMPTY/COUPON_INVALID)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t02
+    description: "Change completeOrderWithPayment to return Result<OrderResponse, OrderError> (OK with response, ERR with INVALID_STATUS_TRANSITION/PAYMENT_NOT_CAPTURED/INSUFFICIENT_STOCK/ORDER_NOT_FOUND/PRODUCT_INACTIVE)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t03
+    description: "Change cancelOrderWithRefund to return Result<OrderResponse, OrderError> (OK with response, ERR with INVALID_STATUS_TRANSITION/ORDER_NOT_FOUND)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t04
+    description: "Change updateOrderStatus to return Result<OrderResponse, OrderError> (OK with response, ERR with INVALID_STATUS_TRANSITION/PAYMENT_NOT_CAPTURED/ORDER_NOT_FOUND)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t05
+    description: "Add TransactionAspectSupport.setRollbackOnly() on Err paths in all @Transactional methods"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t06
+    description: "Update OrderController to delegate to ResultHttpMapper"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t07
+    description: "Update PaymentService.capturePayment to handle Result from completeOrderWithPayment"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t08
+    description: "Update PaymentService.refundPayment to handle Result from cancelOrderWithRefund"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t09
+    description: "Update PaymentService.failPayment (no change needed, no OrderService call)"
+    verify: "./mvnw compile -q"
+    status: pending
+  - id: e06s05.t10
+    description: "Run OrderService and OrderController tests"
+    verify: "./mvnw test -Dtest=OrderServiceTest,OrderControllerTest,OrderControllerSecurityTest -q"
+    status: pending
+  - id: e06s05.t11
+    description: "Verify transaction rollback on Err paths via integration test"
+    verify: "./mvnw test -Dtest=PaymentServiceDatabaseTest -q"
+    status: pending

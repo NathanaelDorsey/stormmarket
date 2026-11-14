@@ -1,0 +1,15 @@
+epic_id: "e01"
+title: "Domain Error Hierarchy Foundation"
+feature: "adopt-result-pattern-domain"
+description: |
+  Establish the common DomainError base class and four service-specific error types
+  (StockError, CartError, OrderError, PaymentError) as static singleton constants.
+  All errors extend RuntimeException to satisfy Result<E extends Throwable> bound.
+  This is the foundation layer — all other epics depend on these error types.
+
+stories:
+  - "s01-domain-error-base-and-stock-error"
+  - "s02-cart-order-payment-errors"
+
+order: 1
+depends_on: []
