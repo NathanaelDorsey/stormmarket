@@ -89,8 +89,8 @@ The project includes a complete CI/CD pipeline via GitHub Actions and local boot
 
 | Component | Status | Description |
 |-----------|--------|-------------|
-| Postman API Tests | ✅ Complete | 21 requests, 67 assertions, 0 failures |
-| Maven Verify | ✅ Complete | 186 tests, 0 SpotBugs, 0 FindSecBugs, JaCoCo (64% instruction / 51% branch / 51% line) |
+| Postman API Tests | ✅ Complete | 21 requests, 201 assertions, 0 failures |
+| Maven Verify | ✅ Complete | 186 tests, 0 SpotBugs, 0 FindSecBugs, JaCoCo (56% instruction / 40% branch / 58% line) |
 | Code Formatting | ✅ Complete | Spotless (Palantir Java Format) |
 | CodeRabbit AI Review | ✅ Complete | Automated PR review |
 | Local Bootstrap | ✅ Complete | `scripts/test-bootstrap.sh` |
@@ -212,7 +212,7 @@ open target/site/jacoco/index.html
 ### Test status
 
 All 186 tests pass on `./mvnw test` (BUILD SUCCESS, 0 failures, 0 errors, 0 skipped).
-Postman collection: 21 requests, 67 assertions, 0 failures.
+Postman collection: 21 requests, 201 assertions, 0 failures.
 
 ### Result<T,E> Pattern (NEW)
 
@@ -238,11 +238,11 @@ Domain-wide adoption of `Result<T, E>` sealed interface for explicit error handl
 |--------|-------|
 | Total Micrometer metrics | 112 |
 | Custom stormmarket.* metrics | 14 |
-| JaCoCo Instruction Coverage | 64% |
-| JaCoCo Branch Coverage | 51% |
-| JaCoCo Line Coverage | 51% |
-| JaCoCo Method Coverage | 62% |
-| JaCoCo Class Coverage | 85% |
+| JaCoCo Instruction Coverage | 56% |
+| JaCoCo Branch Coverage | 40% |
+| JaCoCo Line Coverage | 58% |
+| JaCoCo Method Coverage | 59% |
+| JaCoCo Class Coverage | 86% |
 | SpotBugs | 0 bugs, 0 errors |
 | FindSecBugs | 0 issues |
 | Actuator endpoints exposed | 9 (health, info, metrics, prometheus, loggers, threaddump, heapdump, mappings, env, configprops) |

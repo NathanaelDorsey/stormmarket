@@ -48,7 +48,7 @@ Stack: Java 25, Spring Boot 4.1.1, Maven, MySQL, H2 test database
 - `stormmarket_users_registered_total` — registered users
 
 ### JaCoCo Coverage (verify)
-- Instruction: 64% | Branch: 51% | Line: 51% | Method: 62% | Class: 85%
+- Instruction: 56% | Branch: 40% | Line: 58% | Method: 59% | Class: 86%
 - SpotBugs: 0 bugs, 0 errors
 - FindSecBugs: 0 issues
 - Spotless: compliant (Palantir Java Format)
