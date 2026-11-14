@@ -2,13 +2,14 @@ session:
   active_flow: "fix_bug"
   active_bug: "BUG-2025-11-14T152500"
   handoff:
-    next_skill: "audit-code"
+    next_skill: "commit-message"
   vcs:
     kind: "git"
     branch: "fix-postman-cli-env-var"
-    commit: "f584f87"
+    commit: "2a914a8"
     worktree: "../fix-postman-cli-env-var"
   metrics:
     bug_start: "2025-11-14T15:25:00Z"
     fix_committed: "2025-11-14T15:33:54Z"
     verify_completed: "2025-11-14T15:41:52Z"
+    audit_completed: "2025-11-14T15:43:00Z"
