@@ -1,6 +1,6 @@
 package com.nathanaeldorsey.stormmarket.product;
 
-import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
+import com.nathanaeldorsey.stormmarket.common.exception.Result;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,28 +16,29 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CouponService {
     private final CouponRepository couponRepository;
-    private static final String COUPON_NOT_FOUND = "Coupon not found";
 
     /**
      * Validates a coupon code and returns the coupon if valid.
+     * Returns a Result to make expected failures explicit at compile time.
      *
      * @param code the coupon code
-     * @return the coupon if valid
-     * @throws ResourceNotFoundException if the coupon does not exist
-     * @throws IllegalStateException if the coupon is expired or usage limit reached
+     * @return Result containing the coupon on success, or CouponValidationError on failure
      */
     @Transactional(readOnly = true)
-    public Coupon validate(String code) {
+    public Result<Coupon, CouponValidationError> validate(String code) {
         Coupon coupon = couponRepository.findByCode(code);
         if (coupon == null) {
-            throw new ResourceNotFoundException(COUPON_NOT_FOUND);
+            return Result.err(CouponValidationError.NOT_FOUND);
         }
 
-        if (!coupon.isValid()) {
-            throw new IllegalStateException("Coupon is expired or usage limit reached");
+        if (coupon.isExpired()) {
+            return Result.err(CouponValidationError.EXPIRED);
+        }
+        if (coupon.isUsageLimitReached()) {
+            return Result.err(CouponValidationError.USAGE_LIMIT_REACHED);
         }
 
-        return coupon;
+        return Result.ok(coupon);
     }
 
     /**

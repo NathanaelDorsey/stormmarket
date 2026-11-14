@@ -3,11 +3,14 @@ package com.nathanaeldorsey.stormmarket.order;
 import com.nathanaeldorsey.stormmarket.cart.Cart;
 import com.nathanaeldorsey.stormmarket.cart.CartItem;
 import com.nathanaeldorsey.stormmarket.cart.CartRepository;
+import com.nathanaeldorsey.stormmarket.common.exception.Ok;
+import com.nathanaeldorsey.stormmarket.common.exception.Result;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.payment.PaymentService;
 import com.nathanaeldorsey.stormmarket.payment.PaymentStatus;
 import com.nathanaeldorsey.stormmarket.product.Coupon;
 import com.nathanaeldorsey.stormmarket.product.CouponService;
+import com.nathanaeldorsey.stormmarket.product.CouponValidationError;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
@@ -88,12 +91,15 @@ public class OrderService {
 
         // Snapshot coupon code and discount amount from cart onto the order
         if (cart.getCouponCode() != null && !cart.getCouponCode().isBlank()) {
-            Coupon coupon = couponService.validate(cart.getCouponCode());
-            BigDecimal subtotal = calculateOrderTotal(cart);
-            BigDecimal discount = couponService.calculateDiscount(coupon, subtotal);
-            order.setCouponCode(cart.getCouponCode());
-            order.setDiscountAmount(discount);
-            order.setTotal(subtotal.subtract(discount));
+            Result<Coupon, CouponValidationError> result = couponService.validate(cart.getCouponCode());
+            if (result.isOk()) {
+                Coupon coupon = ((Ok<Coupon, CouponValidationError>) result).value();
+                BigDecimal subtotal = calculateOrderTotal(cart);
+                BigDecimal discount = couponService.calculateDiscount(coupon, subtotal);
+                order.setCouponCode(cart.getCouponCode());
+                order.setDiscountAmount(discount);
+                order.setTotal(subtotal.subtract(discount));
+            }
         }
 
         for (CartItem cartItem : cart.getItems()) {

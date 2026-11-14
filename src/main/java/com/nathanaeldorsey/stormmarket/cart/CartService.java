@@ -1,8 +1,12 @@
 package com.nathanaeldorsey.stormmarket.cart;
 
+import com.nathanaeldorsey.stormmarket.common.exception.Err;
+import com.nathanaeldorsey.stormmarket.common.exception.Ok;
+import com.nathanaeldorsey.stormmarket.common.exception.Result;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.product.Coupon;
 import com.nathanaeldorsey.stormmarket.product.CouponService;
+import com.nathanaeldorsey.stormmarket.product.CouponValidationError;
 import com.nathanaeldorsey.stormmarket.product.Product;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import com.nathanaeldorsey.stormmarket.user.User;
@@ -108,14 +112,21 @@ public class CartService {
 
         // Apply coupon discount if a coupon code is present
         if (cart.getCouponCode() != null && !cart.getCouponCode().isBlank()) {
-            Coupon coupon = couponService.validate(cart.getCouponCode());
-            BigDecimal subtotal = response.getItems().stream()
-                    .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal discount = couponService.calculateDiscount(coupon, subtotal);
-            response.setCouponCode(cart.getCouponCode());
-            response.setDiscountAmount(discount);
-            response.setTotal(subtotal.subtract(discount));
+            Result<Coupon, CouponValidationError> result = couponService.validate(cart.getCouponCode());
+            if (result.isOk()) {
+                Coupon coupon = ((Ok<Coupon, CouponValidationError>) result).value();
+                BigDecimal subtotal = response.getItems().stream()
+                        .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal discount = couponService.calculateDiscount(coupon, subtotal);
+                response.setCouponCode(cart.getCouponCode());
+                response.setDiscountAmount(discount);
+                response.setTotal(subtotal.subtract(discount));
+            } else {
+                // Coupon is no longer valid - clear it from cart
+                cart.setCouponCode(null);
+                cartRepository.save(cart);
+            }
         }
 
         return response;
@@ -141,12 +152,15 @@ public class CartService {
      * @param userId   the id of the user whose cart to modify
      * @param code     the coupon code to apply
      * @return the updated cart response with discount applied
-     * @throws ResourceNotFoundException if the user's cart does not exist or the coupon is not found
+     * @throws ResourceNotFoundException if the user's cart does not exist
      * @throws IllegalStateException if the coupon is expired or usage limit reached
      */
     @Transactional
     public CartResponse applyCoupon(Long userId, String code) {
-        couponService.validate(code);
+        Result<Coupon, CouponValidationError> result = couponService.validate(code);
+        if (result.isErr()) {
+            throw (CouponValidationError) ((Err<Coupon, CouponValidationError>) result).error();
+        }
         Cart cart = getExistingCart(userId);
         cart.setCouponCode(code);
         cartRepository.save(cart);

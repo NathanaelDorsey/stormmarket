@@ -3,8 +3,12 @@ package com.nathanaeldorsey.stormmarket.payment;
 import com.nathanaeldorsey.stormmarket.common.exception.ResourceNotFoundException;
 import com.nathanaeldorsey.stormmarket.order.Order;
 import com.nathanaeldorsey.stormmarket.order.OrderRepository;
+import com.nathanaeldorsey.stormmarket.order.OrderResponse;
 import com.nathanaeldorsey.stormmarket.order.OrderStatus;
 import com.nathanaeldorsey.stormmarket.order.OrderService;
+import com.nathanaeldorsey.stormmarket.product.Coupon;
+import com.nathanaeldorsey.stormmarket.product.CouponRepository;
+import com.nathanaeldorsey.stormmarket.product.CouponService;
 import com.nathanaeldorsey.stormmarket.product.ProductRepository;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -29,16 +33,22 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderService orderService;
+    private final CouponRepository couponRepository;
+    private final CouponService couponService;
 
     public PaymentService(
             PaymentRepository paymentRepository,
             OrderRepository orderRepository,
             ProductRepository productRepository,
-            @Lazy OrderService orderService) {
+            @Lazy OrderService orderService,
+            CouponRepository couponRepository,
+            CouponService couponService) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.orderService = orderService;
+        this.couponRepository = couponRepository;
+        this.couponService = couponService;
     }
 
     /**
@@ -138,7 +148,12 @@ public class PaymentService {
         paymentRepository.save(payment);
 
         // Deduct stock and confirm the order
-        orderService.completeOrderWithPayment(payment.getOrder().getId());
+        OrderResponse completedOrder = orderService.completeOrderWithPayment(payment.getOrder().getId());
+
+        // Increment coupon usage count if this order used a coupon
+        if (completedOrder != null && completedOrder.getCouponCode() != null) {
+            incrementCouponUsage(completedOrder.getCouponCode());
+        }
 
         return payment;
     }
@@ -183,6 +198,22 @@ public class PaymentService {
         orderService.cancelOrderWithRefund(payment.getOrderId());
 
         return payment;
+    }
+
+    /**
+     * Increments the usage count of a coupon if the order had one applied.
+     * Called after successful payment capture.
+     *
+     * @param couponCode the coupon code from the completed order
+     */
+    private void incrementCouponUsage(String couponCode) {
+        if (couponCode != null && !couponCode.isBlank()) {
+            Coupon coupon = couponRepository.findByCode(couponCode);
+            if (coupon != null) {
+                coupon.setUsedCount(coupon.getUsedCount() + 1);
+                couponRepository.save(coupon);
+            }
+        }
     }
 
     /**
