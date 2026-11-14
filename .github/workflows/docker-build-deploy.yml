@@ -201,7 +201,7 @@ jobs:
             -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/stormmarket \
             -e SPRING_DATASOURCE_USERNAME=stormmarket \
             -e SPRING_DATASOURCE_PASSWORD=${{ secrets.TEST_MYSQL_PASSWORD }} \
-            -e SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC_KEY_LOCATION=/tmp/jwt/public-key.pem \
+            -e STORMMARKET_JWT_PUBLIC_KEY_LOCATION=/tmp/jwt/public-key.pem \
             -e STORMMARKET_JWT_PRIVATE_KEY_LOCATION=/tmp/jwt/private-key.pem \
             $IMAGE_TAG
 
@@ -222,14 +222,14 @@ jobs:
 
       - name: Create test admin user
         run: |
-          ADMIN_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
+          ADMIN_RESPONSE=$(curl --fail-with-body -sS -X POST http://localhost:8081/v1/auth/register \
             -H "Content-Type: application/json" \
             -d '{"username":"dockeradmin","email":"docker_admin@test.com","password":"DockerAdminPass123!","firstName":"Docker","lastName":"Admin"}')
           echo "Admin register: $ADMIN_RESPONSE"
 
       - name: Create test user
         run: |
-          USER_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
+          USER_RESPONSE=$(curl --fail-with-body -sS -X POST http://localhost:8081/v1/auth/register \
             -H "Content-Type: application/json" \
             -d '{"username":"dockeruser","email":"docker_user@test.com","password":"DockerUserPass123!","firstName":"Docker","lastName":"User"}')
           echo "User register: $USER_RESPONSE"
