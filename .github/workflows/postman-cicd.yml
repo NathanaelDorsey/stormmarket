@@ -37,6 +37,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      # 3.5. Copy test JWT keys
+      - name: Copy test JWT keys
+        run: |
+          mkdir -p src/main/resources/jwt
+          cp src/test/resources/jwt/* src/main/resources/jwt/
+
       # 4. Start application with test profile (H2 in-memory)
       - name: Start Spring Boot App
         run: |
@@ -124,12 +130,12 @@ jobs:
       # 10. Run Maven Verify (SpotBugs, JaCoCo, FindSecBugs)
       - name: Run Maven Verify
         run: |
-          ./mvnw verify
+          ./mvnw verify -Dspring.profiles.active=test
 
       # 11. Run Preflight Check (Spotless code formatting)
       - name: Run Preflight Check (Spotless)
         run: |
-          ./mvnw spotless:check
+          ./mvnw spotless:check -Dspring.profiles.active=test
 
       # 12. Run Postman Collection (User)
       - name: Run Postman Collection (User) - final gate

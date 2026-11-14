@@ -33,6 +33,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      # 4. Copy test JWT keys to main resources for test profile
+      - name: Copy test JWT keys
+        run: |
+          mkdir -p src/main/resources/jwt
+          cp src/test/resources/jwt/* src/main/resources/jwt/
+
       # 4. Start application with test profile (H2 in-memory)
       - name: Start Spring Boot App
         run: |
