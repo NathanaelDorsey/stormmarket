@@ -1,0 +1,129 @@
+epic_id: "e07"
+tasks:
+  - id: "e07s01-t1"
+    story_id: "e07s01"
+    title: "Add setRollbackOnly() to ProductService @Transactional methods"
+    description: "For any @Transactional method returning Result, mark rollback on Err before return"
+    type: "implementation"
+    estimate: "S"
+    status: passing
+
+  - id: "e07s01-t2"
+    story_id: "e07s01"
+    title: "Add setRollbackOnly() to CartService mutation methods"
+    description: "All 6 mutation methods: addProductToCart, updateProductQuantity, removeProductFromCart, clearCart, applyCoupon, removeCoupon"
+    type: "implementation"
+    estimate: "M"
+    status: passing
+
+  - id: "e07s01-t3"
+    story_id: "e07s01"
+    title: "Add setRollbackOnly() to OrderService transition methods"
+    description: "placeOrder, completeOrderWithPayment, cancelOrderWithRefund, updateOrderStatus, expirePendingOrders"
+    type: "implementation"
+    estimate: "M"
+    status: passing
+
+  - id: "e07s01-t4"
+    story_id: "e07s01"
+    title: "Add setRollbackOnly() to PaymentService lifecycle methods"
+    description: "createPaymentIntent, authorizePayment, capturePayment, refundPayment, failPayment"
+    type: "implementation"
+    estimate: "M"
+    status: passing
+
+  - id: "e07s01-t5"
+    story_id: "e07s01"
+    title: "Verify compilation and code style"
+    description: "Run mvn compile and spotless:check"
+    type: "validation"
+    estimate: "XS"
+    status: passing
+
+  - id: "e07s01-t6"
+    story_id: "e07s01"
+    title: "Verify rollback behavior via integration tests"
+    description: "Run integration tests to confirm database rollback on Err paths"
+    type: "validation"
+    estimate: "M"
+    status: passing
+
+  - id: "e07s02-t1"
+    story_id: "e07s02"
+    title: "Update ProductRepository tests for Result"
+    description: "Assert Result<Integer, StockError> for all 5 stock methods"
+    type: "implementation"
+    estimate: "M"
+    status: passing
+
+  - id: "e07s02-t2"
+    story_id: "e07s02"
+    title: "Update CartService tests for Result"
+    description: "Assert Result<Void, CartError> for all 6 mutation methods"
+    type: "implementation"
+    estimate: "L"
+    status: passing
+
+  - id: "e07s02-t3"
+    story_id: "e07s02"
+    title: "Update CartController tests for ResultHttpMapper"
+    description: "Assert ResponseEntity status/body from mapper for all 6 mutation endpoints"
+    type: "implementation"
+    estimate: "M"
+    status: pending
+
+  - id: "e07s02-t4"
+    story_id: "e07s02"
+    title: "Update OrderService tests for Result"
+    description: "Assert Result<OrderResponse, OrderError> for all 4 transition methods"
+    type: "implementation"
+    estimate: "L"
+    status: pending
+
+  - id: "e07s02-t5"
+    story_id: "e07s02"
+    title: "Update OrderController tests for ResultHttpMapper"
+    description: "Assert ResponseEntity from mapper for placeOrder and updateOrderStatus"
+    type: "implementation"
+    estimate: "M"
+    status: pending
+
+  - id: "e07s02-t6"
+    story_id: "e07s02"
+    title: "Update PaymentService tests for Result"
+    description: "Assert Result<Payment, PaymentError> / Result<String, PaymentError> for all 5 lifecycle methods"
+    type: "implementation"
+    estimate: "L"
+    status: passing
+
+  - id: "e07s02-t7"
+    story_id: "e07s02"
+    title: "Update PaymentController tests for ResultHttpMapper"
+    description: "Assert ResponseEntity from mapper for all 5 lifecycle endpoints"
+    type: "implementation"
+    estimate: "M"
+    status: pending
+
+  - id: "e07s02-t8"
+    story_id: "e07s02"
+    title: "Run full test suite and verify 175 tests pass"
+    description: "Execute mvn test, verify all tests pass, JaCoCo coverage maintained"
+    type: "validation"
+    estimate: "L"
+    status: passing
+
+  - id: "e07s02-t9"
+    story_id: "e07s02"
+    title: "Run code quality gates"
+    description: "SpotBugs, FindSecBugs, JaCoCo, Spotless — all pass"
+    type: "validation"
+    estimate: "M"
+    status: passing
+
+  - id: "e07s02-t10"
+    story_id: "e07s02"
+    title: "Run Postman collection verification"
+    description: "21 requests, 67 assertions, 0 failures"
+    type: "validation"
+    estimate: "M"
+    status: passing
