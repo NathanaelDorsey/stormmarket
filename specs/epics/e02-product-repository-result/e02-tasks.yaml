@@ -6,6 +6,7 @@ tasks:
     description: "Update method signature and wrap returned int in Ok/Err based on rows updated"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e02s01-t2"
     story_id: "e02s01"
@@ -13,6 +14,7 @@ tasks:
     description: "Update method signature and wrap returned int in Ok/Err based on rows updated"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e02s01-t3"
     story_id: "e02s01"
@@ -20,6 +22,7 @@ tasks:
     description: "Update method signature and wrap returned int in Ok/Err based on rows updated"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e02s01-t4"
     story_id: "e02s01"
@@ -27,6 +30,7 @@ tasks:
     description: "Update method signature to return Result.ok(null)"
     type: "implementation"
     estimate: "XS"
+    status: passing
 
   - id: "e02s01-t5"
     story_id: "e02s01"
@@ -34,6 +38,7 @@ tasks:
     description: "Update method signature to return Result.ok(null)"
     type: "implementation"
     estimate: "XS"
+    status: passing
 
   - id: "e02s01-t6"
     story_id: "e02s01"
@@ -41,13 +46,15 @@ tasks:
     description: "Run mvn compile to verify interface changes are valid"
     type: "validation"
     estimate: "XS"
+    status: passing
 
   - id: "e02s02-t1"
     story_id: "e02s02"
-    title: "Update ProductService callers to handle Result"
-    description: "Find and update any ProductService methods calling stock methods to handle Result return types"
+    title: "Update OrderService callers to handle Result"
+    description: "Update OrderService methods calling stock methods to handle Result return types"
     type: "implementation"
     estimate: "S"
+    status: passing
 
   - id: "e02s02-t2"
     story_id: "e02s02"
@@ -55,3 +62,4 @@ tasks:
     description: "Run mvn compile and spotless:check"
     type: "validation"
     estimate: "XS"
+    status: passing

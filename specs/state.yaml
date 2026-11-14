@@ -1,15 +1,16 @@
 session:
   active_flow: "build_epic"
   active_epic: "e06-adopt-result-pattern"
-  active_story: "e06s01"
+  active_story: "e06s02"
   handoff:
     next_skill: "develop-tdd"
   vcs:
     kind: "git"
     branch: "feature/agent-adopt-result-pattern"
-    commit: "4568a9f"
+    commit: "f316761"
     worktree: "../stormmarket-adopt-result"
   metrics:
     story_start: "2025-11-13T08:35:00Z"
     epic_start: "2026-11-14T08:55:00Z"
     e01_complete: "2026-11-14T09:07:00Z"
+    e02_complete: "2026-11-14T09:16:00Z"
