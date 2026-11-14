@@ -225,7 +225,7 @@ jobs:
 
       - name: Install Postman CLI
         run: |
-          npm install -g @postman/cli
+          npm install -g postman-cli
 
       - name: Run Postman Collection (Admin) - Docker
         run: |
