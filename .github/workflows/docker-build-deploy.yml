@@ -70,6 +70,8 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          # GITHUB_TOKEN needs packages:write permission for ghcr.io
+          # This is set at the job level with: permissions: packages: write
 
       - name: Extract metadata for Docker
         id: meta
@@ -202,39 +204,39 @@ jobs:
         run: |
           ADMIN_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
             -H "Content-Type: application/json" \
-            -d '{"username":"docker_admin","email":"docker_admin@test.com","password":"DockerAdminPass123!","firstName":"Docker","lastName":"Admin"}')
+            -d '{"username":"dockeradmin","email":"docker_admin@test.com","password":"DockerAdminPass123!","firstName":"Docker","lastName":"Admin"}')
           echo "Admin register: $ADMIN_RESPONSE"
 
       - name: Create test user
         run: |
           USER_RESPONSE=$(curl -s -X POST http://localhost:8081/v1/auth/register \
             -H "Content-Type: application/json" \
-            -d '{"username":"docker_user","email":"docker_user@test.com","password":"DockerUserPass123!","firstName":"Docker","lastName":"User"}')
+            -d '{"username":"dockeruser","email":"docker_user@test.com","password":"DockerUserPass123!","firstName":"Docker","lastName":"User"}')
           echo "User register: $USER_RESPONSE"
 
       - name: Login as admin and extract token
         run: |
           ADMIN_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
             -H "Content-Type: application/json" \
-            -d '{"username":"docker_admin","password":"DockerAdminPass123!"}')
+            -d '{"username":"dockeradmin","password":"DockerAdminPass123!"}')
           echo "ADMIN_TOKEN=$(echo "$ADMIN_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
       - name: Login as user and extract token
         run: |
           USER_LOGIN=$(curl -s -X POST http://localhost:8081/v1/auth/login \
             -H "Content-Type: application/json" \
-            -d '{"username":"docker_user","password":"DockerUserPass123!"}')
+            -d '{"username":"dockeruser","password":"DockerUserPass123!"}')
           echo "USER_TOKEN=$(echo "$USER_LOGIN" | jq -r '.token')" >> $GITHUB_ENV
 
       - name: Run Postman Collection (Admin) - Docker
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: 'collection run "postman/collections/Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${ADMIN_TOKEN}" --bail=false --output docker-admin-results.json'
+          command: 'collection run "Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${ADMIN_TOKEN}" --bail=false --output docker-admin-results.json'
 
       - name: Run Postman Collection (User) - Docker
         uses: postmanlabs/postman-cli-action@v1
         with:
-          command: 'collection run "postman/collections/Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${USER_TOKEN}" --bail=false --output docker-user-results.json'
+          command: 'collection run "Storm Market API" --global-var "baseUrl=http://localhost:8081" --global-var "authToken=${USER_TOKEN}" --bail=false --output docker-user-results.json'
 
       - name: Upload Docker test results
         if: always()
