@@ -1,0 +1,14 @@
+epic_id: "e06"
+title: "ResultHttpMapper Component"
+feature: "adopt-result-pattern-domain"
+description: |
+  Creates the ResultHttpMapper Spring component for centralized error→HTTP status/body
+  mapping. Handles all four DomainError subtypes (StockError, CartError, OrderError,
+  PaymentError) via exhaustive pattern matching. Controllers delegate to this mapper.
+
+stories:
+  - "s01-result-http-mapper"
+  - "s02-mapper-integration-verification"
+
+order: 6
+depends_on: ["e01"]
