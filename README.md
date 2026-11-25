@@ -8,8 +8,8 @@ This project models a marketplace API with JWT-based auth, role-aware admin acti
 
 | Component | Status |
 |-----------|--------|
-| Backend API | ✅ Complete |
-| Frontend/Client | 🔄 **ON HOLD** |
+| Backend API | ✅ **COMPLETE** |
+| Frontend/Client | 🔄 **IN-PROGRESS** |
 | CI/CD Pipeline | ✅ **COMPLETE** |
 
 ## Why this project exists
